@@ -4,34 +4,15 @@ import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { Button, Input, Modal, Select } from "antd";
 import { useState } from "react";
 
-interface IProps {
-    subjectList: SubjectResponse[]
-}
-const SubjectCreateBtn = (props: IProps) => {
+
+const SubjectCreateBtn = (props: { subjectPageResponse: PageDetailsResponse<SubjectResponse[]> }) => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const { subjectList } = props
+    const { subjectPageResponse } = props
 
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
     const [sortField, setSortField] = useState<"subjectId" | "subjectName" | "totalCourses">("subjectId");
-
-    // Hàm sắp xếp dữ liệu
-    const sortData = (field: "subjectId" | "subjectName" | "totalCourses", order: "asc" | "desc") => {
-        const sortedData = [...subjectList].sort((a, b) => {
-            if (field === "subjectId" || field === "totalCourses") {
-                return order === "asc" ? a[field] - b[field] : b[field] - a[field];
-            } else {
-                return order === "asc"
-                    ? a[field].localeCompare(b[field])
-                    : b[field].localeCompare(a[field]);
-            }
-        });
-
-        setDataSubject(sortedData);
-        setSortField(field);
-        setSortOrder(order);
-    };
 
     const showModal = () => {
         setIsModalOpen(true);
@@ -51,29 +32,12 @@ const SubjectCreateBtn = (props: IProps) => {
 
     return (
         <>
-            <div className="flex justify-between pr-6">
+            <div className="">
                 <Button type="primary" onClick={showModal}
                     className="w-fit ml-[40px]"
                 >
                     Tạo môn học
                 </Button>
-
-                <div className="flex items-center gap-4 mb-4">
-                    <span>Lọc: </span>
-                    <Select value={sortField} onChange={(value) => sortData(value, sortOrder)} className="w-40">
-                        <Select.Option value="subjectId">ID</Select.Option>
-                        <Select.Option value="subjectName">Tên môn học</Select.Option>
-                        <Select.Option value="totalCourses">Số khóa học</Select.Option>
-                    </Select>
-
-                    <span>|</span>
-                    <button
-                        className="p-2 bg-transparent outline-none focus:outline-none"
-                        onClick={() => sortData(sortField, sortOrder === "asc" ? "desc" : "asc")}
-                    >
-                        {sortOrder === "asc" ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
-                    </button>
-                </div>
             </div>
 
             <Modal title="Tạo môn học" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okText="Tạo">

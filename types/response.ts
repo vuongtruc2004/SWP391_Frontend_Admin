@@ -109,5 +109,6 @@ declare global {
         description: string;
         thumbnail: string;
         totalCourses: number;
+        listCourses: Set<string>;
     }
 }
