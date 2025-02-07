@@ -32,23 +32,19 @@ const SubjectSearch = (props: {
 
 
     return (
-        <>
-            <Form onFinish={onFinish} form={form} initialValues={{ keyword: keyword }}>
-                <Form.Item name="keyword" >
+        <div className="flex gap-4 ml-10 mt-16">
+            <Form className='w-[40%]' onFinish={onFinish} form={form} initialValues={{ keyword: keyword }}>
+                <Form.Item name="keyword" className="mb-0">
                     <Input
                         placeholder="Tìm kiếm tên môn học, mô tả"
                         prefix={<SearchOutlined />}
-                        style={{
-                            width: '40%',
-                            padding: '8px',
-                            margin: '30px 0 0 30px',
-                        }}
+                        className='!p-[10px]'
                     />
                 </Form.Item>
-
             </Form>
-            <Button onClick={handleReset}>Làm mới</Button>
-        </>
+            <Button type='primary' onClick={handleReset} className='!p-[20px]'>Làm mới</Button>
+        </div>
+
 
     )
 }

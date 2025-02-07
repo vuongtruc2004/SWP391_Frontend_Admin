@@ -1,6 +1,5 @@
 'use client'
 
-import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { Button, Input, Modal, Select } from "antd";
 import { useState } from "react";
 
@@ -9,10 +8,6 @@ const SubjectCreateBtn = (props: { subjectPageResponse: PageDetailsResponse<Subj
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const { subjectPageResponse } = props
-
-    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-    const [sortField, setSortField] = useState<"subjectId" | "subjectName" | "totalCourses">("subjectId");
 
     const showModal = () => {
         setIsModalOpen(true);

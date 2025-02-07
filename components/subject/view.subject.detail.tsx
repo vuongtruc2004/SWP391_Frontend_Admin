@@ -32,7 +32,7 @@ const ViewSubjectDetail = (props: IProps) => {
                                 children:
                                     <ul className='ml-4'>
                                         {[...subject.listCourses].map((course, index) => (
-                                            <ol key={index}><span className='gap-2 mr-2'><DoubleRightOutlined className='text-green-500' /></span>{course}</ol>
+                                            <ol key={index}><span className='gap-2 mr-2'><DoubleRightOutlined style={{ color: 'green' }} /></span>{course}</ol>
                                         ))}
                                     </ul>
                             }]}
