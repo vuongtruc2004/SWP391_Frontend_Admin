@@ -4,8 +4,11 @@ import SubjectTable from "@/components/subject/subject.table"
 import { isFullNumber } from "@/helper/subject.helper"
 import { sendRequest } from "@/utils/fetch.api"
 import { apiUrl } from "@/utils/url"
+import { Metadata } from "next";
 
-
+export const metadata: Metadata = {
+    title: "Quản lí môn học",
+};
 const SubjectPage = async (props: {
     searchParams: Promise<{
         keyword?: string;

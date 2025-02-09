@@ -1,39 +1,3 @@
-// const fetchAllSubjectApi = () => {
-//     const URL_BACKEND = "http://localhost:8386/api/v1/subjects";
-//     const responseRaw = fetch(URL_BACKEND)
-//     return responseRaw
-// }
-
-// const updateSubjectAPI = (subjetcId_raw: string, subjectName: string, description: string): Promise<Response> => {
-//     const URL_BACKEND = `http://localhost:8386/api/v1/update-subject/${subjetcId_raw}`;
-//     var subjetcId = Number.parseInt(subjetcId_raw)
-//     const data = {
-//         subjetcId: subjetcId,
-//         subjectName: subjectName,
-//         description: description
-//     }
-
-//     const responseRaw = fetch(URL_BACKEND, {
-//         method: "PUT",
-//         headers: {
-//             "Content-Type": "application/json"
-//         },
-//         body: JSON.stringify(data)
-//     })
-//     return responseRaw
-// }
-
-// const deleteSubjectApi = async (subjetcId: number) => {
-//     const URL_BACKEND = `http://localhost:8386/api/v1/subjects/delete/${subjetcId}`;
-//     const responseRaw = fetch(URL_BACKEND, {
-//         method: "DELETE",
-//         headers: {
-//             "Content-Type": "application/json"
-//         }
-//     })
-//     return responseRaw
-// }
-
 import queryString from "query-string";
 
 interface IProps {
@@ -45,7 +9,7 @@ interface IProps {
     headers?: any;
     nextOption?: RequestCache | any;
 }
-const sendRequest = async <T>(props: IProps) => {
+export const sendRequest = async <T>(props: IProps) => {
     let url = props.url;
     const {
         method = "GET",
@@ -61,7 +25,7 @@ const sendRequest = async <T>(props: IProps) => {
         headers: {
             ...headers
         },
-        body: body ? JSON.stringify(body) : null,
+        body: body instanceof FormData ? body : body ? JSON.stringify(body) : null,
         ...nextOption
     };
 
@@ -75,5 +39,3 @@ const sendRequest = async <T>(props: IProps) => {
 
     return fetch(url, options).then(response => response.json() as T);
 }
-
-export { sendRequest }

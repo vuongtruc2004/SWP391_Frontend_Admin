@@ -2,15 +2,15 @@ export { }
 declare global {
     interface UserResponse {
         userId: number;
-        username: string;
         password: string;
         rePassword: string;
-        phone: string;
         avatar: string;
+        roleName: string;
         fullname: string;
         email: string;
         gender: string;
         dob: string;
+        locked: boolean;
         accountType: string;
     }
     interface ApiResponse<T> {
@@ -18,6 +18,12 @@ declare global {
         errorMessage: string;
         message: object;
         data: T;
+    }
+
+    interface ErrorResponse {
+        error: boolean;
+        value: string;
+        message?: string;
     }
 
     interface LoginResponse {
@@ -42,6 +48,8 @@ declare global {
         thumbnail: string;
         createdAt: string;
         updatedAt: string;
+        published: boolean;
+        accepted: boolean;
         totalLikes: number;
         totalComments: number;
         user: UserResponse;
@@ -84,6 +92,7 @@ declare global {
         expertId: number;
         diploma: string;
         yearOfExperience: string;
+        totalCourses: number;
         user: UserResponse;
     }
 
@@ -109,6 +118,10 @@ declare global {
         description: string;
         thumbnail: string;
         totalCourses: number;
-        listCourses: Set<string>;
+    }
+
+    interface MinMaxPriceResponse {
+        minPrice: number;
+        maxPrice: number;
     }
 }

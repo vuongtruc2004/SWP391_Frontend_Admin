@@ -1,22 +1,28 @@
 'use client'
 import { SearchOutlined } from '@ant-design/icons'
-import { Button, Col, DatePicker, DatePickerProps, Form, Input, InputNumber, InputNumberProps, Row, Select, Slider } from 'antd'
+import { Button, Col, DatePicker, DatePickerProps, Form, Input, InputNumber, InputNumberProps, Row, Select, Slider, SliderSingleProps } from 'antd'
 import { useForm } from 'antd/es/form/Form'
-import { Dayjs } from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 
 const { RangePicker } = DatePicker;
-const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom?: string, createdTo?: string }) => {
-    const { keyword, accepted, createdFrom, createdTo } = props
+const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: string, createdTo: string, minPrice: number, maxPrice: number }) => {
+    const { keyword, accepted, createdFrom, createdTo, minPrice, maxPrice } = props
     const router = useRouter()
     const searchParam = useSearchParams()
     const pathName = usePathname()
     const [form] = useForm()
     const [render, setRender] = useState(false);
-    const [inputValue, setInputValue] = useState(1);
+    const [inputValue, setInputValue] = useState(minPrice);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const getValidDayjs = (dateString?: string) => {
+        return dateString ? dayjs(dateString, "YYYY-MM-DD").isValid() ? dayjs(dateString, "YYYY-MM-DD") : null : null;
+    };
 
     const handleReset = () => {
+        setRange([minPrice, maxPrice])
         form.setFieldsValue({ keyword: '', accepted: "all", createdFrom: '', createdTo: '' })
         router.push("/course")
     }
@@ -30,13 +36,6 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom?:
         } else {
             newSearchParam.delete("keyword")
         }
-
-        // if (createAt) {
-        //     const formattedDate = createAt.format('YYYY-MM-DD'); // Format lại trước khi thêm vào URL
-        //     newSearchParam.set("createAt", formattedDate);
-        // } else {
-        //     newSearchParam.delete("createAt");
-        // }
 
         if (accepted !== "all") {
             newSearchParam.set("accepted", accepted)
@@ -76,9 +75,7 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom?:
         router.replace(`${pathName}?${newSearchParam}`)
     };
 
-    const onChangeRange: InputNumberProps['onChange'] = (value) => {
-        setInputValue(value as number);
-    }
+
 
     useEffect(() => {
         if (!render) {
@@ -86,18 +83,56 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom?:
         }
     }, []);
 
+
+    const step = 10000; // Bước nhảy 10.000 đ
+    const rangeFromURL: [number, number] = [
+        searchParam.get("minPrice") ? Number(searchParam.get("minPrice")) : minPrice,
+        searchParam.get("maxPrice") ? Number(searchParam.get("maxPrice")) : maxPrice
+    ]
+    const [range, setRange] = useState<[number, number]>(rangeFromURL);
+
+
+    const handleSliderChange = (value: number | number[]) => {
+        if (!Array.isArray(value) || value.length < 2) return; // Đảm bảo value là mảng có 2 phần tử
+
+        setRange(value as [number, number]);
+
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+
+        // Thiết lập timeout mới sau 3 giây
+        timeoutRef.current = setTimeout(() => {
+            const newSearchParam = new URLSearchParams(searchParam);
+            newSearchParam.set("minPrice", value[0].toString());
+            newSearchParam.set("maxPrice", value[1].toString());
+            newSearchParam.set("page", "1");
+            router.replace(`${pathName}?${newSearchParam}`);
+
+            timeoutRef.current = null; // Reset lại sau khi thực hiện
+        }, 800);
+    };
+
+    const handleInputChange = (index: number, value: number | null) => {
+        if (value !== null) {
+            const newRange = [...range] as [number, number];
+            newRange[index] = value;
+            setRange(newRange);
+        }
+    };
+
     if (!render) {
         return <></>;
     }
 
     const dateFormat = 'DD/MM/YYYY'
     return (
-        <div className="flex flex-col gap-4 ml-10 mt-16">
+        <div className="flex flex-col gap-2 ml-10 mt-5">
             <Form
                 className='w-[40%]'
                 onFinish={onFinish}
                 form={form}
-                initialValues={{ keyword: keyword, accepted: accepted }}
+                initialValues={{ keyword: keyword, accepted: accepted, inputValue: inputValue }}
             >
                 <Form.Item name="keyword" className="mb-0">
                     <Input
@@ -112,7 +147,7 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom?:
 
                             placeholder="Trạng thái"
                             style={{ width: 150 }}
-                            allowClear
+                            allowClear={false}
                             onChange={handleChangeStatus}
                             options={[
                                 { value: "all", label: "Tất cả" },
@@ -121,35 +156,56 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom?:
                             ]}
                         />
                     </Form.Item>
-                    <div className='flex gap-4'>
+                    <div className='flex gap-3 align-middle'>
                         <h4>Ngày Tạo:</h4>
-                        <Form.Item name="createdFrom">
+                        <Form.Item name="createdFrom" initialValue={getValidDayjs(createdFrom)}>
                             <DatePicker onChange={onChangeFrom} format={dateFormat} placeholder='Từ Ngày' allowClear={false} />
                         </Form.Item>
                         <h4>~</h4>
-                        <Form.Item name="createdTo">
+                        <Form.Item name="createdTo" initialValue={getValidDayjs(createdTo)}>
                             <DatePicker onChange={onChangeTo} format={dateFormat} placeholder='Đến Ngày' allowClear={false} />
                         </Form.Item>
                     </div>
-                    <Form.Item>
-                        <Row>
-                            <Col span={12}>
-                                <Slider
-                                    min={150000}
-                                    max={950000}
-                                    onChange={onChangeRange}
-                                    value={typeof inputValue === 'number' ? inputValue : 0}
+                    <Form.Item label="Khoảng giá">
+                        <Row align="middle" gutter={5}>
+                            {/* Input Min */}
+                            <Col>
+                                <InputNumber
+                                    min={minPrice}
+                                    max={maxPrice}
+                                    step={step}
+                                    value={range[0]}
+                                    onChange={(value) => handleInputChange(0, value)}
+                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ"}
                                 />
                             </Col>
-                            <Col span={4}>
-                                <InputNumber
-                                    min={1}
-                                    max={20}
-                                    style={{ margin: '0 16px', color: 'black' }}
-                                    value={inputValue}
-                                    onChange={onChangeRange}
-                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " đ"}
 
+                            <Col>~</Col>
+
+                            {/* Input Max */}
+                            <Col>
+                                <InputNumber
+                                    min={minPrice}
+                                    max={maxPrice}
+                                    step={step}
+                                    value={range[1]}
+                                    onChange={(value) => handleInputChange(1, value)}
+                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ"}
+                                />
+                            </Col>
+
+                            {/* Slider */}
+                            <Col span={24}>
+                                <Slider
+                                    range
+                                    min={minPrice}
+                                    max={maxPrice}
+                                    step={step}
+                                    value={range}
+                                    onChange={handleSliderChange}
+                                    style={{
+                                        width: '30%'
+                                    }}
                                 />
                             </Col>
                         </Row>
@@ -158,7 +214,7 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom?:
 
                 </div>
 
-                <div className="flex gap-4 mt-3">
+                <div className="flex gap-4">
                     <Button type="primary" htmlType="submit" className='!p-[10px]'>Tìm kiếm</Button>
                     <Button onClick={handleReset} className='!p-[10px]'>Làm mới</Button>
                 </div>

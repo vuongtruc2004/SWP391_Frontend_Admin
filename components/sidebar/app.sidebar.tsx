@@ -2,7 +2,7 @@
 import { Avatar, Menu } from 'antd';
 import { sidebarItems } from './app.sidebar.properties'
 import Sider from 'antd/es/layout/Sider';
-import { useCollapseContext } from '../wrapper/collapse-sidebar/collapse.sidebar.wrapper';
+import { useCollapseContext } from '../../wrapper/collapse-sidebar/collapse.sidebar.wrapper';
 import './overwrite.style.scss';
 import { usePathname } from 'next/navigation';
 
@@ -22,7 +22,7 @@ const AppSidebar = () => {
                 <Avatar size={40} style={{ backgroundColor: '#60a5fa' }}>
                     Logo
                 </Avatar>
-                {!collapsed && <p className='text-lg font-semibold'>E-Learning</p>}
+                {!collapsed && <p className='text-lg font-semibold'>LearnGo</p>}
             </div>
             <Menu
                 style={{ width: '100%' }}

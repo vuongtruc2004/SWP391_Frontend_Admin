@@ -1,8 +1,8 @@
-import React from 'react'
-
-const UnsignedLayout = () => {
+const UnsignedLayout = ({ children }: { children: React.ReactNode }) => {
     return (
-        <div>UnsignedLayout</div>
+        <>
+            {children}
+        </>
     )
 }
 

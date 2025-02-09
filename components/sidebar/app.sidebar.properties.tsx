@@ -1,4 +1,4 @@
-import { AppstoreOutlined, TeamOutlined } from '@ant-design/icons';
+import { CodeOutlined, TeamOutlined } from '@ant-design/icons';
 import { RxDashboard } from "react-icons/rx";
 import { LuNewspaper } from "react-icons/lu";
 import { BiBookReader } from "react-icons/bi";
@@ -37,7 +37,7 @@ export const sidebarItems: MenuItem[] = [
             {
                 key: 'subject',
                 label: <Link href="/subject">Quản lí môn học</Link>,
-                icon: <AppstoreOutlined />
+                icon: <CodeOutlined />
 
             },
             {
@@ -45,7 +45,6 @@ export const sidebarItems: MenuItem[] = [
                 label: 'Quản lí khóa học',
                 icon: <BiBookReader />,
                 children: [
-                    { key: 'sale', label: <Link href="/sale">Doanh số</Link> },
                     { key: 'course', label: <Link href="/course">Khóa học</Link> },
                     { key: 'lesson', label: <Link href="/lesson">Bài giảng</Link> }
                 ],
@@ -57,7 +56,6 @@ export const sidebarItems: MenuItem[] = [
                 children: [
                     { key: 'exam', label: <Link href="/exam">Bài kiểm tra</Link> },
                     { key: 'question', label: <Link href="/question">Câu hỏi</Link> },
-                    { key: 'answer', label: <Link href="/answer">Đáp án</Link> }
                 ],
             },
         ]

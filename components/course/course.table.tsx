@@ -1,7 +1,7 @@
 'use client'
 import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
 import Link from 'next/link';
 import '@ant-design/v5-patch-for-react-19';
@@ -29,31 +29,50 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseResp
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const router = useRouter();
+    const [render, setRender] = useState(false);
     const page = Number(searchParams.get('page')) || 1; // Lấy số trang từ URL
-    const deleteCourse = async (subjectId: number) => {
-        // const deleteResponse = await sendRequest<ApiResponse<SubjectResponse>>({
-        //     url: `${apiUrl}/subjects/delete/${subjectId}`,
-        //     method: 'DELETE',
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     }
-        // });
-        // if (deleteResponse.status === 200) {
-        //     notification.success({
-        //         message: String(deleteResponse.message),
-        //         description: deleteResponse.errorMessage,
-        //     });
-        //     router.refresh()
-        // } else {
-        //     notification.error({
-        //         message: String(deleteResponse.message),
-        //         description: deleteResponse.errorMessage,
-        //     })
-        // }
-
-        alert("Delete")
+    const deleteCourse = async (courseId: number) => {
+        const deleteResponse = await sendRequest<ApiResponse<CourseResponse>>({
+            url: `${apiUrl}/courses/delete/${courseId}`,
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (deleteResponse.status === 200) {
+            notification.success({
+                message: String(deleteResponse.message),
+                description: deleteResponse.errorMessage,
+            });
+            router.refresh()
+        } else {
+            notification.error({
+                message: String(deleteResponse.message),
+                description: deleteResponse.errorMessage,
+            })
+        }
     }
-
+    const acceptCourse = async (courseId: number) => {
+        const acceptRes = await sendRequest<ApiResponse<CourseResponse>>({
+            url: `${apiUrl}/courses/accept/${courseId}`,
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (acceptRes.status === 200) {
+            notification.success({
+                message: String(acceptRes.message),
+                description: acceptRes.errorMessage,
+            });
+            router.refresh()
+        } else {
+            notification.error({
+                message: String(acceptRes.message),
+                description: acceptRes.errorMessage,
+            })
+        }
+    }
     const columns: TableProps<CourseResponse>['columns'] = [
         {
             title: 'Id',
@@ -94,7 +113,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseResp
             key: 'accepted',
             width: '15%',
             align: 'center',
-            render: (accepted: boolean) => (accepted ? <CheckOutlined style={{ color: 'green' }} /> : <CloseOutlined style={{ color: 'red' }} />),
+            render: (accepted: boolean) => (accepted === true ? <CheckOutlined style={{ color: 'green' }} /> : <CloseOutlined style={{ color: 'red' }} />),
             sorter: {
                 compare: (a, b) => Number(a.accepted) - Number(b.accepted)
             },
@@ -113,7 +132,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseResp
                         placement="left"
                         title="Xóa môn học"
                         description="Bạn có chắc chắn muốn xóa khóa học này không?"
-                        onConfirm={() => deleteCourse(record.subjectId)}
+                        onConfirm={() => deleteCourse(record.courseId)}
                         okText="Có"
                         cancelText="Không"
                     >
@@ -121,19 +140,21 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseResp
                     </Popconfirm>
                     <CheckOutlined
                         style={{ color: record.accepted ? "gray" : "#16db65", cursor: record.accepted ? "not-allowed" : "pointer" }}
-                        onClick={() => {
-                            if (!record.accepted) {
-                                alert("Accept");
-                            }
-                        }}
+                        onClick={() => acceptCourse(record.courseId)}
                     />
 
                 </Space>
             ),
         },
     ];
-
-
+    useEffect(() => {
+        setRender(true);
+    }, [])
+    if (!render) {
+        return (
+            <></>
+        )
+    }
     return (
         <>
             <Table

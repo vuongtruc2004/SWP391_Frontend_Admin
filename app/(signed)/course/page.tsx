@@ -3,7 +3,11 @@ import CourseTable from "@/components/course/course.table"
 import { isFullNumber } from "@/helper/subject.helper"
 import { sendRequest } from "@/utils/fetch.api"
 import { apiUrl } from "@/utils/url"
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+    title: "Quản lí khóa học",
+};
 const CoursePage = async (props: {
     searchParams: Promise<{
         keyword: string;
@@ -11,6 +15,8 @@ const CoursePage = async (props: {
         accepted: string;
         createdFrom: string;
         createdTo: string;
+        minPrice: string;
+        maxPrice: string;
     }>
 }) => {
 
@@ -20,6 +26,8 @@ const CoursePage = async (props: {
     const accepted = searchParams.accepted || "all"
     const createdFrom = searchParams.createdFrom || "";
     const createdTo = searchParams.createdTo || "";
+    const priceFrom = searchParams.minPrice || "";
+    const priceTo = searchParams.maxPrice || "";
 
     let filter = ""
     if (isFullNumber(keyword)) {
@@ -32,11 +40,15 @@ const CoursePage = async (props: {
         filter += ` and accepted : ${accepted === "active" ? true : false}`
     }
 
-    if (createdFrom !== "") {
+    if (createdFrom !== "" && createdTo !== "") {
         filter += ` and createdAt > '${createdFrom}' and createdAt < '${createdTo}'`
     }
 
+    if (priceFrom !== "" && priceTo !== "") {
+        filter += ` and price >: ${priceFrom} and price <: ${priceTo}`
+    }
 
+    console.log("filter: ", filter);
     const courseResponse = await sendRequest<ApiResponse<PageDetailsResponse<CourseResponse[]>>>({
         url: `${apiUrl}/courses/all`,
         queryParams: {
@@ -46,10 +58,13 @@ const CoursePage = async (props: {
         }
     })
 
-    console.log(">>> checkkk", courseResponse)
+    const priceResponse = await sendRequest<ApiResponse<MinMaxPriceResponse>>({
+        url: `${apiUrl}/courses/price-range`,
+
+    })
     return (
         <div className="border w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
-            <CourseSearch keyword={keyword} accepted={accepted} createdFrom={createdFrom} createdTo={createdTo} />
+            <CourseSearch keyword={keyword} accepted={accepted} createdFrom={createdFrom} createdTo={createdTo} minPrice={priceResponse.data.minPrice} maxPrice={priceResponse.data.maxPrice} />
             <CourseTable
                 coursePageResponse={courseResponse.data}
             />

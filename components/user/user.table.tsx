@@ -1,0 +1,184 @@
+'use client'
+import { DeleteOutlined, EditOutlined, InfoCircleOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
+import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
+import React, { useState } from 'react'
+import { sendRequest } from '@/utils/fetch.api';
+// import ViewSubjectDetail from './view.subject.detail';
+import Link from 'next/link';
+import '@ant-design/v5-patch-for-react-19';
+
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { apiUrl } from '@/utils/url';
+import ViewUserDetail from './view.user.detail';
+import UpdateUserForm from './update.user.form';
+
+interface IProps {
+
+}
+
+export const init = {
+    subjectName: {
+        error: false,
+        value: ""
+    },
+    description: {
+        error: false,
+        value: ""
+    }
+}
+const UserTable = (props: { userPageResponse: PageDetailsResponse<UserResponse[]> }) => {
+    const { userPageResponse } = props;
+    const [openDraw, setOpenDraw] = useState(false);
+    const [user, setUser] = useState<UserResponse | null>(null);
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const router = useRouter();
+    const page = Number(searchParams.get('page')) || 1; // Lấy số trang từ URL
+    const [openEditForm, setOpenEditForm] = useState(false);
+    const [editingUser, setEditingUser] = useState<UserResponse | null>(null)
+
+    const lockUser = async (userId: number) => {
+        const deleteResponse = await sendRequest<ApiResponse<Boolean>>({
+            url: `${apiUrl}/users/${userId}`,
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log(">>> check", deleteResponse)
+
+        if (deleteResponse.status === 200) {
+            notification.success({
+                message: "Thành công",
+                description: deleteResponse.data ? "Khóa người dùng thành công!" : "Mở khóa người dùng thành công!",
+            });
+            router.refresh();
+        } else {
+            console.log("chay vao day kh");
+            notification.error({
+                message: "Thất bại",
+                description: String(deleteResponse.message),
+            })
+        }
+    }
+
+    const columns: TableProps<UserResponse>['columns'] = [
+        {
+            title: 'Id',
+            dataIndex: 'userId',
+            key: 'id',
+            width: '5%',
+            sorter: {
+                compare: (a, b) => a.userId - b.userId,
+            },
+        },
+        {
+            title: 'Tên người dùng',
+            dataIndex: 'fullname',
+            key: 'fullname',
+            width: '30%',
+            sorter: (a, b) => a.fullname.localeCompare(b.fullname),
+        },
+        {
+            title: 'Email',
+            dataIndex: 'email',
+            key: 'email',
+            width: '30%',
+            sorter: (a, b) => a.email.localeCompare(b.email),
+        },
+        {
+            title: 'Vai trò',
+            dataIndex: 'roleName',
+            key: 'rolename',
+            width: '10%',
+            sorter: (a, b) => a.roleName.localeCompare(b.roleName),
+        },
+        {
+            title: 'Giới tính',
+            dataIndex: 'gender',
+            key: 'gender',
+            width: '10%',
+            render: (gender: string) => (gender.toLowerCase() === 'male' ? 'Nam' : 'Nữ'),
+            sorter: (a, b) => a.gender.localeCompare(b.gender),
+        },
+        {
+            title: 'Bị khóa',
+            dataIndex: 'locked',
+            key: 'locked',
+            width: '10%',
+            render: (locked: boolean, record) => (
+                <Popconfirm
+                    placement="left"
+                    title={`${locked ? "Mở khóa" : "Khóa"} người dùng`}
+                    description={`Bạn có chắc chắn muốn ${locked ? "mở khóa" : "khóa"} người dùng này không?`}
+                    onConfirm={() => lockUser(record.userId)}
+                    okText="Có"
+                    cancelText="Không"
+                >
+                    {locked ? <LockOutlined style={{ color: 'red' }} /> : <UnlockOutlined style={{ color: 'green' }} />}
+                </Popconfirm>
+            ),
+            sorter: {
+                compare: (a, b) => Number(a.locked) - Number(b.locked)
+            },
+        },
+        {
+            title: 'Hành động',
+            key: 'action',
+            width: '40%',
+            render: (_, record: any) => (
+                <Space size="middle">
+                    <InfoCircleOutlined style={{ color: "green" }} onClick={() => {
+                        setOpenDraw(true);
+                        setUser(record);
+                    }} />
+
+                    <EditOutlined className="text-blue-500"
+                        onClick={() => {
+                            setEditingUser(record)
+                            setOpenEditForm(true)
+                        }}
+                    />
+                </Space>
+            ),
+        },
+    ];
+
+
+    return (
+        <>
+            <Table
+                className="overflow-y-auto max-h-[calc(100vh-100px)] mb-8 pl-6 pr-6"
+                columns={columns}
+                dataSource={userPageResponse.content}
+                rowKey={"userId"}
+                pagination={{
+                    current: page,
+                    pageSize: userPageResponse.pageSize,
+                    total: userPageResponse.totalElements,
+                    onChange(page, pageSize) {
+                        const params = new URLSearchParams(searchParams);
+                        params.set('page', page.toString());
+                        router.replace(`${pathname}?${params}`);
+                    },
+                }}
+            />
+
+            <ViewUserDetail
+                setOpenDraw={setOpenDraw}
+                openDraw={openDraw}
+                user={user}
+                setUser={setUser}
+            />
+
+            <UpdateUserForm
+                openEditForm={openEditForm}
+                setOpenEditForm={setOpenEditForm}
+                editingUser={editingUser}
+                setEditingUser={setEditingUser}
+            />
+
+        </>
+    );
+};
+export default UserTable;
