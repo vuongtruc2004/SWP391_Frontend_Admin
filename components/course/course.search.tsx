@@ -175,7 +175,8 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
                                     max={maxPrice}
                                     step={step}
                                     value={range[0]}
-                                    onChange={(value) => handleInputChange(0, value)}
+                                    // onChange={(value) => handleInputChange(0, value)}
+                                    readOnly
                                     formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ"}
                                 />
                             </Col>
@@ -189,7 +190,8 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
                                     max={maxPrice}
                                     step={step}
                                     value={range[1]}
-                                    onChange={(value) => handleInputChange(1, value)}
+                                    // onChange={(value) => handleInputChange(1, value)}
+                                    readOnly
                                     formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ"}
                                 />
                             </Col>
