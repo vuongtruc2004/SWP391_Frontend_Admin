@@ -71,14 +71,14 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             dataIndex: 'subjectName',
             key: 'name',
             width: '20%',
-            sorter: (a, b) => a.subjectName.length - b.subjectName.length,
+            sorter: (a, b) => a.subjectName.localeCompare(b.subjectName),
         },
         {
             title: 'Mô tả',
             dataIndex: 'description',
             key: 'description',
             width: '50%',
-            sorter: (a, b) => a.description.length - b.description.length,
+            sorter: (a, b) => a.description.localeCompare(b.description),
         },
         {
             title: 'Action',
