@@ -1,20 +1,14 @@
 'use client'
-import { DeleteOutlined, EditOutlined, InfoCircleOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
+import { EditOutlined, InfoCircleOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
 import React, { useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
-// import ViewSubjectDetail from './view.subject.detail';
-import Link from 'next/link';
 import '@ant-design/v5-patch-for-react-19';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl } from '@/utils/url';
 import ViewUserDetail from './view.user.detail';
 import UpdateUserForm from './update.user.form';
-
-interface IProps {
-
-}
 
 export const init = {
     subjectName: {
@@ -98,7 +92,12 @@ const UserTable = (props: { userPageResponse: PageDetailsResponse<UserResponse[]
             dataIndex: 'gender',
             key: 'gender',
             width: '10%',
-            render: (gender: string) => (gender.toLowerCase() === 'male' ? 'Nam' : 'Nữ'),
+            render: (gender: string) => {
+                if (!gender) {
+                    return "Chưa thiết lập";
+                }
+                return gender === "MALE" ? "Nam" : "Nữ";
+            },
             sorter: (a, b) => a.gender.localeCompare(b.gender),
         },
         {
@@ -162,6 +161,7 @@ const UserTable = (props: { userPageResponse: PageDetailsResponse<UserResponse[]
                         router.replace(`${pathname}?${params}`);
                     },
                 }}
+                showSorterTooltip={false}
             />
 
             <ViewUserDetail

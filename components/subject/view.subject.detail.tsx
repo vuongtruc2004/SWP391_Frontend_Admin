@@ -46,7 +46,7 @@ const ViewSubjectDetail = (props: IProps) => {
                             <img className="h-[150px] border-2 rounded-xl shadow-[4px_4px_4px_rgba(0,0,0,0.2)]"
                                 src={`${storageUrl}/subject/${subject.thumbnail}`}
                                 //@ts-ignore
-                                onError={(e) => { e.target.src = `${storageUrl}/subject/notfound.png`; }}
+                                onError={(e) => { e.target.src = `${storageUrl}/other/notfound.png`; }}
                                 alt={subject.subjectName}
                             />
                         </div>

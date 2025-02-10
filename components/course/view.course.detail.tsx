@@ -73,7 +73,7 @@ const ViewCourseDetail = (props: {
                             <img className="h-[150px] border-2 rounded-xl shadow-[4px_4px_4px_rgba(0,0,0,0.2)]"
                                 src={`${storageUrl}/course/${course.thumbnail}`}
                                 //@ts-ignore
-                                onError={(e) => { e.target.src = `${storageUrl}/subject/notfound.png`; }}
+                                onError={(e) => { e.target.src = `${storageUrl}/other/notfound.png`; }}
                                 alt={course.courseName}
                             />
                         </div>

@@ -118,6 +118,7 @@ declare global {
         description: string;
         thumbnail: string;
         totalCourses: number;
+        listCourses: string[];
     }
 
     interface MinMaxPriceResponse {

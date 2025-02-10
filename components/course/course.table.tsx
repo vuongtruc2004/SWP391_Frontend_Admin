@@ -172,6 +172,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseResp
                         router.replace(`${pathname}?${params}`);
                     },
                 }}
+                showSorterTooltip={false}
             />
 
             <ViewCourseDetail

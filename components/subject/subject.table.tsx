@@ -126,6 +126,7 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
                         router.replace(`${pathname}?${params}`);
                     },
                 }}
+                showSorterTooltip={false}
             />
 
             <ViewSubjectDetail
