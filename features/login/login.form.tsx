@@ -14,8 +14,12 @@ const LoginForm = () => {
     const router = useRouter();
 
     const onFinish: FormProps<CredentialsLoginRequest>['onFinish'] = async (values) => {
+        let emailInput = values.email;
+        if (emailInput && !emailInput.includes("@")) {
+            emailInput += "@gmail.com";
+        }
         const loginResponse = await signIn("credentials", {
-            email: values.email,
+            email: emailInput,
             password: values.password,
             redirect: false
         });
