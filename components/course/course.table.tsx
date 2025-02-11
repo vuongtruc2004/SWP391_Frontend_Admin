@@ -41,14 +41,14 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseResp
         });
         if (deleteResponse.status === 200) {
             notification.success({
-                message: String(deleteResponse.message),
-                description: deleteResponse.errorMessage,
+                message: "Thành Công",
+                description: deleteResponse.message.toString(),
             });
             router.refresh()
         } else {
             notification.error({
-                message: String(deleteResponse.message),
-                description: deleteResponse.errorMessage,
+                message: "Thất Bại",
+                description: deleteResponse.message.toString(),
             })
         }
     }
@@ -139,7 +139,11 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseResp
                         <DeleteOutlined style={{ color: "red" }} />
                     </Popconfirm>
                     <CheckOutlined
-                        style={{ color: record.accepted ? "gray" : "#16db65", cursor: record.accepted ? "not-allowed" : "pointer" }}
+                        style={{
+                            color: record.accepted ? "gray" : "#16db65",
+                            cursor: record.accepted ? "not-allowed" : "pointer",
+                            pointerEvents: record.accepted ? "none" : "auto"
+                        }}
                         onClick={() => acceptCourse(record.courseId)}
                     />
 

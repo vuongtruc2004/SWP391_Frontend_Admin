@@ -132,7 +132,7 @@ const UserTable = (props: { userPageResponse: PageDetailsResponse<UserResponse[]
                         setUser(record);
                     }} />
 
-                    <EditOutlined className="text-blue-500"
+                    <EditOutlined style={{ color: "blue" }}
                         onClick={() => {
                             setEditingUser(record)
                             setOpenEditForm(true)
