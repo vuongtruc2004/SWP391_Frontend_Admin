@@ -20,6 +20,12 @@ declare global {
         thumbnail?: string;
     }
 
+    interface QuestionRequest {
+        questionId?: number;
+        title?: string;
+        answersId: number[];
+    }
+
     interface UpdateUserRequest {
         userId: number,
         fullname: string,

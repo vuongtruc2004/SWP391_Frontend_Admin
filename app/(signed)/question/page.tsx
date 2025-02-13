@@ -1,3 +1,4 @@
+import QuestionCreateBtn from "@/components/question/question.create.btn.";
 import QuestionSearch from "@/components/question/question.search";
 import QuestionTable from "@/components/question/question.table";
 import { isFullNumber } from "@/helper/subject.helper";
@@ -39,6 +40,10 @@ const QuestionPage = async (props: {
     return (
         <div className="border w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
             <QuestionSearch keyword={keyword} />
+
+            <QuestionCreateBtn
+                questionPageResponse={questionResponse.data}
+            />
 
             <QuestionTable
                 questionPageResponse={questionResponse.data}

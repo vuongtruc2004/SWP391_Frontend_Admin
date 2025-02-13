@@ -41,6 +41,12 @@ declare global {
         content: T;
     }
 
+    interface AnswerResponse {
+        answerId: number;
+        content: string;
+        correct: boolean;
+    }
+
     interface BlogResponse {
         blogId: number;
         title: string;
