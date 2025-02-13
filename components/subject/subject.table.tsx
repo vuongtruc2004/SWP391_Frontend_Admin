@@ -1,5 +1,5 @@
 'use client'
-import { DeleteOutlined, DoubleRightOutlined, EditOutlined, InfoCircleOutlined, PictureOutlined } from '@ant-design/icons';
+import { DeleteOutlined, DoubleRightOutlined, EditOutlined, PictureOutlined } from '@ant-design/icons';
 import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
 import React, { useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
@@ -8,6 +8,8 @@ import '@ant-design/v5-patch-for-react-19';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl, storageUrl } from '@/utils/url';
+import UpdateSubjectForm from './update.subject.form';
+
 
 export const init = {
     subjectName: {
@@ -21,12 +23,12 @@ export const init = {
 }
 const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectResponse[]> }) => {
     const { subjectPageResponse } = props;
-    const [openDraw, setOpenDraw] = useState(false);
-    const [subject, setSubject] = useState<SubjectResponse | null>(null);
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const router = useRouter();
     const page = Number(searchParams.get('page')) || 1; // Lấy số trang từ URL
+    const [openEditForm, setOpenEditForm] = useState(false);
+    const [editingUSubject, setEditingSubject] = useState<SubjectResponse | null>(null)
     const deleteSubject = async (subjectId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<SubjectResponse>>({
             url: `${apiUrl}/subjects/delete/${subjectId}`,
@@ -48,7 +50,6 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             })
         }
 
-        console.log(">>> check", deleteResponse)
     }
 
     const columns: TableProps<SubjectResponse>['columns'] = [
@@ -69,7 +70,7 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             title: 'Mô tả',
             dataIndex: 'description',
             key: 'description',
-            width: '50%',
+            width: '40%',
             sorter: (a, b) => a.description.localeCompare(b.description),
         },
         {
@@ -132,11 +133,15 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             title: 'Hành động',
             key: 'action',
             width: '20%',
+            align: 'center',
             render: (_, record: any) => (
                 <Space size="middle">
-                    <Link href="#">
-                        <EditOutlined className="text-blue-500" />
-                    </Link>
+                    <EditOutlined style={{ color: "blue" }}
+                        onClick={() => {
+                            setEditingSubject(record)
+                            setOpenEditForm(true)
+                        }}
+                    />
                     <Popconfirm
                         placement="left"
                         title="Xóa môn học"
@@ -164,6 +169,7 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
                     current: page,
                     pageSize: subjectPageResponse.pageSize,
                     total: subjectPageResponse.totalElements,
+                    showSizeChanger: false,
                     onChange(page, pageSize) {
                         const params = new URLSearchParams(searchParams);
                         params.set('page', page.toString());
@@ -171,6 +177,13 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
                     },
                 }}
                 showSorterTooltip={false}
+            />
+
+            <UpdateSubjectForm
+                openEditForm={openEditForm}
+                setOpenEditForm={setOpenEditForm}
+                editingSubject={editingUSubject}
+                setEditingSubject={setEditingSubject}
             />
         </>
     );

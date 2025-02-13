@@ -1,122 +1,209 @@
 'use client'
-import { useActionState, useEffect } from 'react';
+import { ChangeEvent, useActionState, useEffect, useState } from 'react';
 import { UpdateSubjectFieldResponse, validSubject } from './action';
-import { Button, Input, notification } from 'antd';
-import { WarningOutlined } from '@ant-design/icons';
+import { Button, Image, Input, Modal, notification } from 'antd';
+import { EyeOutlined, SyncOutlined, WarningOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import '@ant-design/v5-patch-for-react-19';
 import { sendRequest } from '@/utils/fetch.api';
-import { apiUrl } from '@/utils/url';
+import { apiUrl, storageUrl } from '@/utils/url';
+import { validDescription, validSubjectName } from '@/helper/create.subject.helper';
 
-const initState: UpdateSubjectFieldResponse = {
-    subjectName: {
-        error: false,
-        value: ""
-    },
-    description: {
-        error: false,
-        value: ""
-    }
-}
+
 interface IProps {
-    subject: SubjectResponse;
+    editingSubject: SubjectResponse | null;
+    setEditingSubject: React.Dispatch<React.SetStateAction<SubjectResponse | null>>;
+    openEditForm: boolean;
+    setOpenEditForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const UpdateForm = (props: IProps) => {
-    const { subject } = props;
-    const validSubjectExpand = validSubject.bind(null, subject?.subjectId!);
-    const [state, formAction, pending] = useActionState(validSubjectExpand, initState);
+const initState: ErrorResponse = {
+    error: false,
+    value: ''
+}
+const UpdateSubjectForm = (props: IProps) => {
+    const { editingSubject, setEditingSubject, openEditForm, setOpenEditForm } = props;
+    const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+    const [subjectName, setSubjectName] = useState<ErrorResponse>(initState);
+    const [description, setDescription] = useState<ErrorResponse>(initState);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [errThumbnail, setErrThumbnail] = useState("")
+    const [urlThumbnail, setUrlThumbnail] = useState("");
     const router = useRouter();
-
     useEffect(() => {
-        const udpateSubject = async () => {
-            const subjectRequest: SubjectRequest = {
-                subjectId: subject.subjectId,
-                subjectName: state.subjectName.value,
-                description: state.description.value,
-                thumbnail: subject.thumbnail
-            }
-            const updateResponse = await sendRequest<ApiResponse<SubjectResponse>>({
-                url: `${apiUrl}/subjects/update`,
-                method: 'PATCH',
-                body: subjectRequest,
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+        if (editingSubject) {
+            setSubjectName({
+                error: false,
+                value: editingSubject.subjectName
+            });
+            setDescription({
+                error: false,
+                value: editingSubject.description
+            });
+        }
+        if (editingSubject?.thumbnail) {
+            setUrlThumbnail(editingSubject.thumbnail);
+        }
+    }, [editingSubject]);
+
+    const handleOk = async () => {
+        // Kiểm tra tất cả các giá trị
+        const isSubjectNameValid = validSubjectName(subjectName, setSubjectName);
+        const isDescriptionValid = validDescription(description, setDescription);
+
+        // Nếu bất kỳ giá trị nào không hợp lệ, dừng lại
+        if (!isSubjectNameValid || !isDescriptionValid) {
+            return;
+        }
+        const subjectRequest: SubjectRequest = {
+            subjectName: subjectName.value,
+            description: description.value,
+            thumbnail: urlThumbnail,
+        }
+        const updateResponse = await sendRequest<ApiResponse<SubjectResponse>>({
+            url: `${apiUrl}/subjects/update/${editingSubject?.subjectId}`,
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: subjectRequest
+        });
+
+        console.log(">>> check tao", updateResponse)
+
+        if (updateResponse.status === 200) {
+            handleCancel();
+            router.refresh();
+            notification.success({
+                message: "Thành công",
+                description: updateResponse.message.toString(),
+            });
+        } else {
+            setErrorMessage(updateResponse.message.toString());
+        }
+    };
+
+    const handleCancel = () => {
+        setUrlThumbnail("");
+        setEditingSubject(null);
+        setOpenEditForm(false);
+    };
+
+    const handleUploadFile = async (e: ChangeEvent<HTMLInputElement>) => {
+        setErrThumbnail("")
+        if (e.target.files && e.target.files[0]) {
+            const formData = new FormData();
+            formData.set('file', e.target.files[0]);
+            formData.set('folder', 'subject');
+
+            const imageResponse = await sendRequest<ApiResponse<string>>({
+                url: `${apiUrl}/subjects/thumbnail`,
+                method: 'POST',
+                headers: {},
+                body: formData
             });
 
-            if (updateResponse.status === 200) {
-                notification.success({
-                    message: updateResponse.message.toString(),
-                    description: updateResponse.errorMessage,
-                });
-                router.back();
+            if (imageResponse.status === 200) {
+                setUrlThumbnail(imageResponse.data)
             } else {
-                notification.error({
-                    message: updateResponse.message.toString(),
-                    description: updateResponse.errorMessage,
-                })
+                setErrThumbnail(imageResponse.errorMessage)
             }
         }
-        if (!state.description.error && !state.subjectName.error && state.description.value !== "") {
-            udpateSubject();
-        }
-    }, [state]);
+    }
 
     return (
-        <form action={formAction} className='bg-white w-full max-w-[500px] px-5 py-10 rounded-md'>
+        <Modal title="Cập nhật công nghệ" open={openEditForm} onOk={handleOk} onCancel={handleCancel} cancelText="Hủy" okText="Cập nhật">
             <div className="mb-3">
-                <label className="block text-sm mb-1"><span className='text-red-500 mr-1'>*</span>Mã môn:</label>
+                <span className="text-red-500 mr-2">*</span>Id:
                 <Input
-                    placeholder="Nhập tên môn học"
-                    allowClear
-                    className="mt-1"
                     disabled
+                    placeholder="Nhập Id"
+                    allowClear
+                    value={editingSubject?.subjectId}
+                    className="mt-1"
                     name="subjectId"
-                    defaultValue={subject.subjectId}
                 />
             </div>
             <div className="mb-3">
-                <label className="block text-sm mb-1"><span className='text-red-500 mr-1'>*</span>Tên môn học:</label>
+                <span className="text-red-500 mr-2">*</span>Tên công nghệ:
                 <Input
-                    placeholder="Nhập tên môn học"
+                    placeholder="Nhập tên công nghệ"
+                    status={subjectName.error ? 'error' : ''}
                     allowClear
+                    value={subjectName.value}
+                    onChange={(e) => {
+                        setSubjectName({
+                            ...subjectName,
+                            value: e.target.value,
+                            error: false
+                        })
+                    }}
                     className="mt-1"
-                    defaultValue={subject.subjectName}
                     name="subjectName"
-                    status={state.subjectName.error ? 'error' : ''}
                 />
-                {state.subjectName.error && (
-                    <span className="flex items-center gap-x-1 text-red-500 text-sm ml-2">
+                {subjectName.error && (
+                    <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                         <WarningOutlined />
-                        {state?.subjectName.message}
-                    </span>
+                        {subjectName.message}
+                    </p>
                 )}
             </div>
             <div className="mb-3">
-                <label className="block text-sm mb-1"><span className='text-red-500 mr-1'>*</span>Mô tả môn học:</label>
+                <span className="text-red-500 mr-2">*</span>Mô tả:
                 <Input
-                    placeholder="Nhập mô tả môn học"
+                    placeholder="Nhập mô tả"
+                    status={description.error ? 'error' : ''}
                     allowClear
+                    value={description.value}
+                    onChange={(e) => {
+                        setDescription({
+                            ...description,
+                            value: e.target.value,
+                            error: false
+                        })
+                    }}
                     className="mt-1"
-                    defaultValue={subject.description}
                     name="description"
-                    status={state.description.error ? 'error' : ''}
                 />
-                {state.description.error && (
-                    <span className="flex items-center gap-x-1 text-red-500 text-sm ml-2">
+                {description.error && (
+                    <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                         <WarningOutlined />
-                        {state?.description.message}
-                    </span>
+                        {description.message}
+                    </p>
                 )}
             </div>
-            <div className="flex justify-end mt-8 gap-x-2">
-                <Button onClick={() => router.back()}>Hủy</Button>
-                <Button type="primary" htmlType="submit" loading={pending}>
-                    Thay đổi
-                </Button>
+            <span className="text-red-500 mr-2">*</span>Ảnh:
+            <div className={`${errThumbnail !== "" ? "border-red-500 border-2 w-fit rounded-lg" : ""}`}>
+                <div className="flex items-end">
+                    <div className="h-[120px] w-[120px]">
+                        <Image
+                            className="h-full w-full object-contain"
+                            width="100%"
+                            height="100%"
+                            preview={{
+                                visible: isPreviewVisible,
+                                mask: <span><EyeOutlined className='mr-2' />Xem</span>,
+                                onVisibleChange: (visible) => setIsPreviewVisible(visible),
+                            }}
+                            src={
+                                urlThumbnail === ""
+                                    ? `${storageUrl}/subject/${editingSubject?.thumbnail}`
+                                    : `${storageUrl}/subject/${urlThumbnail}`
+                            }
+
+                            alt="Xem trước"
+                        />
+                    </div>
+                    <SyncOutlined style={{ color: 'blue' }} className="text-lg ml-6" onClick={() => document.getElementById("chooseFile")?.click()} />
+                    <input
+                        type="file"
+                        id="chooseFile"
+                        onChange={handleUploadFile}
+                        className="hidden"
+                    />
+                </div>
             </div>
-        </form>
+        </Modal>
     )
 }
 
-export default UpdateForm
+export default UpdateSubjectForm
