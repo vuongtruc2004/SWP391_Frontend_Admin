@@ -13,6 +13,13 @@ declare global {
         dob?: string;
     }
 
+    interface SubjectRequest {
+        subjectId?: number;
+        subjectName?: string;
+        description?: string;
+        thumbnail?: string;
+    }
+
     interface UpdateUserRequest {
         userId: number,
         fullname: string,
