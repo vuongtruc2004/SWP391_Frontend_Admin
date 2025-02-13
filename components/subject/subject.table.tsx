@@ -1,18 +1,13 @@
 'use client'
-import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { DeleteOutlined, DoubleRightOutlined, EditOutlined, InfoCircleOutlined, PictureOutlined } from '@ant-design/icons';
 import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
 import React, { useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
-import ViewSubjectDetail from './view.subject.detail';
 import Link from 'next/link';
 import '@ant-design/v5-patch-for-react-19';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { apiUrl } from '@/utils/url';
-
-interface IProps {
-
-}
+import { apiUrl, storageUrl } from '@/utils/url';
 
 export const init = {
     subjectName: {
@@ -58,16 +53,13 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
 
     const columns: TableProps<SubjectResponse>['columns'] = [
         {
-            title: 'Id',
-            dataIndex: 'subjectId',
-            key: 'id',
+            title: "STT",
+            key: "index",
             width: '10%',
-            sorter: {
-                compare: (a, b) => a.subjectId - b.subjectId,
-            },
+            render: (text, record, index) => <>{(index + 1) + (page - 1) * subjectPageResponse.pageSize}</>,
         },
         {
-            title: 'Tên môn học',
+            title: 'Tên công nghệ',
             dataIndex: 'subjectName',
             key: 'name',
             width: '20%',
@@ -81,15 +73,67 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             sorter: (a, b) => a.description.localeCompare(b.description),
         },
         {
-            title: 'Action',
+            title: 'Số lượng khóa học',
+            dataIndex: 'totalCourses',
+            key: 'totalCourses',
+            width: '10%',
+            align: 'center',
+            sorter: (a, b) => a.totalCourses - b.totalCourses,
+            render: (text, record) => (
+                <Popconfirm
+                    title={
+                        <div>
+                            <p className='pb-4 text-blue-500 text-lg'>Các khóa học chi tiết</p>
+                            <div className="max-h-[150px] overflow-y-auto pr-2">
+                                <ul className='pl-4'>
+                                    {record.listCourses.map((course, index) => (
+                                        <li key={index}> <span className='gap-2 mr-2'><DoubleRightOutlined style={{ color: 'green' }} /></span>{course}</li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                        </div>
+                    }
+                    icon={null}
+                    showCancel={false}
+                    okText="Đóng"
+                >
+                    <span className="cursor-pointer text-blue-500 hover:underline">{text}</span>
+                </Popconfirm>
+            ),
+        },
+        {
+            title: 'Ảnh bìa',
+            dataIndex: 'thumbnail',
+            key: 'thumbnail',
+            width: '10%',
+            align: 'center',
+            render: (text, record) => (
+                <Popconfirm
+                    title={
+                        <div className='h-[180px] w-[180px] shadow-xl rounded-lg overflow-hidden bg-white flex items-center justify-center'>
+                            <img className='max-h-full max-w-full rounded object-contain'
+                                src={`${storageUrl}/subject/${record.thumbnail}`}
+                                //@ts-ignore
+                                onError={(e) => { e.target.src = `${storageUrl}/other/notfound.png`; }}
+                                alt={record.subjectName}
+                            />
+                        </div>
+                    }
+                    icon={null}
+                    showCancel={false}
+                    okText="Đóng"
+                >
+                    <PictureOutlined style={{ color: 'green' }} />
+                </Popconfirm>
+            ),
+        },
+        {
+            title: 'Hành động',
             key: 'action',
             width: '20%',
             render: (_, record: any) => (
                 <Space size="middle">
-                    <InfoCircleOutlined style={{ color: "green" }} onClick={() => {
-                        setOpenDraw(true);
-                        setSubject(record);
-                    }} />
                     <Link href="#">
                         <EditOutlined className="text-blue-500" />
                     </Link>
@@ -127,13 +171,6 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
                     },
                 }}
                 showSorterTooltip={false}
-            />
-
-            <ViewSubjectDetail
-                setOpenDraw={setOpenDraw}
-                openDraw={openDraw}
-                subject={subject}
-                setSubject={setSubject}
             />
         </>
     );

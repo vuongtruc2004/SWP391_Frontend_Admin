@@ -37,8 +37,8 @@ const SubjectCreateBtn = (props: { subjectPageResponse: PageDetailsResponse<Subj
 
             <Modal title="Tạo môn học" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okText="Tạo">
                 <p className="mb-3">
-                    <span className="text-red-500 mr-2">*</span>Tên môn  học:
-                    <Input placeholder="Nhập tên môn học" allowClear onChange={onChange} className="mt-1" />
+                    <span className="text-red-500 mr-2">*</span>Tên công nghệ:
+                    <Input placeholder="Nhập tên công nghệ" allowClear onChange={onChange} className="mt-1" />
 
                 </p>
                 <p className="mb-3">
@@ -49,7 +49,7 @@ const SubjectCreateBtn = (props: { subjectPageResponse: PageDetailsResponse<Subj
 
                 <p className="mb-3">
                     <span className="text-red-500 mr-2">*</span>Ảnh:
-                    <label className="block w-20 h-20 bg-gray-200 text-gray-700 border border-gray-400 
+                    <label className="w-20 h-20 bg-gray-200 text-gray-700 border border-gray-400 
                       flex items-center justify-center cursor-pointer rounded-md 
                       hover:bg-gray-300 transition">
                         Chọn ảnh

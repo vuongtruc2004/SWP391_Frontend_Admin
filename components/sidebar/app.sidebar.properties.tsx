@@ -36,7 +36,7 @@ export const sidebarItems: MenuItem[] = [
             },
             {
                 key: 'subject',
-                label: <Link href="/subject">Quản lí môn học</Link>,
+                label: <Link href="/subject">Quản lí công nghệ</Link>,
                 icon: <CodeOutlined />
 
             },
