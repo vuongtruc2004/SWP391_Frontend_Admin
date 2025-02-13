@@ -1,12 +1,11 @@
 'use client'
 
-import { Button, DatePicker, DatePickerProps, Input, Modal, notification, Select, Space } from "antd";
+import { Avatar, Button, DatePicker, DatePickerProps, Image, Input, Modal, notification, Select, Space } from "antd";
 import { useState } from "react";
 import dayjs from "dayjs";
-import Image from "next/image";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { sendRequest } from "@/utils/fetch.api";
-import { WarningOutlined } from "@ant-design/icons";
+import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
 import { validDob, validEmail, validFullName, validGender, validPassword, validRole } from "@/helper/create.user.helper";
 import { useRouter } from "next/navigation";
 
@@ -15,8 +14,8 @@ const initState: ErrorResponse = {
     value: ''
 
 }
-const UserCreateBtn = () => {
-
+const UserCreateBtn = (props: { handlePrint: any }) => {
+    const { handlePrint } = props
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -33,16 +32,17 @@ const UserCreateBtn = () => {
     const [dob, setDob] = useState<ErrorResponse>(initState);
     const [password, setPassword] = useState<ErrorResponse>(initState);
 
-    const [avatar, setAvatar] = useState<string | null>(null);
+    const [avatar, setAvatar] = useState<File | null>(null);
+
     const [errorMessage, setErrorMessage] = useState("");
-
-
+    const [isPreviewVisible, setPreviewVisible] = useState<boolean>(false);
+    const [urlAvatar, setUrlAvatar] = useState<ErrorResponse>(initState);
     const showModal = () => {
         setIsModalOpen(true);
     };
 
     const handleOk = async () => {
-        // Kiểm tra tất cả các giá trị
+        // Kiểm tra dữ liệu hợp lệ
         const isEmailValid = validEmail(email, setEmail);
         const isFullNameValid = validFullName(fullName, setFullName);
         const isPasswordValid = validPassword(password, setPassword);
@@ -50,10 +50,32 @@ const UserCreateBtn = () => {
         const isRoleValid = validRole(role, setRole);
         const isDobValid = validDob(dob, setDob);
 
-        // Nếu bất kỳ giá trị nào không hợp lệ, dừng lại
         if (!isEmailValid || !isFullNameValid || !isPasswordValid || !isGenderValid || !isRoleValid || !isDobValid) {
             return;
         }
+
+        // let avatarUrl = '';
+        if (avatar) {
+            const formData = new FormData();
+            formData.append('file', avatar);
+            formData.append('folder', 'avatar');
+
+            const uploadResponse = await sendRequest<ApiResponse<{ avatar: string }>>({
+                url: `${apiUrl}/users/avataradmin`,
+                method: 'POST',
+                headers: {},
+                body: formData
+            });
+            console.log('>>> handleOk >>>', uploadResponse)
+            if (uploadResponse.status === 200 && uploadResponse.data?.avatar) {
+                setUrlAvatar({ ...urlAvatar, value: uploadResponse.data.avatar }) // Lấy avatar từ API response
+            } else {
+                setErrorMessage(uploadResponse.message.toString());
+                return;
+            }
+        }
+
+        // Gửi request tạo người dùng
         const userRequest: UserRequest = {
             email: email.value,
             password: password.value,
@@ -61,7 +83,9 @@ const UserCreateBtn = () => {
             roleName: role.value,
             gender: gender.value,
             dob: dayjs(dob.value).format("YYYY-MM-DD"),
-        }
+            avatar: urlAvatar.value // Gửi avatar vào backend
+        };
+
         const createResponse = await sendRequest<ApiResponse<UserResponse>>({
             url: `${apiUrl}/users`,
             method: 'POST',
@@ -70,7 +94,7 @@ const UserCreateBtn = () => {
             },
             body: userRequest
         });
-
+        console.log("check createResponse>>>", createResponse)
         if (createResponse.status === 201) {
             handleCancel();
             router.refresh();
@@ -79,9 +103,14 @@ const UserCreateBtn = () => {
                 description: createResponse.message.toString(),
             });
         } else {
-            setErrorMessage(createResponse.message.toString());
+            setEmail({
+                ...email,
+                message: createResponse.message.toString(),
+                error: true
+            })
         }
     };
+
 
     const handleCancel = () => {
 
@@ -97,39 +126,62 @@ const UserCreateBtn = () => {
             value: 'MALE'
         });
         setDob(initState);
-        setAvatar(null);
+        setUrlAvatar(initState);
         setIsModalOpen(false);
+        setErrorMessage("");
+        setAvatar(null);
     };
 
     const handleDateChange: DatePickerProps["onChange"] = (date) => {
         setDob({ ...dob, value: date ? dayjs(date).format("YYYY-MM-DD") : "", error: false });
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // const file = e.target.files?.[0]; // Lấy file đầu tiên từ input
-        // if (!file) {
-        //     console.log("Không có file nào được chọn!");
-        //     return;
-        // }
+    const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const selectedFile = e.target.files[0]; // Lấy file người dùng chọn
+            setAvatar(selectedFile); // Cập nhật state avatar
 
-        // const imageUrl = URL.createObjectURL(file); // Tạo URL tạm thời cho ảnh
-        // setAvatar(imageUrl); // Lưu URL vào state
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('folder', 'avatar');
 
-        // // Đảm bảo in ra đúng URL sau khi state cập nhật
-        // console.log(">>> imageUrl", imageUrl);
+            const imageResponse = await sendRequest<ApiResponse<{ avatar: string }>>({
+                url: `${apiUrl}/users/avataradmin`,
+                method: 'POST',
+                headers: {},
+                body: formData
+            });
+
+            console.log('handleUploadFile >>>>', imageResponse)
+            if (imageResponse.status === 200 && imageResponse.data?.avatar) {
+                setUrlAvatar({ ...urlAvatar, value: imageResponse.data.avatar }); // Lưu URL avatar mới
+                setErrorMessage("")
+            } else {
+                setErrorMessage(imageResponse.message.toString());
+            }
+        }
     };
 
 
 
     return (
         <>
-            <div>
-                <Button type="primary" onClick={showModal} className="w-fit ml-[40px]">
-                    Tạo người dùng
-                </Button>
-            </div>
 
-            <Modal title="Tạo người dùng" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okText="Tạo">
+            <div className="flex justify-between items-center mb-4 px-6">
+                <div className="mr-auto">
+                    <Button type="primary" onClick={showModal} className="w-fit ">
+                        Tạo người dùng
+                    </Button>
+                </div>
+                <div>
+                    <Button style={{ background: 'orange' }} type="primary" onClick={() => {
+                        handlePrint()
+                    }} className="w-fit ">
+                        Xuất PDF
+                    </Button>
+                </div>
+            </div>
+            <Modal title="Tạo người dùng" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okText="Tạo" cancelText="Hủy">
                 <div className="mb-3">
                     <span className="text-red-500 mr-2">*</span>Email:
                     <Input
@@ -288,10 +340,59 @@ const UserCreateBtn = () => {
                         flex items-center justify-center cursor-pointer rounded-md 
                         hover:bg-gray-300 transition">
                         Chọn ảnh
-                        <input type="file" hidden onChange={handleFileChange} />
+                        <input type="file" hidden onChange={handleUploadFile} />
                     </label>
                     <Image src={avatar?.startsWith("http") ? avatar : `${storageUrl}/avatar/${avatar}`} alt="avatar" width={200} height={200} />
-                </div> */}
+                </div>  */}
+
+                <span className="text-red-500 mr-2">*</span>Ảnh:
+                <div>
+                    {urlAvatar.value === '' ? (
+                        <div className="relative w-fit">
+                            <Avatar
+                                shape="square"
+                                size={120}
+                                icon={<PlusOutlined />}
+                                alt="avatar"
+                            />
+                            <input
+                                type="file"
+                                onChange={handleUploadFile}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                style={{ maxWidth: "120px", maxHeight: "120px" }} // Giới hạn kích thước input file
+                            />
+                        </div>
+                    ) : (
+                        <>
+                            <Image
+                                width={120} // Giảm kích thước ảnh
+                                height={120} // Đảm bảo ảnh vuông
+                                style={{
+                                    objectFit: "cover", // Giữ nguyên tỷ lệ và crop nếu cần
+                                    borderRadius: "8px" // Làm tròn góc nếu muốn
+                                }}
+                                preview={{
+                                    mask: <span><EyeOutlined />  Xem trước</span>,
+                                    visible: isPreviewVisible,
+                                    onVisibleChange: (visible) => setPreviewVisible(visible),
+                                }}
+                                src={`${storageUrl}/avatar/${urlAvatar.value}`}
+                                alt="Xem trước"
+                            />
+
+                            <SyncOutlined className="text-blue-500 text-lg ml-6" onClick={() => document.getElementById("chooseFile")?.click()} />
+
+                            <input
+                                type="file"
+                                id="chooseFile"
+                                onChange={handleUploadFile}
+                                className="hidden"
+                            />
+                        </>
+
+                    )}
+                </div>
+
                 {errorMessage !== "" && (
                     <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                         <WarningOutlined />

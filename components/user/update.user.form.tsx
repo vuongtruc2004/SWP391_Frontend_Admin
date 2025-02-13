@@ -1,13 +1,13 @@
 'use client'
 import { useEffect, useState } from 'react';
-import { DatePicker, DatePickerProps, Input, Modal, notification, Select, Space } from 'antd';
+import { Avatar, DatePicker, DatePickerProps, Image, Input, Modal, notification, Select, Space } from 'antd';
 import { useRouter } from 'next/navigation';
 import '@ant-design/v5-patch-for-react-19';
 import { sendRequest } from '@/utils/fetch.api';
-import { apiUrl } from '@/utils/url';
+import { apiUrl, storageUrl } from '@/utils/url';
 import dayjs from 'dayjs';
-import { validDob, validEmail, validFullName, validGender, validPassword, validRole } from '@/helper/create.user.helper';
-import { WarningOutlined } from '@ant-design/icons';
+import { validDob, validDobUpdate, validEmail, validFullName, validGender, validPassword, validRole } from '@/helper/create.user.helper';
+import { PlusOutlined, SyncOutlined, WarningOutlined } from '@ant-design/icons';
 
 interface IProps {
     editingUser: UserResponse | null;
@@ -34,7 +34,10 @@ const UpdateUserForm = (props: IProps) => {
     });
     const [dob, setDob] = useState<ErrorResponse>(initState);
 
-    const [avatar, setAvatar] = useState<string | null>(null);
+    const [urlAvatar, setUrlAvatar] = useState<ErrorResponse>(initState);
+    const [avatar, setAvatar] = useState<File | null>(null);
+    const [isPreviewVisible, setPreviewVisible] = useState<boolean>(false);
+
     const [errorMessage, setErrorMessage] = useState("");
     const router = useRouter();
 
@@ -64,6 +67,10 @@ const UpdateUserForm = (props: IProps) => {
                 error: false,
                 value: editingUser.dob
             });
+            setUrlAvatar({
+                error: false,
+                value: editingUser.avatar ? editingUser.avatar : ''
+            })
             // setAvatar(editingUser.avatar)
         }
     }, [editingUser]);
@@ -74,11 +81,32 @@ const UpdateUserForm = (props: IProps) => {
         const isFullNameValid = validFullName(fullName, setFullName);
         const isGenderValid = validGender(gender, setGender);
         const isRoleValid = validRole(role, setRole);
-        const isDobValid = validDob(dob, setDob);
+        const isDobValid = validDobUpdate(dob, setDob);
 
         // Nếu bất kỳ giá trị nào không hợp lệ, dừng lại
         if (!isEmailValid || !isFullNameValid || !isGenderValid || !isRoleValid || !isDobValid) {
             return;
+        }
+
+        if (avatar) {
+            const formData = new FormData();
+            formData.append('file', avatar);
+            formData.append('folder', 'avatar');
+
+            const uploadResponse = await sendRequest<ApiResponse<{ avatar: string }>>({
+                url: `${apiUrl}/users/avataradmin`,
+                method: 'POST',
+                headers: {},
+                body: formData
+            });
+            console.log('>>> handleOk >>>', uploadResponse)
+            if (uploadResponse.status === 200 && uploadResponse.data?.avatar) {
+                setUrlAvatar({ ...urlAvatar, value: uploadResponse.data.avatar }) // Lấy avatar từ API response
+            }
+            // else {
+            //     setErrorMessage(uploadResponse.message.toString());
+            //     return;
+            // }
         }
         const userRequest: UserRequest = {
             userId: editingUser?.userId,
@@ -86,7 +114,8 @@ const UpdateUserForm = (props: IProps) => {
             fullname: fullName.value,
             roleName: role.value,
             gender: gender.value,
-            dob: dayjs(dob.value).format("YYYY-MM-DD"),
+            dob: dob.value ? dayjs(dob.value).format("YYYY-MM-DD") : editingUser?.dob || '',
+            avatar: urlAvatar.value
         }
         const updateResponse = await sendRequest<ApiResponse<UserResponse>>({
             url: `${apiUrl}/users`,
@@ -97,7 +126,7 @@ const UpdateUserForm = (props: IProps) => {
             body: userRequest
         });
 
-        console.log(updateResponse)
+        console.log('>>>> check updateResponse', updateResponse)
         if (updateResponse.status === 201) {
             handleCancel();
             router.refresh();
@@ -106,6 +135,7 @@ const UpdateUserForm = (props: IProps) => {
                 description: updateResponse.message.toString(),
             });
         } else {
+            console.log("loi cmnr")
             setErrorMessage(updateResponse.message.toString());
         }
     };
@@ -113,6 +143,32 @@ const UpdateUserForm = (props: IProps) => {
     const handleCancel = () => {
         setEditingUser(null);
         setOpenEditForm(false);
+        setErrorMessage('');
+    };
+
+    const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const selectedFile = e.target.files[0]; // Lấy file người dùng chọn
+            setAvatar(selectedFile); // Cập nhật state avatar
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('folder', 'avatar');
+
+            const imageResponse = await sendRequest<ApiResponse<{ avatar: string }>>({
+                url: `${apiUrl}/users/avataradmin`,
+                method: 'POST',
+                headers: {},
+                body: formData
+            });
+
+            if (imageResponse.status === 200 && imageResponse.data?.avatar) {
+                setUrlAvatar({ ...urlAvatar, value: imageResponse.data.avatar }); // Lưu URL avatar mới
+                setErrorMessage("")
+            } else {
+                setErrorMessage(imageResponse.message.toString());
+            }
+        }
     };
 
     return (
@@ -256,6 +312,60 @@ const UpdateUserForm = (props: IProps) => {
                     </label>
                     <Image src={avatar?.startsWith("http") ? avatar : `${storageUrl}/avatar/${avatar}`} alt="avatar" width={200} height={200} />
                 </div> */}
+            {/* {errorMessage !== "" && (
+                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                    <WarningOutlined />
+                    {errorMessage}
+                </p>
+            )} */}
+
+            <span className="text-red-500 mr-2">*</span>Ảnh:
+            <div>
+                {urlAvatar.value === '' ? (
+                    <div className="relative w-fit">
+                        <Avatar
+                            shape="square"
+                            size={120}
+                            icon={<PlusOutlined />}
+                            alt="avatar"
+                        />
+                        <input
+                            type="file"
+                            onChange={handleUploadFile}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            style={{ maxWidth: "120px", maxHeight: "120px" }} // Giới hạn kích thước input file
+                        />
+                    </div>
+                ) : (
+                    <>
+                        <Image
+                            width={120} // Giảm kích thước ảnh
+                            height={120} // Đảm bảo ảnh vuông
+                            style={{
+                                objectFit: "cover", // Giữ nguyên tỷ lệ và crop nếu cần
+                                borderRadius: "8px" // Làm tròn góc nếu muốn
+                            }}
+                            preview={{
+                                visible: isPreviewVisible,
+                                onVisibleChange: (visible) => setPreviewVisible(visible),
+                            }}
+                            src={`${storageUrl}/avatar/${urlAvatar.value}`}
+                            alt="Preview"
+                        />
+
+                        <SyncOutlined className="text-blue-500 text-lg ml-6" onClick={() => document.getElementById("chooseFile")?.click()} />
+
+                        <input
+                            type="file"
+                            id="chooseFile"
+                            onChange={handleUploadFile}
+                            className="hidden"
+                        />
+                    </>
+
+                )}
+            </div>
+
             {errorMessage !== "" && (
                 <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                     <WarningOutlined />

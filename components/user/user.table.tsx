@@ -1,7 +1,7 @@
 'use client'
-import { EditOutlined, InfoCircleOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
+import { EditOutlined, InfoCircleOutlined, LockFilled, LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
-import React, { useState } from 'react'
+import React, { RefObject, useRef, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
 import '@ant-design/v5-patch-for-react-19';
 
@@ -9,7 +9,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl } from '@/utils/url';
 import ViewUserDetail from './view.user.detail';
 import UpdateUserForm from './update.user.form';
-
+import { useReactToPrint } from 'react-to-print';
 export const init = {
     subjectName: {
         error: false,
@@ -20,8 +20,12 @@ export const init = {
         value: ""
     }
 }
-const UserTable = (props: { userPageResponse: PageDetailsResponse<UserResponse[]> }) => {
-    const { userPageResponse } = props;
+
+const UserTable = (props: {
+    userPageResponse: PageDetailsResponse<UserResponse[]>,
+    componentPDF: RefObject<HTMLDivElement | null>
+}) => {
+    const { userPageResponse, componentPDF } = props;
     const [openDraw, setOpenDraw] = useState(false);
     const [user, setUser] = useState<UserResponse | null>(null);
     const searchParams = useSearchParams();
@@ -30,6 +34,7 @@ const UserTable = (props: { userPageResponse: PageDetailsResponse<UserResponse[]
     const page = Number(searchParams.get('page')) || 1; // Lấy số trang từ URL
     const [openEditForm, setOpenEditForm] = useState(false);
     const [editingUser, setEditingUser] = useState<UserResponse | null>(null)
+
 
     const lockUser = async (userId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<Boolean>>({
@@ -58,13 +63,11 @@ const UserTable = (props: { userPageResponse: PageDetailsResponse<UserResponse[]
 
     const columns: TableProps<UserResponse>['columns'] = [
         {
-            title: 'Id',
-            dataIndex: 'userId',
-            key: 'id',
+            title: 'STT',
+            dataIndex: 'index',
+            key: 'index',
             width: '5%',
-            sorter: {
-                compare: (a, b) => a.userId - b.userId,
-            },
+            render: (text, record, index) => <>{(index + 1) + (page - 1) * userPageResponse.pageSize}</>,
         },
         {
             title: 'Tên người dùng',
@@ -101,21 +104,14 @@ const UserTable = (props: { userPageResponse: PageDetailsResponse<UserResponse[]
             sorter: (a, b) => a.gender.localeCompare(b.gender),
         },
         {
-            title: 'Bị khóa',
+            title: 'Trạng thái',
             dataIndex: 'locked',
             key: 'locked',
             width: '10%',
-            render: (locked: boolean, record) => (
-                <Popconfirm
-                    placement="left"
-                    title={`${locked ? "Mở khóa" : "Khóa"} người dùng`}
-                    description={`Bạn có chắc chắn muốn ${locked ? "mở khóa" : "khóa"} người dùng này không?`}
-                    onConfirm={() => lockUser(record.userId)}
-                    okText="Có"
-                    cancelText="Không"
-                >
-                    {locked ? <LockOutlined style={{ color: 'red' }} /> : <UnlockOutlined style={{ color: 'green' }} />}
-                </Popconfirm>
+            render: (locked: boolean) => (
+                <span style={{ color: locked ? 'red' : 'green' }}>
+                    {locked ? "Bị khóa" : "Không khóa"}
+                </span>
             ),
             sorter: {
                 compare: (a, b) => Number(a.locked) - Number(b.locked)
@@ -132,12 +128,22 @@ const UserTable = (props: { userPageResponse: PageDetailsResponse<UserResponse[]
                         setUser(record);
                     }} />
 
-                    <EditOutlined style={{ color: "blue" }}
+                    <EditOutlined className="text-blue-500" style={{ color: "blue" }}
                         onClick={() => {
                             setEditingUser(record)
                             setOpenEditForm(true)
                         }}
                     />
+                    <Popconfirm
+                        placement="left"
+                        title={`${record.locked ? "Mở khóa" : "Khóa"} người dùng`}
+                        description={`Bạn có chắc chắn muốn ${record.locked ? "mở khóa" : "khóa"} người dùng này không?`}
+                        onConfirm={() => lockUser(record.userId)}
+                        okText="Có"
+                        cancelText="Không"
+                    >
+                        <LockOutlined style={{ color: 'red' }} />
+                    </Popconfirm>
                 </Space>
             ),
         },
@@ -146,24 +152,29 @@ const UserTable = (props: { userPageResponse: PageDetailsResponse<UserResponse[]
 
     return (
         <>
-            <Table
-                className="overflow-y-auto max-h-[calc(100vh-100px)] mb-8 pl-6 pr-6"
-                columns={columns}
-                dataSource={userPageResponse.content}
-                rowKey={"userId"}
-                pagination={{
-                    current: page,
-                    pageSize: userPageResponse.pageSize,
-                    total: userPageResponse.totalElements,
-                    onChange(page, pageSize) {
-                        const params = new URLSearchParams(searchParams);
-                        params.set('page', page.toString());
-                        router.replace(`${pathname}?${params}`);
-                    },
-                }}
-                showSorterTooltip={false}
-            />
 
+
+            <div className='overflow-y-auto' ref={componentPDF} >
+
+
+                <Table
+                    className=" max-h-[calc(100vh-100px)] mb-8 pl-6 pr-6"
+                    columns={columns}
+                    dataSource={userPageResponse.content}
+                    rowKey={"userId"}
+                    pagination={{
+                        current: page,
+                        pageSize: userPageResponse.pageSize,
+                        total: userPageResponse.totalElements,
+                        onChange(page, pageSize) {
+                            const params = new URLSearchParams(searchParams);
+                            params.set('page', page.toString());
+                            router.replace(`${pathname}?${params}`);
+                        },
+                    }}
+                    showSorterTooltip={false}
+                />
+            </div>
             <ViewUserDetail
                 setOpenDraw={setOpenDraw}
                 openDraw={openDraw}

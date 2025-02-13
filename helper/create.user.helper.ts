@@ -33,15 +33,7 @@ export const validFullName = (fullName: ErrorResponse, setFullName: React.Dispat
         return false;
     }
 
-    const regex = /^[a-zA-ZÀ-ỹ\s]+$/;
-    if (!regex.test(fullName.value)) {
-        setFullName({
-            ...fullName,
-            error: true,
-            message: "Họ và tên chỉ chứa chữ cái"
-        })
-        return false
-    }
+
     return true;
 
 }
@@ -103,6 +95,25 @@ export const validDob = (dob: ErrorResponse, setDob: React.Dispatch<SetStateActi
             message: 'Ngày sinh không được để trống'
         })
         return false;
+    }
+
+    const birthDate = dayjs(dob.value);
+    const age = dayjs().diff(birthDate, 'year');
+    if (age < 6) {
+        setDob({
+            ...dob,
+            error: true,
+            message: 'Tuổi phải lớn hơn hoặc bằng 6'
+        });
+        return false;
+    }
+    return true;
+
+}
+
+export const validDobUpdate = (dob: ErrorResponse, setDob: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
+    if (!dob.value || dob.value.trim() === '') {
+        return true;
     }
 
     const birthDate = dayjs(dob.value);
