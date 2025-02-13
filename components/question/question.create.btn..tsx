@@ -58,8 +58,6 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
             })
         );
 
-        console.log(">>> check createAnswerResponses", createAnswerResponses)
-
         let listAnswerId: number[] = createAnswerResponses.map((item) => item.data.answerId);
 
         const questionRequest: QuestionRequest = {
@@ -75,10 +73,6 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
             },
             body: questionRequest
         });
-
-        console.log(">>> check createQuestionResponse", createQuestionResponse)
-
-
 
         if (createQuestionResponse.status === 201) {
             handleCancel();
@@ -181,7 +175,7 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
                                     allowClear
                                 />
                                 {answers.length > 1 && (
-                                    <MinusCircleOutlined className="text-red-500 text-lg cursor-pointer" onClick={() => removeAnswer(index)} />
+                                    <MinusCircleOutlined style={{ color: 'red' }} className="text-lg cursor-pointer" onClick={() => removeAnswer(index)} />
                                 )}
                             </div>
                             {isSubmitted && answer.empty && (
