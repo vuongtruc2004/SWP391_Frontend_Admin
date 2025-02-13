@@ -41,7 +41,7 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
             title: 'Nội dung câu hỏi',
             dataIndex: 'title',
             key: 'title',
-            width: '20%',
+            width: '40%',
             sorter: (a, b) => a.title.localeCompare(b.title),
         },
         {
@@ -90,7 +90,7 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
                 rowKey={"questionId"}
                 pagination={{
                     current: page,
-                    pageSize: questionPageResponse.pageSize,
+                    pageSize: 10,
                     total: questionPageResponse.totalElements,
                     onChange(page, pageSize) {
                         const params = new URLSearchParams(searchParams);

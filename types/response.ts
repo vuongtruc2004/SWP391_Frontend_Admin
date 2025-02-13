@@ -1,4 +1,4 @@
-export { }
+export { };
 declare global {
     interface UserResponse {
         userId: number;
@@ -59,6 +59,12 @@ declare global {
     interface HashtagResponse {
         tagId: number;
         tagName: string;
+    }
+
+    interface QuestionResponse {
+        questionId: number;
+        title: string;
+        correctAnswer: string[];
     }
 
     interface CourseResponse {

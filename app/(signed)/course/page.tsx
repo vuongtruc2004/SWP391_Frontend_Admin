@@ -3,7 +3,7 @@ import CourseTable from "@/components/course/course.table"
 import { isFullNumber } from "@/helper/subject.helper"
 import { sendRequest } from "@/utils/fetch.api"
 import { apiUrl } from "@/utils/url"
-import { Metadata } from "next";
+import { Metadata } from "next"
 
 export const metadata: Metadata = {
     title: "Quản lí khóa học",

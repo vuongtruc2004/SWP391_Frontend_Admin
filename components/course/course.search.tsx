@@ -1,10 +1,10 @@
-'use client'
+
 import { SearchOutlined } from '@ant-design/icons'
-import { Button, Col, DatePicker, DatePickerProps, Form, Input, InputNumber, InputNumberProps, Row, Select, Slider, SliderSingleProps } from 'antd'
+import { Button, Col, DatePicker, DatePickerProps, Form, Input, InputNumber, Row, Select, Slider } from 'antd'
 import { useForm } from 'antd/es/form/Form'
-import dayjs, { Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const { RangePicker } = DatePicker;
 const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: string, createdTo: string, minPrice: number, maxPrice: number }) => {
