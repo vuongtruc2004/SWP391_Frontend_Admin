@@ -1,4 +1,4 @@
-export { }
+export { };
 declare global {
     interface UserRequest {
         userId?: number;
@@ -24,6 +24,10 @@ declare global {
         questionId?: number;
         title?: string;
         answersId: number[];
+        answers: AnswerResponse[];
+        quizzes: string[];
+        correctAnswers: string[];
+
     }
 
     interface UpdateUserRequest {

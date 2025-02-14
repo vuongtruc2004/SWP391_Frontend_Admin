@@ -70,7 +70,9 @@ declare global {
     interface QuestionResponse {
         questionId: number;
         title: string;
-        correctAnswer: string[];
+        answers: AnswerResponse[];
+        quizzes: string[];
+        correctAnswers: string[];
     }
 
     interface CourseResponse {

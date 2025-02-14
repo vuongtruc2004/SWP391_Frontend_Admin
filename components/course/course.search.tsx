@@ -1,4 +1,4 @@
-
+"use client"
 import { SearchOutlined } from '@ant-design/icons'
 import { Button, Col, DatePicker, DatePickerProps, Form, Input, InputNumber, Row, Select, Slider } from 'antd'
 import { useForm } from 'antd/es/form/Form'

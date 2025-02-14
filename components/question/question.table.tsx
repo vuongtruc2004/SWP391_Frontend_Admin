@@ -4,6 +4,7 @@ import '@ant-design/v5-patch-for-react-19';
 import { Popconfirm, Space, Table, TableProps } from 'antd';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import ViewQuestionDetail from './view.question.detail';
 
 
 
@@ -45,18 +46,6 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
             sorter: (a, b) => a.title.localeCompare(b.title),
         },
         {
-            title: 'Câu trả lời đúng',
-            dataIndex: 'correctAnswer',
-            key: 'correctAnswer',
-            width: '35%',
-            render: (_, record: QuestionResponse) => (
-                <p>
-                    {record.correctAnswer[0]}
-                </p>
-            )
-            // sorter: (a, b) => a.correctAnswer.localeCompare(b.description),
-        },
-        {
             title: 'Hành động',
             key: 'action',
             width: '20%',
@@ -81,6 +70,8 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
             ),
         },
     ];
+
+    console.log("check 2", question)
     return (
         <>
             <Table
@@ -99,6 +90,13 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
                     },
                 }}
                 showSorterTooltip={false}
+            />
+
+            <ViewQuestionDetail
+                setOpenDraw={setOpenDraw}
+                openDraw={openDraw}
+                question={question}
+                setQuestion={setQuestion}
             />
 
 
