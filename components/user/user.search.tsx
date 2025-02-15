@@ -1,16 +1,19 @@
 'use client'
 import { SearchOutlined } from '@ant-design/icons'
-import { Button, Form, Input } from 'antd'
+import { Button, Form, Input, Select } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import Search from 'antd/es/input/Search'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { FormEvent, useRef } from 'react'
+import { FormEvent, useEffect, useRef } from 'react'
 
 
 const UserSearch = (props: {
-    keyword: string
+    keyword: string,
+    roleName: string,
+    locked: string,
+    gender: string,
 }) => {
-    const { keyword } = props
+    const { keyword, roleName, locked, gender } = props
     const router = useRouter()
     const searchParam = useSearchParams()
     const pathName = usePathname()
@@ -18,32 +21,153 @@ const UserSearch = (props: {
 
 
     const handleReset = () => {
-        form.setFieldsValue({ keyword: '' })
+        form.setFieldsValue({ keyword: '', roleName: 'ALL', gender: 'ALL', locked: 'ALL' })
         router.push("/user")
     }
 
     const onFinish = (values: any) => {
-        const { keyword } = values
-        const newSearchParam = new URLSearchParams(searchParam)
-        newSearchParam.set("keyword", keyword)
+        const { keyword, roleName, locked, gender } = values;
+
+        const newSearchParam = new URLSearchParams(searchParam.toString());
+        if (keyword) {
+            newSearchParam.set("keyword", keyword)
+        } else {
+            newSearchParam.delete("keyword")
+        }
+
+        if (locked !== "ALL") {
+            newSearchParam.set("locked", locked);
+        } else {
+            newSearchParam.delete("locked");
+        }
+        if (roleName !== "ALL") {
+            newSearchParam.set("roleName", roleName);
+        } else {
+            newSearchParam.delete("roleName");
+        }
+        if (gender !== "ALL") {
+            newSearchParam.set("gender", gender);
+        } else {
+            newSearchParam.delete("gender");
+        }
+
         newSearchParam.set("page", "1")
         router.replace(`${pathName}?${newSearchParam}`)
     };
 
+    // const handleChangeLocked = (value: string) => {
+    //     form.setFieldsValue({ locked: value });
+    //     const newSearchParam = new URLSearchParams(searchParam)
+    //     newSearchParam.set('locked', value);
+    //     if (keyword) newSearchParam.set("keyword", keyword);
+    //     newSearchParam.set("page", "1")
+    //     router.replace(`${pathName}?${newSearchParam}`)
+    // }
+    // const handleChangeRole = (value: string) => {
+    //     form.setFieldsValue({ roleName: value });
+    //     const newSearchParam = new URLSearchParams(searchParam)
+    //     newSearchParam.set('roleName', value);
+    //     if (keyword) newSearchParam.set("keyword", keyword);
+    //     newSearchParam.set("page", "1")
+    //     router.replace(`${pathName}?${newSearchParam}`)
+    // }
+    // const handleChangeGender = (value: string) => {
+    //     form.setFieldsValue({ gender: value });
+
+    //     const newSearchParam = new URLSearchParams(searchParam.toString());
+    //     if (value !== "ALL") {
+    //         newSearchParam.set("gender", value);
+    //     } else {
+    //         newSearchParam.delete("gender");
+    //     }
+
+    //     // Đảm bảo tất cả các thông tin tìm kiếm khác không bị mất
+    //     if (keyword) newSearchParam.set("keyword", keyword);
+    //     if (roleName !== "ALL") newSearchParam.set("roleName", roleName);
+    //     if (locked !== "ALL") newSearchParam.set("locked", locked);
+
+    //     newSearchParam.set("page", "1");
+    //     router.replace(`${pathName}?${newSearchParam.toString()}`);
+
+    //     // Submit form để đảm bảo cập nhật UI
+    //     form.submit();
+    // };
+
+
+    useEffect(() => {
+        form.setFieldsValue({ keyword, roleName, locked, gender });
+    }, [keyword, roleName, locked, gender, searchParam.toString()]);
 
     return (
-        <div className="flex gap-4 ml-10 mt-16">
-            <Form className='w-[40%]' onFinish={onFinish} form={form} initialValues={{ keyword: keyword }}>
+        <div className="flex gap-4 ml-10 mt-10">
+            <Form className='w-[40%]' onFinish={onFinish} form={form} initialValues={{ keyword: keyword, locked: locked, roleName: roleName, gender: gender }}>
                 <Form.Item name="keyword" className="mb-0">
                     <Input
                         placeholder="Tìm kiếm người dùng, email, role"
                         prefix={<SearchOutlined />}
                         className='!p-[10px]'
+                        onChange={(e) => {
+                            form.setFieldValue("keyword", e.target.value);
+                        }}
+                        onPressEnter={() => form.submit()}
                     />
                 </Form.Item>
-            </Form>
+                <div className='flex justify-between gap-28'>
+                    <Form.Item name="locked" className="mb-0" label="Trạng thái:">
+                        <Select
+                            style={{ width: 150 }}
+                            allowClear={false}
+                            onChange={(value) => {
+                                form.setFieldValue("locked", value);
+                                form.submit();
+                            }}
+                            options={[
+                                { value: "ALL", label: "Tất cả" },
+                                { value: "active", label: 'Không bị khóa' },
+                                { value: "unactive", label: 'Bị khóa' },
+
+                            ]}
+                        />
+                    </Form.Item>
+                    <Form.Item name="roleName" className="mb-0" label="Vai trò:">
+                        <Select
+                            style={{ width: 150 }}
+                            allowClear={false}
+                            onChange={(value) => {
+                                form.setFieldValue("roleName", value);
+                                form.submit();
+                            }}
+                            options={[
+                                { value: "ALL", label: "Tất cả" },
+                                { value: "ADMIN", label: 'ADMIN' },
+                                { value: "EXPERT", label: 'EXPERT' },
+                                { value: "MARKETING", label: 'MARKETING' },
+                                { value: "USER", label: 'USER' },
+
+                            ]}
+                        />
+                    </Form.Item>
+                    <Form.Item name="gender" className="mb-0" label="Giới tính:">
+                        <Select
+                            style={{ width: 150 }}
+                            allowClear={false}
+                            onChange={(value) => {
+                                form.setFieldValue("gender", value);
+                                form.submit();
+                            }}
+                            options={[
+                                { value: "ALL", label: "Tất cả" },
+                                { value: "MALE", label: 'Nam' },
+                                { value: "FEMALE", label: 'Nữ' }
+                            ]}
+                        />
+                    </Form.Item>
+                </div>
+
+            </Form >
+
             <Button type='primary' onClick={handleReset} className='!p-[20px]'>Làm mới</Button>
-        </div>
+        </div >
 
 
     )

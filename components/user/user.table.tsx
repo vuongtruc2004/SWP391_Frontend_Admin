@@ -1,7 +1,7 @@
 'use client'
 import { EditOutlined, InfoCircleOutlined, LockFilled, LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
-import React, { RefObject, useRef, useState } from 'react'
+import React, { RefObject, useEffect, useRef, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
 import '@ant-design/v5-patch-for-react-19';
 
@@ -9,21 +9,12 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl } from '@/utils/url';
 import ViewUserDetail from './view.user.detail';
 import UpdateUserForm from './update.user.form';
-import { useReactToPrint } from 'react-to-print';
-export const init = {
-    subjectName: {
-        error: false,
-        value: ""
-    },
-    description: {
-        error: false,
-        value: ""
-    }
-}
+
+
 
 const UserTable = (props: {
     userPageResponse: PageDetailsResponse<UserResponse[]>,
-    componentPDF: RefObject<HTMLDivElement | null>
+    componentPDF: RefObject<HTMLDivElement | null>,
 }) => {
     const { userPageResponse, componentPDF } = props;
     const [openDraw, setOpenDraw] = useState(false);
@@ -34,6 +25,9 @@ const UserTable = (props: {
     const page = Number(searchParams.get('page')) || 1; // Lấy số trang từ URL
     const [openEditForm, setOpenEditForm] = useState(false);
     const [editingUser, setEditingUser] = useState<UserResponse | null>(null)
+
+    const [sheetData, setSheetData] = useState<UserResponse[]>([]);
+
 
 
     const lockUser = async (userId: number) => {

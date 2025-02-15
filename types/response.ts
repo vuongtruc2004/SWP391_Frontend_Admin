@@ -12,6 +12,8 @@ declare global {
         dob: string;
         locked: boolean;
         accountType: string;
+        createdAt: string;
+        updatedAt: string;
     }
     interface ApiResponse<T> {
         status: number;
@@ -62,11 +64,6 @@ declare global {
         hashtags: HashtagResponse[];
     }
 
-    interface BlogDetailsResponse extends BlogResponse {
-        comments: CommentResponse[],
-        likes: LikeResponse[],
-    }
-
     interface HashtagResponse {
         tagId: number;
         tagName: string;
@@ -75,33 +72,25 @@ declare global {
     interface QuestionResponse {
         questionId: number;
         title: string;
-        answers: AnswerResponse[];
-        quizzes: string[];
-        correctAnswers: string[];
+        correctAnswer: string[];
     }
 
     interface CourseResponse {
-        courseId: number,
-        courseName: string,
-        description: string,
-        thumbnail: string,
-        originalPrice: number,
-        salePrice: number,
-        expert: ExpertResponse,
-        totalPurchased: number,
-        createdAt: string,
-        updatedAt: string,
-    }
-
-    interface CourseDetailsResponse extends CourseResponse {
-        introduction: string,
-        objectives: string[],
-        accepted: boolean,
-        expert: ExpertDetailsResponse,
-        subjects: SubjectResponse[],
-        lessons: LessonResponse[],
-        totalLikes: number,
-        totalComments: number,
+        courseId: number;
+        courseName: string;
+        description: string;
+        objectives: string[];
+        thumbnail: string;
+        price: number;
+        accepted: boolean;
+        createdAt: string;
+        updatedAt: string;
+        subjects: SubjectResponse[];
+        lessons: LessonResponse[];
+        expert: ExpertResponse;
+        totalPurchased: number;
+        totalLikes: number;
+        totalComments: number;
     }
 
     interface DocumentResponse {
@@ -115,16 +104,10 @@ declare global {
 
     interface ExpertResponse {
         expertId: number;
+        diploma: string;
+        yearOfExperience: string;
+        totalCourses: number;
         user: UserResponse;
-    }
-
-    interface ExpertDetailsResponse extends ExpertResponse {
-        job: string,
-        achievement: string,
-        description: string,
-        yearOfExperience: number,
-        totalCourses: number,
-        totalStudents: number
     }
 
     interface VideoResponse {
@@ -155,26 +138,5 @@ declare global {
     interface MinMaxPriceResponse {
         minPrice: number;
         maxPrice: number;
-    }
-
-    interface CommentResponse {
-        content: string,
-        createdAt: string,
-        updatedAt: string,
-        user: UserResponse,
-        parentComment: CommentResponse,
-        replies: CommentResponse[],
-        likes: LikeResponse[],
-        blog: BlogResponse,
-        course: CourseResponse,
-
-    }
-
-    interface LikeResponse {
-        user: UserResponse,
-        blog: BlogResponse,
-        course: CourseResponse,
-        comment: CommentResponse,
-        createdAt: string,
     }
 }

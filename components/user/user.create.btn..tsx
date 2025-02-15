@@ -1,21 +1,21 @@
 'use client'
 
-import { Avatar, Button, DatePicker, DatePickerProps, Image, Input, Modal, notification, Select, Space } from "antd";
+import { Avatar, Button, DatePicker, DatePickerProps, Form, Image, Input, Modal, notification, Select, Space } from "antd";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { sendRequest } from "@/utils/fetch.api";
 import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
 import { validDob, validEmail, validFullName, validGender, validPassword, validRole } from "@/helper/create.user.helper";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const initState: ErrorResponse = {
     error: false,
     value: ''
 
 }
-const UserCreateBtn = (props: { handlePrint: any }) => {
-    const { handlePrint } = props
+const UserCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: any }) => {
+    const { handleExportPDF, handelOnExportExcel } = props
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -37,6 +37,8 @@ const UserCreateBtn = (props: { handlePrint: any }) => {
     const [errorMessage, setErrorMessage] = useState("");
     const [isPreviewVisible, setPreviewVisible] = useState<boolean>(false);
     const [urlAvatar, setUrlAvatar] = useState<ErrorResponse>(initState);
+    const searchParam = useSearchParams();
+    const pathName = usePathname()
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -164,6 +166,7 @@ const UserCreateBtn = (props: { handlePrint: any }) => {
 
 
 
+
     return (
         <>
 
@@ -173,13 +176,28 @@ const UserCreateBtn = (props: { handlePrint: any }) => {
                         Tạo người dùng
                     </Button>
                 </div>
-                <div>
-                    <Button style={{ background: 'orange' }} type="primary" onClick={() => {
-                        handlePrint()
-                    }} className="w-fit ">
-                        Xuất PDF
-                    </Button>
+
+                <div className="flex gap-2">
+                    <div>
+                        <Button
+                            style={{ background: 'green', borderColor: "green" }}
+                            type="primary"
+                            onClick={() => handelOnExportExcel()}
+                            className="w-fit hover:bg-green-100 hover:border-green-700">
+                            Xuất Excel
+                        </Button>
+                    </div>
+                    <div>
+                        <Button
+                            style={{ background: 'orange', borderColor: "orange" }}
+                            type="primary"
+                            onClick={() => { handleExportPDF() }}
+                            className="w-fit hover:bg-orange-500 hover:border-orange-700">
+                            Xuất PDF
+                        </Button>
+                    </div>
                 </div>
+
             </div>
             <Modal title="Tạo người dùng" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okText="Tạo" cancelText="Hủy">
                 <div className="mb-3">
