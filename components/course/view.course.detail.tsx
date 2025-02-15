@@ -5,10 +5,10 @@ import dayjs from 'dayjs'
 import React, { SetStateAction } from 'react'
 
 const ViewCourseDetail = (props: {
-    course: CourseResponse | null
+    course: CourseDetailsResponse | null
     openDraw: any
     setOpenDraw: any
-    setCourse: React.Dispatch<SetStateAction<CourseResponse | null>>
+    setCourse: React.Dispatch<SetStateAction<CourseDetailsResponse | null>>
 }) => {
 
     const { course, openDraw, setOpenDraw } = props
@@ -25,7 +25,8 @@ const ViewCourseDetail = (props: {
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tên khóa học: </span>{course.courseName}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Giảng viên: </span>{course.expert.user.fullname}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Mô tả: </span>{course.description}</div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Giá: </span>{course.price}</div>
+                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Giá gốc: </span>{course.originalPrice}</div>
+                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Giá giảm: </span>{course.salePrice}</div>
                     <div className='mb-2'>
                         <span className='text-blue-500 text-base mr-2 font-bold'>Ngày tạo: </span>
                         {dayjs(course.createdAt).format("DD/MM/YYYY")}

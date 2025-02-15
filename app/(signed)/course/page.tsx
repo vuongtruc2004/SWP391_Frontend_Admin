@@ -45,11 +45,11 @@ const CoursePage = async (props: {
     }
 
     if (priceFrom !== "" && priceTo !== "") {
-        filter += ` and price >: ${priceFrom} and price <: ${priceTo}`
+        filter += ` and originalPrice >: ${priceFrom} and originalPrice <: ${priceTo}`
     }
 
     console.log("filter: ", filter);
-    const courseResponse = await sendRequest<ApiResponse<PageDetailsResponse<CourseResponse[]>>>({
+    const courseResponse = await sendRequest<ApiResponse<PageDetailsResponse<CourseDetailsResponse[]>>>({
         url: `${apiUrl}/courses/all`,
         queryParams: {
             page: page,

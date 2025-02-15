@@ -9,6 +9,7 @@ import '@ant-design/v5-patch-for-react-19';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl } from '@/utils/url';
 import ViewCourseDetail from './view.course.detail';
+import BlogUpdate from '../blog/blog.update';
 
 
 
@@ -22,17 +23,17 @@ export const init = {
         value: ""
     }
 }
-const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseResponse[]> }) => {
+const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDetailsResponse[]> }) => {
     const { coursePageResponse } = props;
     const [openDraw, setOpenDraw] = useState(false);
-    const [course, setCourse] = useState<CourseResponse | null>(null);
+    const [course, setCourse] = useState<CourseDetailsResponse | null>(null);
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const router = useRouter();
     const [render, setRender] = useState(false);
     const page = Number(searchParams.get('page')) || 1; // Lấy số trang từ URL
     const deleteCourse = async (courseId: number) => {
-        const deleteResponse = await sendRequest<ApiResponse<CourseResponse>>({
+        const deleteResponse = await sendRequest<ApiResponse<CourseDetailsResponse>>({
             url: `${apiUrl}/courses/delete/${courseId}`,
             method: 'DELETE',
             headers: {
@@ -53,7 +54,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseResp
         }
     }
     const acceptCourse = async (courseId: number) => {
-        const acceptRes = await sendRequest<ApiResponse<CourseResponse>>({
+        const acceptRes = await sendRequest<ApiResponse<CourseDetailsResponse>>({
             url: `${apiUrl}/courses/accept/${courseId}`,
             method: 'PUT',
             headers: {
@@ -73,7 +74,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseResp
             })
         }
     }
-    const columns: TableProps<CourseResponse>['columns'] = [
+    const columns: TableProps<CourseDetailsResponse>['columns'] = [
         {
             title: 'Id',
             dataIndex: 'courseId',
@@ -98,13 +99,23 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseResp
             sorter: (a, b) => a.description.localeCompare(b.description),
         },
         {
-            title: 'Giá',
-            dataIndex: 'price',
-            key: 'price',
+            title: 'Giá gốc',
+            dataIndex: 'originalPrice',
+            key: 'originalPrice',
             width: '10%',
-            render: (price: number) => price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
+            render: (originalPrice: number) => originalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
             sorter: {
-                compare: (a, b) => a.price - b.price,
+                compare: (a, b) => a.originalPrice - b.originalPrice,
+            },
+        },
+        {
+            title: 'Giá giảm',
+            dataIndex: 'salePrice',
+            key: 'salePrice',
+            width: '10%',
+            render: (salePrice: number) => salePrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
+            sorter: {
+                compare: (a, b) => a.salePrice - b.salePrice,
             },
         },
         {
@@ -114,9 +125,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseResp
             width: '15%',
             align: 'center',
             render: (accepted: boolean) => (accepted === true ? <CheckOutlined style={{ color: 'green' }} /> : <CloseOutlined style={{ color: 'red' }} />),
-            sorter: {
-                compare: (a, b) => Number(a.accepted) - Number(b.accepted)
-            },
+
         },
         {
             title: 'Hành động',
