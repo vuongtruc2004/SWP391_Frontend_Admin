@@ -23,11 +23,10 @@ declare global {
     interface QuestionRequest {
         questionId?: number;
         title?: string;
-        answersId: number[];
-        answers: AnswerResponse[];
-        quizzes: string[];
-        correctAnswers: string[];
-
+        answersId?: number[];
+        answers?: AnswerResponse[];
+        quizzes?: string[];
+        correctAnswers?: string[];
     }
 
     interface UpdateUserRequest {

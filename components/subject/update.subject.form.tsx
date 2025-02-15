@@ -1,6 +1,5 @@
 'use client'
 import { ChangeEvent, useActionState, useEffect, useState } from 'react';
-import { UpdateSubjectFieldResponse, validSubject } from './action';
 import { Button, Image, Input, Modal, notification } from 'antd';
 import { EyeOutlined, SyncOutlined, WarningOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
@@ -9,23 +8,20 @@ import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl, storageUrl } from '@/utils/url';
 import { validDescription, validSubjectName } from '@/helper/create.subject.helper';
 
-
-interface IProps {
-    editingSubject: SubjectResponse | null;
-    setEditingSubject: React.Dispatch<React.SetStateAction<SubjectResponse | null>>;
-    openEditForm: boolean;
-    setOpenEditForm: React.Dispatch<React.SetStateAction<boolean>>;
-}
 const initState: ErrorResponse = {
     error: false,
     value: ''
 }
-const UpdateSubjectForm = (props: IProps) => {
+const UpdateSubjectForm = (props: {
+    editingSubject: SubjectResponse | null;
+    setEditingSubject: React.Dispatch<React.SetStateAction<SubjectResponse | null>>;
+    openEditForm: boolean;
+    setOpenEditForm: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
     const { editingSubject, setEditingSubject, openEditForm, setOpenEditForm } = props;
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
     const [subjectName, setSubjectName] = useState<ErrorResponse>(initState);
     const [description, setDescription] = useState<ErrorResponse>(initState);
-    const [errorMessage, setErrorMessage] = useState("");
     const [errThumbnail, setErrThumbnail] = useState("")
     const [urlThumbnail, setUrlThumbnail] = useState("");
     const router = useRouter();
@@ -68,8 +64,6 @@ const UpdateSubjectForm = (props: IProps) => {
             body: subjectRequest
         });
 
-        console.log(">>> check tao", updateResponse)
-
         if (updateResponse.status === 200) {
             handleCancel();
             router.refresh();
@@ -78,7 +72,10 @@ const UpdateSubjectForm = (props: IProps) => {
                 description: updateResponse.message.toString(),
             });
         } else {
-            setErrorMessage(updateResponse.message.toString());
+            notification.error({
+                message: "Thất bại",
+                description: "Thay đổi thông tin thất bại!",
+            });
         }
     };
 

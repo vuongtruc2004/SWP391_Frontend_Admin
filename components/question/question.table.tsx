@@ -1,10 +1,11 @@
 'use client'
-import { DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
 import { Popconfirm, Space, Table, TableProps } from 'antd';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import ViewQuestionDetail from './view.question.detail';
+import UpdateQuestionForm from './update.question.form';
 
 
 
@@ -22,6 +23,8 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
     const { questionPageResponse } = props;
     const [openDraw, setOpenDraw] = useState(false);
     const [question, setQuestion] = useState<QuestionResponse | null>(null);
+    const [editingQuestion, setEditingQuestion] = useState<QuestionResponse | null>(null)
+    const [openEditForm, setOpenEditForm] = useState(false);
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const router = useRouter();
@@ -55,6 +58,12 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
                         setOpenDraw(true);
                         setQuestion(record);
                     }} />
+                    <EditOutlined className="text-blue-500" style={{ color: "blue" }}
+                        onClick={() => {
+                            setEditingQuestion(record)
+                            setOpenEditForm(true)
+                        }}
+                    />
                     <Popconfirm
                         placement="left"
                         title="Xóa câu hỏi"
@@ -97,6 +106,13 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
                 openDraw={openDraw}
                 question={question}
                 setQuestion={setQuestion}
+            />
+
+            <UpdateQuestionForm
+                openEditForm={openEditForm}
+                setOpenEditForm={setOpenEditForm}
+                editingQuestion={editingQuestion}
+                setEditingQuestion={setEditingQuestion}
             />
 
 
