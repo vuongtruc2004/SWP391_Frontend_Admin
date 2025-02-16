@@ -1,13 +1,12 @@
 'use client'
-import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
-import React, { useEffect, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
-import Link from 'next/link';
+import { CheckOutlined, CloseOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
+import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
+import { useEffect, useState } from 'react';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl } from '@/utils/url';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ViewCourseDetail from './view.course.detail';
 
 
@@ -102,7 +101,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseResp
             dataIndex: 'price',
             key: 'price',
             width: '10%',
-            render: (price: number) => price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
+            // render: (price: number) => price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
             sorter: {
                 compare: (a, b) => a.price - b.price,
             },

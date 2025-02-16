@@ -1,3 +1,4 @@
+import CourseCreateBtn from "@/components/course/course.create.btn."
 import CourseSearch from "@/components/course/course.search"
 import CourseTable from "@/components/course/course.table"
 import { isFullNumber } from "@/helper/subject.helper"
@@ -65,6 +66,11 @@ const CoursePage = async (props: {
     return (
         <div className="border w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
             <CourseSearch keyword={keyword} accepted={accepted} createdFrom={createdFrom} createdTo={createdTo} minPrice={priceResponse.data.minPrice} maxPrice={priceResponse.data.maxPrice} />
+
+            <CourseCreateBtn
+                coursePageResponse={courseResponse.data}
+            />
+
             <CourseTable
                 coursePageResponse={courseResponse.data}
             />
