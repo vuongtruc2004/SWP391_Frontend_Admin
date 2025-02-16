@@ -19,7 +19,7 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
     const [isRotated, setIsRotated] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false); // Theo dõi trạng thái đã nhấn "Tạo"
-    const [messageApi] = message.useMessage();
+    const [loading, setLoading] = useState(false);
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [answers, setAnswers] = useState([{ content: "", correct: false, empty: true }]); // Mảng câu trả lời
 
@@ -30,17 +30,22 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
 
     const handleOk = async () => {
         setIsSubmitted(true); // Đánh dấu đã submit
-
+        setLoading(true); // Bật trạng thái loading
         const isTitleValid = validTitle(title, setTitle);
-        if (!isTitleValid) return;
+        if (!isTitleValid) {
+            setLoading(false);
+            return;
+        }
 
         // Kiểm tra nếu có câu trả lời rỗng
         if (answers.some(answer => answer.empty)) {
+            setLoading(false);
             return;
         }
 
         // Kiểm tra nếu không có đáp án nào đúng
         if (!answers.some(answer => answer.correct)) {
+            setLoading(false);
             return;
         }
 
@@ -88,6 +93,8 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
                 description: createQuestionResponse.message.toString(),
             });
         }
+        setLoading(false);
+
     };
 
     const handleCancel = () => {
@@ -138,10 +145,7 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
             <Modal
                 title="Tạo câu hỏi"
                 open={isModalOpen}
-                onOk={handleOk}
-                onCancel={handleCancel}
-                cancelText="Hủy"
-                okText="Tạo"
+                footer={null}
             >
                 <div>
                     <span className="text-red-500 mr-2">*</span>Tiêu đề:
@@ -198,6 +202,10 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
                     )}
                 </div>
 
+                <div className="flex justify-end mt-5">
+                    <Button className="mr-4" onClick={() => handleCancel()}>Hủy</Button>
+                    <Button loading={loading} type="primary" onClick={() => handleOk()}>Tạo</Button>
+                </div>
 
             </Modal>
 

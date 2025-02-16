@@ -21,6 +21,7 @@ const SubjectCreateBtn = (props: { subjectPageResponse: PageDetailsResponse<Subj
     const [errThumbnail, setErrThumbnail] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [urlThumbnail, setUrlThumbnail] = useState("");
+    const [loading, setLoading] = useState(false);
     const [subjectName, setSubjectName] = useState<ErrorResponse>(initState);
     const [description, setDescription] = useState<ErrorResponse>(initState);
 
@@ -30,6 +31,7 @@ const SubjectCreateBtn = (props: { subjectPageResponse: PageDetailsResponse<Subj
     };
 
     const handleOk = async () => {
+        setLoading(true);
         // Kiểm tra tất cả các giá trị
         const isSubjectNameValid = validSubjectName(subjectName, setSubjectName);
         const isDescriptionValid = validDescription(description, setDescription);
@@ -39,8 +41,10 @@ const SubjectCreateBtn = (props: { subjectPageResponse: PageDetailsResponse<Subj
             setErrThumbnail("Ảnh không được để rỗng!")
             if (urlThumbnail !== "") {
                 setErrThumbnail("")
+                setLoading(false);
                 return
             }
+            setLoading(false);
             return
         }
 
@@ -59,7 +63,6 @@ const SubjectCreateBtn = (props: { subjectPageResponse: PageDetailsResponse<Subj
             body: subjectRequest
         });
 
-
         if (createResponse.status === 201) {
             handleCancel();
             router.refresh();
@@ -74,6 +77,7 @@ const SubjectCreateBtn = (props: { subjectPageResponse: PageDetailsResponse<Subj
                 description: createResponse.message.toString(),
             });
         }
+        setLoading(false);
     };
 
     const handleCancel = () => {
@@ -82,10 +86,6 @@ const SubjectCreateBtn = (props: { subjectPageResponse: PageDetailsResponse<Subj
         setUrlThumbnail("")
         setIsModalOpen(false);
         setErrThumbnail("")
-    };
-
-    const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        console.log(e);
     };
 
     const handleUploadFile = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -132,10 +132,7 @@ const SubjectCreateBtn = (props: { subjectPageResponse: PageDetailsResponse<Subj
             <Modal
                 title="Tạo công nghệ"
                 open={isModalOpen}
-                onOk={handleOk}
-                onCancel={handleCancel}
-                cancelText="Hủy"
-                okText="Tạo">
+                footer={null}>
                 <Row gutter={24} className="mb-7">
                     <Col span={17} className="flex flex-col space-y-6 ">
                         <div>
@@ -247,7 +244,10 @@ const SubjectCreateBtn = (props: { subjectPageResponse: PageDetailsResponse<Subj
                     </Col>
                 </Row>
 
-
+                <div className="flex justify-end mt-5">
+                    <Button className="mr-4" onClick={() => handleCancel()}>Hủy</Button>
+                    <Button loading={loading} type="primary" onClick={() => handleOk()}>Tạo</Button>
+                </div>
 
             </Modal >
         </>

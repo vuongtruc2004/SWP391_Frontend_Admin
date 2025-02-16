@@ -54,11 +54,11 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
             width: '20%',
             render: (_, record: any) => (
                 <Space size="middle">
-                    <InfoCircleOutlined style={{ color: "blue" }} onClick={() => {
+                    <InfoCircleOutlined style={{ color: "green" }} onClick={() => {
                         setOpenDraw(true);
                         setQuestion(record);
                     }} />
-                    <EditOutlined className="text-blue-500" style={{ color: "blue" }}
+                    <EditOutlined style={{ color: "blue" }}
                         onClick={() => {
                             setEditingQuestion(record)
                             setOpenEditForm(true)

@@ -24,6 +24,7 @@ const UpdateSubjectForm = (props: {
     const [description, setDescription] = useState<ErrorResponse>(initState);
     const [errThumbnail, setErrThumbnail] = useState("")
     const [urlThumbnail, setUrlThumbnail] = useState("");
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
     useEffect(() => {
         if (editingSubject) {
@@ -42,12 +43,14 @@ const UpdateSubjectForm = (props: {
     }, [editingSubject]);
 
     const handleOk = async () => {
+        setLoading(true);
         // Kiểm tra tất cả các giá trị
         const isSubjectNameValid = validSubjectName(subjectName, setSubjectName);
         const isDescriptionValid = validDescription(description, setDescription);
 
         // Nếu bất kỳ giá trị nào không hợp lệ, dừng lại
         if (!isSubjectNameValid || !isDescriptionValid) {
+            setLoading(false)
             return;
         }
         const subjectRequest: SubjectRequest = {
@@ -77,6 +80,7 @@ const UpdateSubjectForm = (props: {
                 description: "Thay đổi thông tin thất bại!",
             });
         }
+        setLoading(false)
     };
 
     const handleCancel = () => {
@@ -108,7 +112,7 @@ const UpdateSubjectForm = (props: {
     }
 
     return (
-        <Modal title="Cập nhật công nghệ" open={openEditForm} onOk={handleOk} onCancel={handleCancel} cancelText="Hủy" okText="Cập nhật">
+        <Modal title="Cập nhật công nghệ" open={openEditForm} footer={null}>
             <div className="mb-3">
                 <span className="text-red-500 mr-2">*</span>Id:
                 <Input
@@ -198,6 +202,11 @@ const UpdateSubjectForm = (props: {
                         className="hidden"
                     />
                 </div>
+            </div>
+
+            <div className="flex justify-end mt-5">
+                <Button className="mr-4" onClick={() => handleCancel()}>Hủy</Button>
+                <Button loading={loading} type="primary" onClick={() => handleOk()}>Cập nhật</Button>
             </div>
         </Modal>
     )

@@ -28,7 +28,7 @@ const UpdateQuestionForm = (props: {
         { content: string; correct: boolean; answersId: number | null; empty: boolean }[]
     >([]);
     const [isSubmitted, setIsSubmitted] = useState(false); // Theo dõi trạng thái đã nhấn "Tạo"
-
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
     useEffect(() => {
         if (editingQuestion) {
@@ -52,22 +52,25 @@ const UpdateQuestionForm = (props: {
     const handleOk = async () => {
 
         setIsSubmitted(true); // Đánh dấu đã submit
-
+        setLoading(true);
         // Kiểm tra tất cả các giá trị
         const isTitleValid = validTitle(title, setTitle);
 
         // Nếu bất kỳ giá trị nào không hợp lệ, dừng lại
         if (!isTitleValid) {
+            setLoading(false);
             return;
         }
 
         // Kiểm tra nếu có câu trả lời rỗng
         if (answers.some(answer => answer.empty)) {
+            setLoading(false);
             return;
         }
 
         // Kiểm tra nếu không có đáp án nào đúng
         if (!answers.some(answer => answer.correct)) {
+            setLoading(false);
             return;
         }
 
@@ -86,7 +89,6 @@ const UpdateQuestionForm = (props: {
             answers.map(async (answer) => {
                 if (answer.answersId !== null) {
                     // Cập nhật đáp án
-                    console.log(">>> in update")
                     return sendRequest<ApiResponse<AnswerResponse>>({
                         url: `${apiUrl}/answers/update/${answer.answersId}`,
                         method: 'PATCH',
@@ -98,7 +100,6 @@ const UpdateQuestionForm = (props: {
                     });
                 } else {
                     // Tạo mới đáp án
-                    console.log(">>> in add")
                     return sendRequest<ApiResponse<AnswerResponse>>({
                         url: `${apiUrl}/answers`,
                         method: 'POST',
@@ -116,7 +117,6 @@ const UpdateQuestionForm = (props: {
         // Xóa đáp án không còn tồn tại
         await Promise.all(
             deletedAnswers.map(async (answer) => {
-                console.log(">>> in delete")
                 return sendRequest<ApiResponse<null>>({
                     url: `${apiUrl}/answers/delete/${answer.answersId}`,
                     method: 'DELETE'
@@ -148,7 +148,7 @@ const UpdateQuestionForm = (props: {
                 description: "Thay đổi thông tin thất bại!",
             });
         }
-
+        setLoading(false);
     };
 
     const handleCancel = () => {
@@ -182,7 +182,7 @@ const UpdateQuestionForm = (props: {
     };
 
     return (
-        <Modal title="Cập nhật câu hỏi" open={openEditForm} onOk={handleOk} onCancel={handleCancel} cancelText="Hủy" okText="Cập nhật">
+        <Modal title="Cập nhật câu hỏi" open={openEditForm} footer={null}>
             <div className="mb-3">
                 <span className="text-red-500 mr-2">*</span>Id:
                 <Input
@@ -253,6 +253,12 @@ const UpdateQuestionForm = (props: {
                     </p>
                 )}
             </div>
+
+            <div className="flex justify-end mt-5">
+                <Button className="mr-4" onClick={() => handleCancel()}>Hủy</Button>
+                <Button loading={loading} type="primary" onClick={() => handleOk()}>Cập nhật</Button>
+            </div>
+
         </Modal>
     )
 }
