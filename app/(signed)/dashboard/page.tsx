@@ -1,4 +1,5 @@
 
+import TotalRevenueCard from "@/components/dashboard/total.revenue.card";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,8 +7,9 @@ export const metadata: Metadata = {
 };
 const DashboardPage = () => {
     return (
-        <div>DashboardPage</div>
-    )
+        <div>
+            <TotalRevenueCard />
+        </div>)
 }
 
 export default DashboardPage
