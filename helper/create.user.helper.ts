@@ -129,3 +129,30 @@ export const validDobUpdate = (dob: ErrorResponse, setDob: React.Dispatch<SetSta
     return true;
 
 }
+
+export const getLocked = (value: string | undefined | null) => {
+
+    if (!value || (value !== 'active' && value !== 'unactive')) {
+        return 'ALL';
+    }
+    else {
+        return value;
+    }
+
+}
+export const getRoleName = (value: string | undefined | null) => {
+    if (!value || (value !== 'ADMIN' && value !== 'EXPERT' && value !== 'USER' && value !== 'MARKETING')) {
+        return 'ALL';
+    } else {
+        return value;
+    }
+}
+
+export const getGender = (value: string | null | undefined) => {
+
+    if (!value || (value !== 'MALE' && value !== 'FEMALE')) {
+        return 'ALL';
+    } else {
+        return value;
+    }
+}

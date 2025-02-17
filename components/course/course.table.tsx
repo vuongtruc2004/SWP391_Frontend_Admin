@@ -103,7 +103,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             dataIndex: 'originalPrice',
             key: 'originalPrice',
             width: '10%',
-            render: (originalPrice: number) => originalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
+            // render: (originalPrice: number) => originalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
             sorter: {
                 compare: (a, b) => a.originalPrice - b.originalPrice,
             },
@@ -113,7 +113,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             dataIndex: 'salePrice',
             key: 'salePrice',
             width: '10%',
-            render: (salePrice: number) => salePrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
+            // render: (salePrice: number) => salePrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
             sorter: {
                 compare: (a, b) => a.salePrice - b.salePrice,
             },

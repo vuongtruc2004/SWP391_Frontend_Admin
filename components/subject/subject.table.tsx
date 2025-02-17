@@ -1,7 +1,7 @@
 'use client'
 import { DeleteOutlined, DoubleRightOutlined, EditOutlined, PictureOutlined } from '@ant-design/icons';
 import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
-import React, { useState } from 'react'
+import React, { RefObject, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
 import Link from 'next/link';
 import '@ant-design/v5-patch-for-react-19';
@@ -21,8 +21,8 @@ export const init = {
         value: ""
     }
 }
-const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectResponse[]> }) => {
-    const { subjectPageResponse } = props;
+const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectResponse[]>, componentPDF: RefObject<HTMLDivElement | null> }) => {
+    const { subjectPageResponse, componentPDF } = props;
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const router = useRouter();
@@ -160,25 +160,26 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
 
     return (
         <>
-            <Table
-                className="overflow-y-auto max-h-[calc(100vh-100px)] mb-8 pl-6 pr-6"
-                columns={columns}
-                dataSource={subjectPageResponse.content}
-                rowKey={"subjectId"}
-                pagination={{
-                    current: page,
-                    pageSize: subjectPageResponse.pageSize,
-                    total: subjectPageResponse.totalElements,
-                    showSizeChanger: false,
-                    onChange(page, pageSize) {
-                        const params = new URLSearchParams(searchParams);
-                        params.set('page', page.toString());
-                        router.replace(`${pathname}?${params}`);
-                    },
-                }}
-                showSorterTooltip={false}
-            />
-
+            <div className='overflow-y-auto' ref={componentPDF} >
+                <Table
+                    className="max-h-[calc(100vh-100px)] mb-8 pl-6 pr-6"
+                    columns={columns}
+                    dataSource={subjectPageResponse.content}
+                    rowKey={"subjectId"}
+                    pagination={{
+                        current: page,
+                        pageSize: subjectPageResponse.pageSize,
+                        total: subjectPageResponse.totalElements,
+                        showSizeChanger: false,
+                        onChange(page, pageSize) {
+                            const params = new URLSearchParams(searchParams);
+                            params.set('page', page.toString());
+                            router.replace(`${pathname}?${params}`);
+                        },
+                    }}
+                    showSorterTooltip={false}
+                />
+            </div>
             <UpdateSubjectForm
                 openEditForm={openEditForm}
                 setOpenEditForm={setOpenEditForm}

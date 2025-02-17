@@ -1,4 +1,5 @@
 import SubjectCreateBtn from "@/components/subject/subject.create.btn."
+import SubjectPageClient from "@/components/subject/subject.page.client"
 import SubjectSearch from "@/components/subject/subject.search"
 import SubjectTable from "@/components/subject/subject.table"
 import { isFullNumber } from "@/helper/subject.helper"
@@ -35,20 +36,43 @@ const SubjectPage = async (props: {
 
     })
 
+    const fetchAllSubjects = async () => {
+        let allSubjects: SubjectResponse[] = [];
+        let currentPage = 1;
+        let totalPages = 1;
+
+        do {
+            const response = await sendRequest<ApiResponse<PageDetailsResponse<SubjectResponse[]>>>({
+                url: `${apiUrl}/subjects/all`,
+                queryParams: {
+                    page: currentPage,
+                    size: 10,
+                    filter: filter
+                },
+            });
+
+            if (response?.data) {
+                allSubjects = [...allSubjects, ...response.data.content];
+                totalPages = response.data.totalPages;
+            } else {
+                break;
+            }
+
+            currentPage++;
+        } while (currentPage <= totalPages);
+
+        return allSubjects;
+    };
+
+    const allSubjects = await fetchAllSubjects();
+
+
     return (
 
 
         <div className="borde w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
+            <SubjectPageClient keyword={keyword} subjectPageResponse={subjectResponse.data} allSubjects={allSubjects} />
 
-            <SubjectSearch keyword={keyword} />
-
-            <SubjectCreateBtn
-                subjectPageResponse={subjectResponse.data}
-            />
-
-            <SubjectTable
-                subjectPageResponse={subjectResponse.data}
-            />
         </div>
     )
 }

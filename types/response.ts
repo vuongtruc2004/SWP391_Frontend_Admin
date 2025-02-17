@@ -76,21 +76,16 @@ declare global {
     }
 
     interface CourseResponse {
-        courseId: number;
-        courseName: string;
-        description: string;
-        objectives: string[];
-        thumbnail: string;
-        price: number;
-        accepted: boolean;
-        createdAt: string;
-        updatedAt: string;
-        subjects: SubjectResponse[];
-        lessons: LessonResponse[];
-        expert: ExpertResponse;
-        totalPurchased: number;
-        totalLikes: number;
-        totalComments: number;
+        courseId: number,
+        courseName: string,
+        description: string,
+        thumbnail: string,
+        originalPrice: number,
+        salePrice: number,
+        expert: ExpertResponse,
+        totalPurchased: number,
+        createdAt: string,
+        updatedAt: string,
     }
 
     interface DocumentResponse {
@@ -105,7 +100,7 @@ declare global {
     interface ExpertResponse {
         expertId: number;
         diploma: string;
-        yearOfExperience: string;
+        yearOfExperience: number;
         totalCourses: number;
         user: UserResponse;
     }
@@ -138,5 +133,24 @@ declare global {
     interface MinMaxPriceResponse {
         minPrice: number;
         maxPrice: number;
+    }
+    interface CourseDetailsResponse extends CourseResponse {
+        introduction: string,
+        objectives: string[],
+        accepted: boolean,
+        expert: ExpertDetailsResponse,
+        subjects: SubjectResponse[],
+        lessons: LessonResponse[],
+        totalLikes: number,
+        totalComments: number,
+    }
+
+    interface ExpertDetailsResponse extends ExpertResponse {
+        job: string,
+        achievement: string,
+        description: string,
+        yearOfExperience: number,
+        totalCourses: number,
+        totalStudents: number
     }
 }

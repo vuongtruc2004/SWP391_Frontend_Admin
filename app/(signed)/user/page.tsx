@@ -6,6 +6,7 @@ import { isFullNumber } from "@/helper/subject.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import UserPageClient from "@/components/user/user.page.client";
+import { getGender, getLocked, getRoleName } from "@/helper/create.user.helper";
 
 export const metadata: Metadata = {
     title: "Quản lí người dùng",
@@ -24,9 +25,9 @@ const UserPage = async (props: {
     const searchParams = await props.searchParams;
     const keyword = searchParams.keyword || "";
     const page = searchParams.page || 1;
-    const roleName = searchParams.roleName || "ALL";
-    const locked = searchParams.locked || "ALL";
-    const gender = searchParams.gender || "ALL";
+    const roleName = getRoleName(searchParams.roleName);
+    const locked = getLocked(searchParams.locked);
+    const gender = getGender(searchParams.gender);
 
     let filter = '';
     if (isFullNumber(keyword)) {
@@ -35,7 +36,7 @@ const UserPage = async (props: {
     else {
         filter = `(fullname ~ '${keyword}' or email ~ '${keyword}' or role.roleName ~ '${keyword}')`;
     }
-    console.log('keyword>>>>', keyword);
+
     if (roleName !== 'ALL') {
         filter += ` and role.roleName ~ '${roleName}'`;
     }
@@ -43,9 +44,9 @@ const UserPage = async (props: {
         filter += `and locked : ${locked === 'active' ? false : true}`;
     }
     if (gender !== 'ALL') {
-        filter += ` and gender ~ '${gender}'`;
+        filter += ` and gender : '${gender}'`;
     }
-    console.log("filter?????", filter);
+
     const userResponse = await sendRequest<ApiResponse<PageDetailsResponse<UserResponse[]>>>({
         url: `${apiUrl}/users`,
         queryParams: {
@@ -58,26 +59,26 @@ const UserPage = async (props: {
     const fetchAllUsers = async () => {
         let allUsers: UserResponse[] = [];
         let currentPage = 1;
-        let totalPages = 1; // Giả định số trang ban đầu là 1
+        let totalPages = 1;
 
         do {
             const response = await sendRequest<ApiResponse<PageDetailsResponse<UserResponse[]>>>({
                 url: `${apiUrl}/users`,
                 queryParams: {
                     page: currentPage,
-                    size: 10, // Kích thước mỗi trang
+                    size: 10,
                     filter: filter
                 },
             });
 
             if (response?.data) {
-                allUsers = [...allUsers, ...response.data.content]; // Gộp dữ liệu từ từng trang
-                totalPages = response.data.totalPages; // Lấy tổng số trang từ API
+                allUsers = [...allUsers, ...response.data.content];
+                totalPages = response.data.totalPages;
             } else {
-                break; // Nếu không có dữ liệu, thoát vòng lặp
+                break;
             }
 
-            currentPage++; // Tăng trang để lấy dữ liệu tiếp theo
+            currentPage++;
         } while (currentPage <= totalPages);
 
         return allUsers;

@@ -1,7 +1,7 @@
 'use client'
 
 import { Avatar, Button, DatePicker, DatePickerProps, Form, Image, Input, Modal, notification, Select, Space } from "antd";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import dayjs from "dayjs";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { sendRequest } from "@/utils/fetch.api";
@@ -37,8 +37,7 @@ const UserCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: any }
     const [errorMessage, setErrorMessage] = useState("");
     const [isPreviewVisible, setPreviewVisible] = useState<boolean>(false);
     const [urlAvatar, setUrlAvatar] = useState<ErrorResponse>(initState);
-    const searchParam = useSearchParams();
-    const pathName = usePathname()
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -85,7 +84,7 @@ const UserCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: any }
             roleName: role.value,
             gender: gender.value,
             dob: dayjs(dob.value).format("YYYY-MM-DD"),
-            avatar: urlAvatar.value // Gửi avatar vào backend
+            avatar: urlAvatar.value
         };
 
         const createResponse = await sendRequest<ApiResponse<UserResponse>>({
@@ -164,7 +163,12 @@ const UserCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: any }
         }
     };
 
-
+    const handleSyncClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ""; // Reset input file để đảm bảo onchange luôn kích hoạt
+            fileInputRef.current.click();
+        }
+    };
 
 
     return (
@@ -352,16 +356,7 @@ const UserCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: any }
                         </p>
                     )}
                 </div>
-                {/* <div className="mb-3">
-                    <span className="text-red-500 mr-2">*</span>Ảnh:
-                    <label className="block w-20 h-20 bg-gray-200 text-gray-700 border border-gray-400 
-                        flex items-center justify-center cursor-pointer rounded-md 
-                        hover:bg-gray-300 transition">
-                        Chọn ảnh
-                        <input type="file" hidden onChange={handleUploadFile} />
-                    </label>
-                    <Image src={avatar?.startsWith("http") ? avatar : `${storageUrl}/avatar/${avatar}`} alt="avatar" width={200} height={200} />
-                </div>  */}
+
 
                 <span className="text-red-500 mr-2">*</span>Ảnh:
                 <div>
@@ -377,17 +372,17 @@ const UserCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: any }
                                 type="file"
                                 onChange={handleUploadFile}
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                style={{ maxWidth: "120px", maxHeight: "120px" }} // Giới hạn kích thước input file
+                                style={{ maxWidth: "120px", maxHeight: "120px" }}
                             />
                         </div>
                     ) : (
                         <>
                             <Image
-                                width={120} // Giảm kích thước ảnh
-                                height={120} // Đảm bảo ảnh vuông
+                                width={120}
+                                height={120}
                                 style={{
-                                    objectFit: "cover", // Giữ nguyên tỷ lệ và crop nếu cần
-                                    borderRadius: "8px" // Làm tròn góc nếu muốn
+                                    objectFit: "cover",
+                                    borderRadius: "8px"
                                 }}
                                 preview={{
                                     mask: <span><EyeOutlined />  Xem trước</span>,
@@ -398,11 +393,12 @@ const UserCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: any }
                                 alt="Xem trước"
                             />
 
-                            <SyncOutlined className="text-blue-500 text-lg ml-6" onClick={() => document.getElementById("chooseFile")?.click()} />
+                            <SyncOutlined className="text-lg ml-6" style={{ color: '#3366CC' }}
+                                onClick={handleSyncClick} />
 
                             <input
                                 type="file"
-                                id="chooseFile"
+                                ref={fileInputRef}
                                 onChange={handleUploadFile}
                                 className="hidden"
                             />

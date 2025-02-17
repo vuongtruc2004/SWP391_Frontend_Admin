@@ -1,7 +1,8 @@
-import { storageUrl } from '@/utils/url'
+import { sendRequest } from '@/utils/fetch.api'
+import { apiUrl, storageUrl } from '@/utils/url'
 import { DoubleRightOutlined } from '@ant-design/icons'
 import { Collapse, Drawer } from 'antd'
-import React, { SetStateAction } from 'react'
+import React, { SetStateAction, useEffect, useState } from 'react'
 
 interface IProps {
     user: UserResponse | null
@@ -16,7 +17,24 @@ const ViewUserDetail = (props: IProps) => {
     const onClose = () => {
         setOpenDraw(false);
     };
+    const [expertDetailsResponse, setExpertDetailResponse] = useState<ExpertDetailsResponse | null>(null);
+    const [showDescription, setShowDescription] = useState(false);
+    useEffect(() => {
+        const fetchApi = async () => {
+            const expertDetailResponse = await sendRequest<ApiResponse<ExpertDetailsResponse>>({
+                url: `${apiUrl}/experts/${user?.userId}`
+            });
+            if (expertDetailResponse.status === 200) {
+                setExpertDetailResponse(expertDetailResponse.data);
+            }
+        }
+        if (user?.roleName === 'EXPERT') {
+            fetchApi();
+        }
 
+
+
+    }, [user])
     return (
         <>
             <Drawer title="THÔNG TIN CHI TIẾT" onClose={onClose} open={openDraw}>
@@ -27,21 +45,18 @@ const ViewUserDetail = (props: IProps) => {
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Giới tính: </span>{user.gender ? (user.gender === "MALE" ? 'Nam' : 'Nữ)') : 'Chưa thiết lập'}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ngày sinh: </span>{user.dob == null ? 'Chưa cung cấp ngày sinh' : user.dob}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Loại tài khoản: </span>{user.accountType}</div>
-                    {/* 
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>
-                        Số lượng khóa học: </span>{user.totalCourses}
-                        <Collapse
-                            items={[{
-                                label: 'Xem chi tiết',
-                                children:
-                                    <ul className='ml-4'>
-                                        {[...user.listCourses].map((course, index) => (
-                                            <ol key={index}><span className='gap-2 mr-2'><DoubleRightOutlined style={{ color: 'green' }} /></span>{course}</ol>
-                                        ))}
-                                    </ul>
-                            }]}
-                        />
-                    </div> */}
+
+                    {user.roleName === 'EXPERT' ? <>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Thành tựu: </span>{expertDetailsResponse?.achievement}</div>
+                        <div className={`mb-2 ${!showDescription && 'line-clamp-3 cursor-pointer '}`} onClick={() => setShowDescription(prev => !prev)}> <span className=' text-blue-500 text-base mr-2 font-bold' >Mô tả: </span>{expertDetailsResponse?.description}</div>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Công việc: </span>{expertDetailsResponse?.job}</div>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Số lượng học viên: </span>{expertDetailsResponse?.totalStudents}</div>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Số lượng khóa học: </span>{expertDetailsResponse?.totalCourses}</div>
+                    </> : ''
+                    }
+
+
+
 
 
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ảnh:</span> </div><br />

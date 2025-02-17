@@ -12,8 +12,8 @@ const initState: ErrorResponse = {
     error: false,
     value: ''
 }
-const SubjectCreateBtn = (props: { subjectPageResponse: PageDetailsResponse<SubjectResponse[]> }) => {
-
+const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: any }) => {
+    const { handelOnExportExcel, handleExportPDF } = props;
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
@@ -112,12 +112,12 @@ const SubjectCreateBtn = (props: { subjectPageResponse: PageDetailsResponse<Subj
     }
 
     return (
-        <>
+        <><div className="flex justify-between items-center mb-4 px-6">
             <div className="">
                 <Button
                     type="primary"
                     onClick={showModal}
-                    className="w-fit ml-[40px] !pt-5 !pb-5"
+                    className="w-fit !pt-5 !pb-5"
                     icon={
                         <PlusOutlined
                             className={`transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`}
@@ -126,9 +126,29 @@ const SubjectCreateBtn = (props: { subjectPageResponse: PageDetailsResponse<Subj
                 >
                     Tạo mới
                 </Button>
-
+            </div>
+            <div className="flex gap-2">
+                <div>
+                    <Button
+                        style={{ background: 'green', borderColor: "green" }}
+                        type="primary"
+                        onClick={() => handelOnExportExcel()}
+                        className="w-fit hover:bg-green-100 hover:border-green-700">
+                        Xuất Excel
+                    </Button>
+                </div>
+                <div>
+                    <Button
+                        style={{ background: 'orange', borderColor: "orange" }}
+                        type="primary"
+                        onClick={() => { handleExportPDF() }}
+                        className="w-fit hover:bg-orange-500 hover:border-orange-700">
+                        Xuất PDF
+                    </Button>
+                </div>
             </div>
 
+        </div>
             <Modal
                 title="Tạo công nghệ"
                 open={isModalOpen}

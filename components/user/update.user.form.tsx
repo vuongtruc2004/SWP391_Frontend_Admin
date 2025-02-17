@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Avatar, DatePicker, DatePickerProps, Image, Input, Modal, notification, Select, Space } from 'antd';
 import { useRouter } from 'next/navigation';
 import '@ant-design/v5-patch-for-react-19';
@@ -44,6 +44,7 @@ const UpdateUserForm = (props: IProps) => {
     const handleDateChange: DatePickerProps["onChange"] = (date) => {
         setDob({ ...dob, value: date ? dayjs(date).format("YYYY-MM-DD") : "", error: false });
     };
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (editingUser) {
@@ -148,8 +149,8 @@ const UpdateUserForm = (props: IProps) => {
 
     const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            const selectedFile = e.target.files[0]; // Lấy file người dùng chọn
-            setAvatar(selectedFile); // Cập nhật state avatar
+            const selectedFile = e.target.files[0];
+            setAvatar(selectedFile);
 
             const formData = new FormData();
             formData.append('file', selectedFile);
@@ -161,13 +162,20 @@ const UpdateUserForm = (props: IProps) => {
                 headers: {},
                 body: formData
             });
-
+            // console.log("imageRes>>>>>.", imageResponse);
             if (imageResponse.status === 200 && imageResponse.data?.avatar) {
-                setUrlAvatar({ ...urlAvatar, value: imageResponse.data.avatar }); // Lưu URL avatar mới
+                setUrlAvatar({ ...urlAvatar, value: imageResponse.data.avatar });
                 setErrorMessage("")
             } else {
                 setErrorMessage(imageResponse.message.toString());
             }
+        }
+    };
+
+    const handleSyncClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+            fileInputRef.current.click();
         }
     };
 
@@ -302,22 +310,7 @@ const UpdateUserForm = (props: IProps) => {
                     </p>
                 )}
             </div>
-            {/* <div className="mb-3">
-                    <span className="text-red-500 mr-2">*</span>Ảnh:
-                    <label className="block w-20 h-20 bg-gray-200 text-gray-700 border border-gray-400 
-                        flex items-center justify-center cursor-pointer rounded-md 
-                        hover:bg-gray-300 transition">
-                        Chọn ảnh
-                        <input type="file" hidden onChange={handleFileChange} />
-                    </label>
-                    <Image src={avatar?.startsWith("http") ? avatar : `${storageUrl}/avatar/${avatar}`} alt="avatar" width={200} height={200} />
-                </div> */}
-            {/* {errorMessage !== "" && (
-                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                    <WarningOutlined />
-                    {errorMessage}
-                </p>
-            )} */}
+
 
             <span className="text-red-500 mr-2">*</span>Ảnh:
             <div>
@@ -339,11 +332,11 @@ const UpdateUserForm = (props: IProps) => {
                 ) : (
                     <>
                         <Image
-                            width={120} // Giảm kích thước ảnh
-                            height={120} // Đảm bảo ảnh vuông
+                            width={120}
+                            height={120}
                             style={{
-                                objectFit: "cover", // Giữ nguyên tỷ lệ và crop nếu cần
-                                borderRadius: "8px" // Làm tròn góc nếu muốn
+                                objectFit: "cover",
+                                borderRadius: "8px"
                             }}
                             preview={{
                                 visible: isPreviewVisible,
@@ -353,11 +346,12 @@ const UpdateUserForm = (props: IProps) => {
                             alt="Preview"
                         />
 
-                        <SyncOutlined className="text-blue-500 text-lg ml-6" onClick={() => document.getElementById("chooseFile")?.click()} />
+                        <SyncOutlined className="text-lg ml-6" style={{ color: '#3366CC' }}
+                            onClick={handleSyncClick} />
 
                         <input
                             type="file"
-                            id="chooseFile"
+                            ref={fileInputRef}
                             onChange={handleUploadFile}
                             className="hidden"
                         />

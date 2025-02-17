@@ -28,75 +28,21 @@ const UserSearch = (props: {
     const onFinish = (values: any) => {
         const { keyword, roleName, locked, gender } = values;
 
-        const newSearchParam = new URLSearchParams(searchParam.toString());
-        if (keyword) {
-            newSearchParam.set("keyword", keyword)
-        } else {
-            newSearchParam.delete("keyword")
-        }
+        const newSearchParam = new URLSearchParams(searchParam);
 
-        if (locked !== "ALL") {
-            newSearchParam.set("locked", locked);
-        } else {
-            newSearchParam.delete("locked");
-        }
-        if (roleName !== "ALL") {
-            newSearchParam.set("roleName", roleName);
-        } else {
-            newSearchParam.delete("roleName");
-        }
-        if (gender !== "ALL") {
-            newSearchParam.set("gender", gender);
-        } else {
-            newSearchParam.delete("gender");
-        }
-
+        newSearchParam.set("keyword", keyword)
+        newSearchParam.set("locked", locked);
+        newSearchParam.set("roleName", roleName);
+        newSearchParam.set("gender", gender);
         newSearchParam.set("page", "1")
         router.replace(`${pathName}?${newSearchParam}`)
     };
 
-    // const handleChangeLocked = (value: string) => {
-    //     form.setFieldsValue({ locked: value });
-    //     const newSearchParam = new URLSearchParams(searchParam)
-    //     newSearchParam.set('locked', value);
-    //     if (keyword) newSearchParam.set("keyword", keyword);
-    //     newSearchParam.set("page", "1")
-    //     router.replace(`${pathName}?${newSearchParam}`)
-    // }
-    // const handleChangeRole = (value: string) => {
-    //     form.setFieldsValue({ roleName: value });
-    //     const newSearchParam = new URLSearchParams(searchParam)
-    //     newSearchParam.set('roleName', value);
-    //     if (keyword) newSearchParam.set("keyword", keyword);
-    //     newSearchParam.set("page", "1")
-    //     router.replace(`${pathName}?${newSearchParam}`)
-    // }
-    // const handleChangeGender = (value: string) => {
-    //     form.setFieldsValue({ gender: value });
-
-    //     const newSearchParam = new URLSearchParams(searchParam.toString());
-    //     if (value !== "ALL") {
-    //         newSearchParam.set("gender", value);
-    //     } else {
-    //         newSearchParam.delete("gender");
-    //     }
-
-    //     // Đảm bảo tất cả các thông tin tìm kiếm khác không bị mất
-    //     if (keyword) newSearchParam.set("keyword", keyword);
-    //     if (roleName !== "ALL") newSearchParam.set("roleName", roleName);
-    //     if (locked !== "ALL") newSearchParam.set("locked", locked);
-
-    //     newSearchParam.set("page", "1");
-    //     router.replace(`${pathName}?${newSearchParam.toString()}`);
-
-    //     // Submit form để đảm bảo cập nhật UI
-    //     form.submit();
-    // };
 
 
     useEffect(() => {
         form.setFieldsValue({ keyword, roleName, locked, gender });
-    }, [keyword, roleName, locked, gender, searchParam.toString()]);
+    }, []);
 
     return (
         <div className="flex gap-4 ml-10 mt-10">
@@ -106,9 +52,6 @@ const UserSearch = (props: {
                         placeholder="Tìm kiếm người dùng, email, role"
                         prefix={<SearchOutlined />}
                         className='!p-[10px]'
-                        onChange={(e) => {
-                            form.setFieldValue("keyword", e.target.value);
-                        }}
                         onPressEnter={() => form.submit()}
                     />
                 </Form.Item>
@@ -118,7 +61,6 @@ const UserSearch = (props: {
                             style={{ width: 150 }}
                             allowClear={false}
                             onChange={(value) => {
-                                form.setFieldValue("locked", value);
                                 form.submit();
                             }}
                             options={[
@@ -134,7 +76,6 @@ const UserSearch = (props: {
                             style={{ width: 150 }}
                             allowClear={false}
                             onChange={(value) => {
-                                form.setFieldValue("roleName", value);
                                 form.submit();
                             }}
                             options={[
@@ -152,7 +93,6 @@ const UserSearch = (props: {
                             style={{ width: 150 }}
                             allowClear={false}
                             onChange={(value) => {
-                                form.setFieldValue("gender", value);
                                 form.submit();
                             }}
                             options={[
