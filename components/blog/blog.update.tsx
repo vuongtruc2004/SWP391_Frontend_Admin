@@ -1,9 +1,12 @@
-
-import { storageUrl } from "@/utils/url";
+'use client'
+import { validContent, validTitle } from "@/helper/create.blog.helper";
+import { sendRequest } from "@/utils/fetch.api";
+import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
 import MDEditor from "@uiw/react-md-editor";
-import { Avatar, Form, Image, Input, Modal } from "antd";
+import { Avatar, Form, Image, Input, message, Modal, notification } from "antd";
 import { marked } from "marked";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import TurndownService from 'turndown'
 
@@ -12,21 +15,129 @@ interface IProps {
     openUpdate: boolean,
     setOpenUpdate: React.Dispatch<React.SetStateAction<boolean>>
     selectRecord: BlogResponse | null
+    setSelectRecord: React.Dispatch<React.SetStateAction<BlogDetailsResponse | null>>
+}
+
+const initState: ErrorResponse = {
+    error: false,
+    value: ''
 }
 const BlogUpdate = (props: IProps) => {
-    const { openUpdate, setOpenUpdate, selectRecord } = props;
+    const { openUpdate, setOpenUpdate, selectRecord, setSelectRecord } = props;
+    const router = useRouter();
     const [value, setValue] = useState("");
     const [inputMarkdown, setInputMarkdown] = useState("");
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
     const [errThumbnail, setErrThumbnail] = useState("");
-    const [urlThumbnail, setUrlThumbnail] = useState(selectRecord?.thumbnail);
+    const [urlThumbnail, setUrlThumbnail] = useState("");
+    const [title, setTitle] = useState<ErrorResponse>(initState);
+    const [content, setContent] = useState<ErrorResponse>(initState);
+    const [plainContent, setPlainContent] = useState("");
+    const [thumbnail, setThumbnail] = useState<File | null>(null);
+    const [author, setAuthor] = useState<UserResponse | null>(null);
+
     console.log("check: ", selectRecord?.thumbnail)
     useEffect(() => {
         const md = turndownService.turndown(`${selectRecord?.content}`);
         setInputMarkdown(md);
+        setContent({
+            ...content,
+            value: inputMarkdown
+        })
+        setTitle({
+            ...title,
+            value: selectRecord?.title || ""
+        });
     }, [selectRecord])
+
+    useEffect(() => {
+        if (selectRecord) {
+            setTitle({
+                error: false,
+                value: selectRecord.title
+            });
+            setContent({
+                error: false,
+                value: selectRecord.content
+            });
+
+            if (selectRecord?.thumbnail) {
+                setUrlThumbnail(selectRecord?.thumbnail);
+            }
+
+        }
+    }, [selectRecord])
+
+    const stripHtml = (html: string) => {
+        let doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+    }
+
+    const handleCancle = () => {
+        setUrlThumbnail("");
+        setThumbnail(null);
+        setErrThumbnail("");
+        setSelectRecord(null);
+        setOpenUpdate(false);
+    }
+
+    const handleOnOk = async () => {
+        const isValidTitle = validTitle(title, setTitle);
+        const isValidContent = validContent(content, setContent);
+        console.log({ title, content })
+
+        if (!isValidTitle || !isValidContent) {
+            return;
+        }
+
+        const htmlTextContent = marked(inputMarkdown);
+        setPlainContent(stripHtml(htmlTextContent.toString()));
+        console.log("check html text: ", htmlTextContent)
+        // setPlainContent(content.value);
+        // console.log(plainContent)
+        const blogRequest: BlogRequest = {
+            title: title.value,
+            content: htmlTextContent.toString(),
+            plainContent: stripHtml(htmlTextContent.toString()),
+            urlThumbnail: urlThumbnail
+        }
+
+
+        // giải thích nguyên lí hoạt động của markdown biến hóa từ text có kí tự thành text html và lưu plainContent: 
+        // đầu tiền nó sẽ lấy nội dung từ db (server) lên, và nội dung này đang ở dạng text html. sau đó nó dùng turndown
+        // để biến các tag html thành các kí hiệu đại diện. sau đó hiển thị ra mdeditor. khi sửa ở cửa sổ mdeditor, nó
+        // sẽ xét lại cái inputMarkdown. inputMarkdown sẽ được lấy ra và dùng hàm marked để biến hóa các kí tự trong đó thành
+        // các thẻ html. sau đó gắn lại vào content như trê.
+        // việc set plainContent ta dùng hàm stripHtml được định nghĩa ở trên để loại bỏ các thẻ html rồi sau đó đưa nó vào plain content
+
+        const updateBlog = await sendRequest<ApiResponse<BlogResponse>>({
+            url: `${apiUrl}/blogs/update/${selectRecord?.blogId}`,
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: blogRequest,
+        })
+
+        console.log("check updateBlog: ", updateBlog)
+
+        if (updateBlog.status === 200) {
+            handleCancle();
+            router.refresh();
+            notification.success({
+                message: "Thành Công!",
+                description: updateBlog.message.toString(),
+            })
+        } else {
+            notification.error({
+                message: "Thất Bại!",
+                description: updateBlog.errorMessage.toString(),
+            })
+        }
+
+    }
 
     const handleOnChange = (value: any) => {
         setValue(value);
@@ -58,21 +169,53 @@ const BlogUpdate = (props: IProps) => {
 
     return (
         <>
-            <Modal title="Sửa bài viết" open={openUpdate} onCancel={() => setOpenUpdate(false)} width={1000} className='not-css'>
+            <Modal title="Sửa bài viết" open={openUpdate} onCancel={() => {
+                setTitle({
+                    ...title,
+                    value: selectRecord?.title ? selectRecord.title : ""
+                })
+                setOpenUpdate(false)
+            }}
+                width={1000} className='not-css'
+                okText="Lưu"
+                cancelText="Hủy"
+                onOk={handleOnOk}
+            >
                 <Form>
                     <div>
                         <h4>Tiêu đề bài viết:</h4>
                         <Form.Item
 
                         >
-                            <Input placeholder="Tiêu đề" value={selectRecord?.title} />
+                            <Input placeholder="Tiêu đề" value={title.value}
+                                status={title.error ? "error" : ""}
+                                type="text"
+                                onChange={(e) => {
+                                    setTitle({
+                                        ...title,
+                                        value: e.target.value
+                                    })
+                                    console.log(title.value)
+                                }}
+                            />
+                            {title.error && (
+                                <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
+                                    <WarningOutlined />
+                                    {title.message}
+                                </p>
+                            )}
                         </Form.Item>
                     </div>
                     <div>
                         <Form.Item>
                             <MDEditor
                                 value={inputMarkdown}
-                                onChange={(event) => handleOnChange(event)}
+                                onChange={(event) => {
+                                    setInputMarkdown(event ? event : "")
+
+                                    // setPlainContent(event ? event : "")
+                                    console.log(event)
+                                }}
                                 preview="edit"
                                 commandsFilter={(cmd) => (cmd.name && ["preview", "live"].includes(cmd.name)) ? false : cmd}
                                 style={{
@@ -80,6 +223,12 @@ const BlogUpdate = (props: IProps) => {
                                     color: 'black'
                                 }}
                             />
+                            {content.error && (
+                                <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
+                                    <WarningOutlined />
+                                    {content.message}
+                                </p>
+                            )}
                         </Form.Item>
                     </div>
                     <div>

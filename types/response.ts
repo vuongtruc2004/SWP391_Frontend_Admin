@@ -158,6 +158,7 @@ declare global {
     }
 
     interface CommentResponse {
+        commentId: number,
         content: string,
         createdAt: string,
         updatedAt: string,

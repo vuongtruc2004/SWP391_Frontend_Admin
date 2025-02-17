@@ -147,6 +147,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                     >
                         <DeleteOutlined style={{ color: "red" }} />
                     </Popconfirm>
+                    { }
                     <CheckOutlined
                         style={{
                             color: record.accepted ? "gray" : "#16db65",
