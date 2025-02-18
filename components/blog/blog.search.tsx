@@ -1,8 +1,10 @@
 'use client'
-import { SearchOutlined } from "@ant-design/icons";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Select } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import BlogCreate from "./blog.create";
 
 
 const BlogSearch = (props: {
@@ -14,6 +16,7 @@ const BlogSearch = (props: {
     const searchParam = useSearchParams();
     const pathName = usePathname();
     const router = useRouter();
+    const [openFormCreate, setOpenFormCreate] = useState(false);
 
     // const handleOnChange = (input: string) => {
     //     console.log("check search: ", input);
@@ -45,39 +48,52 @@ const BlogSearch = (props: {
         newSearchParam.set("page", "1")
         router.replace(`${pathName}?${newSearchParam}`)
     }
+
+    const handleOnClickButton = () => {
+        setOpenFormCreate(true);
+    }
     return (
-        <div className="mt-5 ml-5">
-            <Form
-                form={form}
-                className="w-[90%]"
-                onFinish={handleOnFinish}
-                initialValues={{ keyword: keyword, published: published }}
-            >
-                <Form.Item className="w-[50%]" name="keyword">
-                    <Input prefix={<SearchOutlined />} placeholder="Tìm kiếm theo tiêu đề, tên tác giả,...." />
-                </Form.Item>
-                <Form.Item className="w-[19%]" name="published" label="Trạng Thái:">
-                    <Select
-                        placeholder="Trạng Thái"
-                        onChange={handleOnChange}
-                        options={[
-                            { value: "all", label: 'All' },
-                            { value: "public", label: 'Công khai' },
-                            { value: "private", label: 'Không công khai' },
-                        ]}
-                    />
-                </Form.Item>
-                <Form.Item>
+        <>
+            <div className="mt-5 ml-5">
+                <Form
+                    form={form}
+                    className="w-[95%]"
+                    onFinish={handleOnFinish}
+                    initialValues={{ keyword: keyword, published: published }}
+                >
+                    <Form.Item className="w-[50%]" name="keyword">
+                        <Input prefix={<SearchOutlined />} placeholder="Tìm kiếm theo tiêu đề, tên tác giả,...." />
+                    </Form.Item>
+                    <Form.Item className="w-[19%]" name="published" label="Trạng Thái:">
+                        <Select
+                            placeholder="Trạng Thái"
+                            onChange={handleOnChange}
+                            options={[
+                                { value: "all", label: 'All' },
+                                { value: "public", label: 'Công khai' },
+                                { value: "private", label: 'Không công khai' },
+                            ]}
+                        />
+                    </Form.Item>
+                    <Form.Item>
 
-                </Form.Item>
+                    </Form.Item>
 
-                <div>
-                    <Button type="primary" icon={<SearchOutlined />} htmlType="submit">
-                        Search
-                    </Button>
-                </div>
-            </Form>
-        </div>
+                    <div className="w-full flex justify-between">
+                        <Button type="primary" icon={<SearchOutlined />} htmlType="submit">
+                            Search
+                        </Button>
+                        <Button type="primary" icon={<PlusOutlined />} onClick={handleOnClickButton}>Tạo bài viết </Button>
+
+                    </div>
+                </Form>
+            </div>
+            <BlogCreate
+                openFormCreate={openFormCreate}
+                setOpenFormCreate={setOpenFormCreate}
+            />
+        </>
+
 
     )
 }

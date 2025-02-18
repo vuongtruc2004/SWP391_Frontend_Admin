@@ -1,13 +1,21 @@
 'use client'
 import { CheckOutlined, CloseOutlined, DeleteOutlined, InfoCircleOutlined, LikeOutlined, MessageOutlined, StarOutlined, ToTopOutlined } from "@ant-design/icons"
-import { Avatar, Descriptions, DescriptionsProps, Empty, List, Modal, Popconfirm, Space, Table, TableProps } from "antd"
+import { Avatar, Button, Descriptions, DescriptionsProps, Empty, Flex, List, Modal, Pagination, Popconfirm, Space, Table, TableProps, Tree, TreeDataNode, TreeProps, Typography } from "antd"
 import dayjs from "dayjs"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useState } from "react"
 import BlogUpdate from "./blog.update"
 import './overwrite.style.scss'
 import { apiUrl, storageUrl } from "@/utils/url"
+import { sendRequest } from "@/utils/fetch.api"
+import BlogCreate from "./blog.create"
 
+type CommentDisplay = {
+    comment: CommentResponse,
+    root: number,
+}
+
+const pageSize = 3;
 const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsResponse[]> }) => {
     const { blogPageResponse } = props
     const router = useRouter()
@@ -19,6 +27,14 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
     const closeDetail = () => setIsModalOpen(false);
     const [selectRecord, setSelectRecord] = useState<BlogDetailsResponse | null>(null)
     const [openUpdate, setOpenUpdate] = useState(false);
+    const [expendKey, setExpendKey] = useState<string[]>([])
+    const [currentPage, setCurrentPage] = useState(1);
+    // const [replies, setReplies] = useState<CommentResponse[]>([]);
+
+
+    const indexOfLastComment = currentPage * pageSize;
+    const indexOfFirstComment = indexOfLastComment - pageSize;
+
     const columns: TableProps<BlogResponse>['columns'] = [
         {
             title: 'Id',
@@ -110,23 +126,98 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
 
     ];
 
-    const data = selectRecord?.comments ? selectRecord?.comments
-        .filter((item) => (item.parentComment === null))
-        .map((item) => ({
-            title: item.user.fullname,
-            avatar: `${storageUrl}/avatar/${item.user.avatar}`,
-            description: `${dayjs(item.createdAt).format("DD/MM/YYYY")}`,
-            content: item.content,
-            numReplies: item.replies.length,
 
-        })) : [];
-
-    const IconText = ({ icon, text }: { icon: React.FC; text: string }) => (
-        <Space>
+    const IconText = ({ icon, text, onClick }: { icon: React.FC; text: string; onClick?: () => void }) => (
+        <Space onClick={onClick} style={{ cursor: onClick ? "pointer" : "default" }}>
             {React.createElement(icon)}
             {text}
         </Space>
     );
+
+
+    //function handle
+    const handleExpandComment = (commentId: string) => {
+        setExpendKey((prevKeys) => {
+            const newKeys = prevKeys.includes(commentId)
+                ? prevKeys.filter((key) => key !== commentId) // Đóng lại nếu đã mở
+                : [...prevKeys, commentId]; // Mở rộng nếu chưa mở
+
+            console.log("Danh sách expandedKeys:", newKeys); // Kiểm tra log
+            return newKeys;
+        });
+    };
+
+
+
+    const convertToDataNode = (comments: CommentResponse[]): TreeProps["treeData"] => {
+        return comments.map(comment => ({
+            key: String(comment.commentId),
+            title: (
+                <Flex align="start" gap={10}>
+                    <Avatar src={`${storageUrl}/avatar/${comment.user.avatar}`} alt={comment.user.fullname} />
+                    <Space direction="vertical" size="small">
+                        <Typography.Text strong>{comment.user.fullname}</Typography.Text>
+                        <span>{comment.createdAt}</span>
+                        <Typography.Text>{comment.content}</Typography.Text>
+                        <div className="flex gap-5">
+                            <IconText icon={LikeOutlined} text="156" key="list-vertical-like-o" />
+                            <IconText icon={MessageOutlined} text="" key="list-vertical-message" onClick={() => handleExpandComment(String(comment.commentId))} />
+                        </div>
+                    </Space>
+                </Flex>
+            ),
+
+            children: convertToDataNode(comment.replies)
+        }))
+    }
+
+    const treeData: TreeDataNode[] = selectRecord?.comments ? selectRecord.comments
+        .filter((item) => (item.parentComment === null))
+        .map((item) => ({
+            key: String(item.commentId),
+            title: (
+                <Flex align="start" gap={10}>
+                    <Avatar src={`${storageUrl}/avatar/${item.user.avatar}`} alt={item.user.fullname} />
+                    <Space direction="vertical" size="small">
+                        <Typography.Text strong>{item.user.fullname}</Typography.Text>
+                        <span>{item.createdAt}</span>
+                        <Typography.Text>{item.content}</Typography.Text>
+                        <div className="flex gap-5">
+                            <IconText icon={LikeOutlined} text="156" key="list-vertical-like-o" />
+                            <IconText icon={MessageOutlined} text="" key="list-vertical-message" onClick={() => handleExpandComment(String(item.commentId))} />
+                        </div>
+
+                    </Space>
+                </Flex>),
+
+
+            children: convertToDataNode(item.replies)
+        })) : [];
+
+    const currentComments = treeData.slice(indexOfFirstComment, indexOfLastComment);
+    // const repliesResponse = async (parentCommentId: number) => {
+    //     const repResponse = await sendRequest<ApiResponse<CommentResponse[] | null>>({
+    //         url: `${apiUrl}/comments/reply/${parentCommentId}`,
+    //         method: 'GET',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         }
+    //     });
+
+
+    //     setReplies(repResponse.data ? repResponse.data : []);
+
+    // };
+
+
+
+
+
+
+
+    const handleOnSelect = () => {
+        console.log("check")
+    }
     console.log("check comments: ", selectRecord?.comments)
     return (
         <>
@@ -152,60 +243,41 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
                     <>
                         <h1 className="mb-4"><strong>{selectRecord.title}</strong></h1>
                         <Descriptions items={items} />
-                        <img src={selectRecord?.thumbnail ? `${storageUrl}/blog/${selectRecord.thumbnail}` : ""} alt="" className="mt-5" />
+                        <img src={selectRecord?.thumbnail ? `${storageUrl}/blog/${selectRecord.thumbnail}` : undefined} alt="" className="mt-5" />
                         <div dangerouslySetInnerHTML={{ __html: selectRecord.content }} className="my-10"></div>
                         <hr className="mb-9" />
-                        <h1 className="font-[600] text-[20px]"><strong>Bình luận:<Avatar size={30} style={{ marginLeft: "10px" }}>{selectRecord.totalComments}</Avatar></strong></h1>
-                        <div>
-
-                            {selectRecord.comments ? (
-                                <List
-                                    itemLayout="vertical"
-                                    size="large"
-                                    pagination={{
-                                        onChange: (page) => {
-                                            console.log(page);
-                                        },
-                                        pageSize: 3,
-                                    }}
-                                    dataSource={data}
-                                    renderItem={(item) => (
-                                        <List.Item
-                                            key={item.title}
-                                            actions={[
-                                                <IconText icon={LikeOutlined} text="156" key="list-vertical-like-o" />,
-                                                <IconText icon={MessageOutlined} text={item.numReplies ? `${item.numReplies}` : "0"} key="list-vertical-message" />,
-                                            ]}
-                                        >
-                                            <List.Item.Meta
-                                                avatar={<Avatar src={item.avatar} />}
-                                                title={item.title}
-                                                description={item.description}
-                                            />
-                                            {item.content}
-                                        </List.Item>
-                                    )}
-                                />
-                            ) : (<Empty />)}
-
-                            {/* <List.Item.Meta
-                                    avatar={<Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${index}`} />}
-                                    title={<a href="https://ant.design">{item.title}</a>}
-                                    description="Ant Design, a design language for background applications, is refined by Ant UED Team"
-                                /> */}
+                        <h1 className="font-[600] text-[20px]">
+                            <strong>Bình luận:<Avatar size={30} style={{ marginLeft: "10px" }}>{selectRecord.totalComments}</Avatar></strong>
+                        </h1>
+                        <div className="mt-5">
+                            <Tree
+                                showLine
+                                onSelect={handleOnSelect}
+                                treeData={currentComments}
+                                showIcon={false}
+                                switcherIcon={null}
+                                expandedKeys={expendKey}
+                                onExpand={(keys) => { console.log("Các key đang mở:", keys); setExpendKey(keys as string[]) }}
+                            />
+                            <Pagination
+                                current={currentPage}
+                                pageSize={pageSize}
+                                total={treeData?.length}
+                                onChange={(page) => setCurrentPage(page)}
+                                style={{ marginTop: 16, textAlign: "center" }}
+                                align="end"
+                            />
                         </div>
-
                     </>
-
-                ) : (
-                    <Empty />
-                )}
-            </Modal >
+                ) : <></>}
+            </Modal>
             <BlogUpdate
                 openUpdate={openUpdate}
                 setOpenUpdate={setOpenUpdate}
                 selectRecord={selectRecord}
+                setSelectRecord={setSelectRecord}
             />
+
         </>
     )
 }

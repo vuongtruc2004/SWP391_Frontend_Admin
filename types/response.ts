@@ -153,4 +153,31 @@ declare global {
         totalCourses: number,
         totalStudents: number
     }
+
+    interface BlogDetailsResponse extends BlogResponse {
+        comments: CommentResponse[],
+        likes: LikeResponse[],
+    }
+
+    interface CommentResponse {
+        commentId: number,
+        content: string,
+        createdAt: string,
+        updatedAt: string,
+        user: UserResponse,
+        parentComment: CommentResponse,
+        replies: CommentResponse[],
+        likes: LikeResponse[],
+        blog: BlogResponse,
+        course: CourseResponse,
+
+    }
+
+    interface LikeResponse {
+        user: UserResponse,
+        blog: BlogResponse,
+        course: CourseResponse,
+        comment: CommentResponse,
+        createdAt: string,
+    }
 }

@@ -1,186 +1,140 @@
-'use client'
-
-import { validContent, validTitle } from "@/helper/create.blog.helper";
+import { validContent } from "@/helper/create.blog.helper";
+import { validTitle } from "@/helper/create.question.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
 import MDEditor from "@uiw/react-md-editor";
-import { Avatar, Form, Image, Input, message, Modal, notification } from "antd";
+import { Avatar, Form, Image, Input, Modal, notification } from "antd";
+import { error } from "console";
 import { marked } from "marked";
-import { useRouter } from "next/navigation";
+import { getSession, useSession } from "next-auth/react";
 import { ChangeEvent, useEffect, useState } from "react";
-import TurndownService from 'turndown'
 
-const turndownService = new TurndownService();
+
 interface IProps {
-    openUpdate: boolean,
-    setOpenUpdate: React.Dispatch<React.SetStateAction<boolean>>
-    selectRecord: BlogResponse | null
-    setSelectRecord: React.Dispatch<React.SetStateAction<BlogDetailsResponse | null>>
+    openFormCreate: boolean,
+    setOpenFormCreate: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const initState: ErrorResponse = {
     error: false,
-    value: ''
+    value: '',
 }
-const BlogUpdate = (props: IProps) => {
-    const { openUpdate, setOpenUpdate, selectRecord, setSelectRecord } = props;
-    const router = useRouter();
-    const [value, setValue] = useState("");
-    const [inputMarkdown, setInputMarkdown] = useState("");
-    const [previewOpen, setPreviewOpen] = useState(false);
-    const [previewImage, setPreviewImage] = useState('');
-    const [isPreviewVisible, setIsPreviewVisible] = useState(false);
-    const [errThumbnail, setErrThumbnail] = useState("");
-    const [urlThumbnail, setUrlThumbnail] = useState("");
+const BlogCreate = (props: IProps) => {
+    const { openFormCreate, setOpenFormCreate } = props;
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [content, setContent] = useState<ErrorResponse>(initState);
+    const [urlThumbnail, setUrlThumbnail] = useState("");
+    const [errThumbnail, setErrThumbnail] = useState("");
+    const [inputMarkdown, setInputMarkdown] = useState("");
+    const [isPreviewVisible, setIsPreviewVisible] = useState(false);
     const [plainContent, setPlainContent] = useState("");
-    const [thumbnail, setThumbnail] = useState<File | null>(null);
-    const [author, setAuthor] = useState<UserResponse | null>(null);
+    const { data: session, status } = useSession();
 
-    console.log("check: ", selectRecord?.thumbnail)
-    useEffect(() => {
-        const md = turndownService.turndown(`${selectRecord?.content}`);
-        setInputMarkdown(md);
-        setContent({
-            ...content,
-            value: inputMarkdown
-        })
-        setTitle({
-            ...title,
-            value: selectRecord?.title || ""
-        });
-    }, [selectRecord])
 
-    useEffect(() => {
-        if (selectRecord) {
-            setTitle({
-                error: false,
-                value: selectRecord.title
-            });
-            setContent({
-                error: false,
-                value: selectRecord.content
-            });
-
-            if (selectRecord?.thumbnail) {
-                setUrlThumbnail(selectRecord?.thumbnail);
-            }
-
-        }
-    }, [selectRecord])
-
+    //another function
     const stripHtml = (html: string) => {
         let doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || "";
     }
 
-    const handleCancle = () => {
-        setUrlThumbnail("");
-        setThumbnail(null);
-        setErrThumbnail("");
-        setSelectRecord(null);
-        setOpenUpdate(false);
-    }
 
+
+    //function handle
     const handleOnOk = async () => {
+
         const isValidTitle = validTitle(title, setTitle);
         const isValidContent = validContent(content, setContent);
-        console.log({ title, content })
 
         if (!isValidTitle || !isValidContent) {
-            return;
+            return
         }
 
-        const htmlTextContent = marked(inputMarkdown);
-        setPlainContent(stripHtml(htmlTextContent.toString()));
-        console.log("check html text: ", htmlTextContent)
-        // setPlainContent(content.value);
-        // console.log(plainContent)
+        const htmlText = marked(inputMarkdown);
+        setPlainContent(stripHtml(htmlText.toString()));
+
         const blogRequest: BlogRequest = {
             title: title.value,
-            content: htmlTextContent.toString(),
-            plainContent: stripHtml(htmlTextContent.toString()),
-            thumbnail: urlThumbnail
+            content: htmlText.toString(),
+            plainContent: stripHtml(htmlText.toString()),
+            thumbnail: urlThumbnail,
         }
 
+        console.log(blogRequest)
 
-        // giải thích nguyên lí hoạt động của markdown biến hóa từ text có kí tự thành text html và lưu plainContent: 
-        // đầu tiền nó sẽ lấy nội dung từ db (server) lên, và nội dung này đang ở dạng text html. sau đó nó dùng turndown
-        // để biến các tag html thành các kí hiệu đại diện. sau đó hiển thị ra mdeditor. khi sửa ở cửa sổ mdeditor, nó
-        // sẽ xét lại cái inputMarkdown. inputMarkdown sẽ được lấy ra và dùng hàm marked để biến hóa các kí tự trong đó thành
-        // các thẻ html. sau đó gắn lại vào content như trê.
-        // việc set plainContent ta dùng hàm stripHtml được định nghĩa ở trên để loại bỏ các thẻ html rồi sau đó đưa nó vào plain content
-
-        const updateBlog = await sendRequest<ApiResponse<BlogResponse>>({
-            url: `${apiUrl}/blogs/update/${selectRecord?.blogId}`,
-            method: 'PATCH',
+        const createBlog = await sendRequest<ApiResponse<BlogResponse>>({
+            url: `${apiUrl}/blogs/create-blog`,
+            method: 'POST',
             headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
                 'Content-Type': 'application/json'
             },
             body: blogRequest,
         })
-
-        console.log("check updateBlog: ", updateBlog)
-
-        if (updateBlog.status === 200) {
-            handleCancle();
-            router.refresh();
+        console.log(createBlog.message)
+        if (createBlog.status === 201) {
+            setTitle(initState);
+            setContent(initState);
+            setPlainContent("");
+            setInputMarkdown("");
+            setUrlThumbnail("");
+            setOpenFormCreate(false);
             notification.success({
-                message: "Thành Công!",
-                description: "Cập nhật bài viết thành công!",
+                message: "Thành công!",
+                description: "Tạo bài viết mới thành công!",
             })
         } else {
             notification.error({
-                message: "Thất Bại!",
-                description: "Cập nhật bài viết thất bại!",
+                message: "Thất bại!",
+                description: "Tạo bài viết thất bại"
             })
         }
 
+
+
     }
 
-    const handleOnChange = (value: any) => {
-        setValue(value);
-        console.log("check output: ", marked(value));
+    const handleOnCancel = () => {
+        console.log("cancel");
+        setOpenFormCreate(false);
     }
 
     const handleUploadFile = async (e: ChangeEvent<HTMLInputElement>) => {
-        setErrThumbnail("")
+        setErrThumbnail("");
         if (e.target.files && e.target.files[0]) {
             const formData = new FormData();
-            formData.set('file', e.target.files[0]);
-            formData.set('folder', 'blog');
-
-            const imageResponse = await sendRequest<ApiResponse<string>>({
+            formData.set("file", e.target.files[0]);
+            formData.set("folder", "blog");
+            console.log(formData)
+            const uploadImage = await sendRequest<ApiResponse<string>>({
                 url: `${apiUrl}/blogs/up-thumbnail`,
                 method: 'POST',
                 headers: {},
                 body: formData
             });
+            console.log("Upload Response:", uploadImage);
 
-            if (imageResponse.status === 200) {
-                setUrlThumbnail(imageResponse.data)
-
+            if (uploadImage.status === 200) {
+                setUrlThumbnail(uploadImage.data);
             } else {
-                setErrThumbnail(imageResponse.errorMessage)
+                setErrThumbnail("Ảnh không hợp lệ!");
             }
         }
+
+
+
     }
+
 
     return (
         <>
-            <Modal title="Sửa bài viết" open={openUpdate} onCancel={() => {
-                setTitle({
-                    ...title,
-                    value: selectRecord?.title ? selectRecord.title : ""
-                })
-                setOpenUpdate(false)
-            }}
-                width={1000} className='not-css'
-                okText="Lưu"
-                cancelText="Hủy"
+            <Modal title="Basic Modal" open={openFormCreate}
                 onOk={handleOnOk}
+                onCancel={handleOnCancel}
+                okText="Tạo"
+                cancelText="Hủy"
+                width={1000}
+
             >
                 <Form>
                     <div>
@@ -188,7 +142,7 @@ const BlogUpdate = (props: IProps) => {
                         <Form.Item
 
                         >
-                            <Input placeholder="Tiêu đề" value={title.value}
+                            <Input placeholder="Tiêu đề"
                                 status={title.error ? "error" : ""}
                                 type="text"
                                 onChange={(e) => {
@@ -214,11 +168,15 @@ const BlogUpdate = (props: IProps) => {
                                 onChange={(event) => {
                                     setInputMarkdown(event ? event : "")
 
-                                    // setPlainContent(event ? event : "")
+
+                                    setContent({
+                                        ...content,
+                                        value: event ? event : ""
+                                    })
                                     console.log(event)
                                 }}
                                 preview="edit"
-                                commandsFilter={(cmd) => (cmd.name && ["preview", "live"].includes(cmd.name)) ? false : cmd}
+                                commandsFilter={(cmd) => (cmd.name && ["preview", "live", "fullscreen"].includes(cmd.name)) ? false : cmd}
                                 style={{
                                     background: '#e9ecef',
                                     color: 'black'
@@ -288,9 +246,9 @@ const BlogUpdate = (props: IProps) => {
                         )}
                     </div>
                 </Form>
-            </Modal>
+            </Modal >
         </>
     )
-}
+};
 
-export default BlogUpdate;
+export default BlogCreate;

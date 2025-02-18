@@ -2,3 +2,72 @@
     overflow-y: scroll;
     max-height: 600px;
 }
+
+:where(.css-dev-only-do-not-override-cdzvx5).ant-list .ant-list-empty-text {
+    display: none;
+}
+
+.comment-thread {
+    .comment-items {
+        position: relative;
+        padding-left: 40px; // Đẩy nội dung comment vào trong cho gọn
+
+        &:before {
+            content: "";
+            position: absolute;
+            left: 28px; // Điều chỉnh sao cho nằm giữa avatar
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #ddd; // Màu đường nối dọc
+        }
+
+        .comment-item {
+            position: relative;
+            padding-left: 20px; // Đẩy nội dung vào để có khoảng cách giữa avatar và text
+            margin-bottom: 15px; // Tạo khoảng cách giữa các comment
+
+            &:before {
+                content: "";
+                position: absolute;
+                left: 28px; // Giữ đúng vị trí giữa avatar
+                top: 50%; // Căn giữa theo chiều dọc
+                transform: translateY(-50%);
+                width: 15px;
+                height: 2px;
+                background-color: #ddd; // Màu đường ngang nối reply với đường dọc
+            }
+        }
+
+        // Định dạng cho reply comments
+        .comment-items {
+            margin-left: 40px;
+            position: relative;
+
+            &:before {
+                content: "";
+                position: absolute;
+                left: -20px;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background-color: #ddd; // Đường dọc nối xuống reply
+            }
+
+            .comment-item {
+                padding-left: 20px;
+
+                &:before {
+                    content: "";
+                    position: absolute;
+                    left: -20px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 15px;
+                    height: 2px;
+                    background-color: #ddd;
+                }
+            }
+        }
+    }
+}

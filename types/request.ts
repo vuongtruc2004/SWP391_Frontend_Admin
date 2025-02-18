@@ -63,4 +63,11 @@ declare global {
         email: string;
         password: string;
     }
+
+    interface BlogRequest {
+        title: string;
+        content: string;
+        plainContent: string;
+        thumbnail: string;
+    }
 }
