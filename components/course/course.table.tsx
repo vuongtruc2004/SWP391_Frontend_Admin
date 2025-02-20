@@ -1,15 +1,16 @@
 'use client'
-import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
-import React, { useEffect, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
-import Link from 'next/link';
+import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
+import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
+import { useEffect, useState } from 'react';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl } from '@/utils/url';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { GrChapterAdd } from "react-icons/gr";
+import UpdateCourseForm from './update.course.form';
+import UpdateLessonModal from './update.lesson.modal';
 import ViewCourseDetail from './view.course.detail';
-import BlogUpdate from '../blog/blog.update';
 
 
 
@@ -24,6 +25,7 @@ export const init = {
     }
 }
 const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDetailsResponse[]> }) => {
+    const [selectedCourse, setSelectedCourse] = useState<CourseDetailsResponse | null>(null);
     const { coursePageResponse } = props;
     const [openDraw, setOpenDraw] = useState(false);
     const [course, setCourse] = useState<CourseDetailsResponse | null>(null);
@@ -31,7 +33,10 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
     const pathname = usePathname();
     const router = useRouter();
     const [render, setRender] = useState(false);
+    const [openUpdateLesson, setOpenUpdateLesson] = useState(false);
     const page = Number(searchParams.get('page')) || 1; // Lấy số trang từ URL
+    const [editingCourse, setEditingCourse] = useState<CourseResponse | null>(null);
+    const [openEditForm, setOpenEditForm] = useState(false);
     const deleteCourse = async (courseId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<CourseDetailsResponse>>({
             url: `${apiUrl}/courses/delete/${courseId}`,
@@ -76,7 +81,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
     }
     const columns: TableProps<CourseDetailsResponse>['columns'] = [
         {
-            title: 'Id',
+            title: 'STT',
             dataIndex: 'courseId',
             key: 'id',
             width: '10%',
@@ -113,11 +118,12 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             dataIndex: 'salePrice',
             key: 'salePrice',
             width: '10%',
-            render: (salePrice: number) => salePrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
+            //render: (salePrice: number) => salePrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
             sorter: {
                 compare: (a, b) => a.salePrice - b.salePrice,
             },
         },
+
         {
             title: 'Trạng thái kích hoạt',
             dataIndex: 'accepted',
@@ -137,6 +143,18 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                         setOpenDraw(true);
                         setCourse(record);
                     }} />
+                    <GrChapterAdd style={{ color: "black" }} onClick={() => {
+                        setSelectedCourse(record);
+                        setOpenUpdateLesson(true);
+                    }} />
+
+                    <EditOutlined style={{ color: "blue" }}
+                        onClick={() => {
+                            setEditingCourse(record)
+                            setOpenEditForm(true)
+                        }}
+                    />
+
                     <Popconfirm
                         placement="left"
                         title="Xóa môn học"
@@ -188,12 +206,21 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                 showSorterTooltip={false}
             />
 
+            <UpdateLessonModal selectedCourse={selectedCourse} openUpdateLesson={openUpdateLesson} setOpenUpdateLesson={setOpenUpdateLesson} />
+
             <ViewCourseDetail
                 setOpenDraw={setOpenDraw}
                 openDraw={openDraw}
                 course={course}
                 setCourse={setCourse}
             />
+            <UpdateCourseForm
+                openEditForm={openEditForm}
+                setOpenEditForm={setOpenEditForm}
+                editingCourse={editingCourse}
+                setEditingCourse={setEditingCourse}
+            />
+
         </>
     );
 };

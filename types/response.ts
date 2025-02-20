@@ -81,7 +81,8 @@ declare global {
         description: string;
         objectives: string[];
         thumbnail: string;
-        price: number;
+        originalPrice: number;
+        salePrice: number;
         accepted: boolean;
         createdAt: string;
         updatedAt: string;
@@ -91,6 +92,27 @@ declare global {
         totalPurchased: number;
         totalLikes: number;
         totalComments: number;
+        introduction: string;
+    }
+
+    interface CourseDetailsResponse extends CourseResponse {
+        introduction: string,
+        objectives: string[],
+        accepted: boolean,
+        expert: ExpertDetailsResponse,
+        subjects: SubjectResponse[],
+        lessons: LessonResponse[],
+        totalLikes: number,
+        totalComments: number,
+    }
+
+    interface ExpertDetailsResponse extends ExpertResponse {
+        job: string,
+        achievement: string,
+        description: string,
+        yearOfExperience: number,
+        totalCourses: number,
+        totalStudents: number
     }
 
     interface DocumentResponse {
@@ -105,7 +127,7 @@ declare global {
     interface ExpertResponse {
         expertId: number;
         diploma: string;
-        yearOfExperience: string;
+        yearOfExperience: number;
         totalCourses: number;
         user: UserResponse;
     }

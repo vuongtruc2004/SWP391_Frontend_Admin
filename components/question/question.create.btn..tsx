@@ -3,10 +3,10 @@
 import { validTitle } from "@/helper/create.question.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
-import { PlusCircleOutlined, PlusOutlined, WarningOutlined, MinusCircleOutlined } from "@ant-design/icons";
-import { Alert, Button, Checkbox, Input, message, Modal, notification, Space } from "antd";
+import { MinusCircleOutlined, PlusCircleOutlined, PlusOutlined, WarningOutlined } from "@ant-design/icons";
+import { Button, Checkbox, Input, Modal, notification } from "antd";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const initState: ErrorResponse = {
     error: false,

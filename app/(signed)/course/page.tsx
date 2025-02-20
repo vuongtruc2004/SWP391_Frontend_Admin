@@ -1,3 +1,4 @@
+import CourseCreateButton from "@/components/course/course.create.button"
 import CourseSearch from "@/components/course/course.search"
 import CourseTable from "@/components/course/course.table"
 import { isFullNumber } from "@/helper/subject.helper"
@@ -49,7 +50,7 @@ const CoursePage = async (props: {
     }
 
     console.log("filter: ", filter);
-    const courseResponse = await sendRequest<ApiResponse<PageDetailsResponse<CourseDetailsResponse[]>>>({
+    const courseResponse = await sendRequest<ApiResponse<PageDetailsResponse<CourseResponse[]>>>({
         url: `${apiUrl}/courses/all`,
         queryParams: {
             page: page,
@@ -64,7 +65,19 @@ const CoursePage = async (props: {
     })
     return (
         <div className="border w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
-            <CourseSearch keyword={keyword} accepted={accepted} createdFrom={createdFrom} createdTo={createdTo} minPrice={priceResponse.data.minPrice} maxPrice={priceResponse.data.maxPrice} />
+            <div className="">
+                <CourseSearch keyword={keyword} accepted={accepted} createdFrom={createdFrom} createdTo={createdTo} minPrice={priceResponse.data.minPrice} maxPrice={priceResponse.data.maxPrice} />
+
+                <div className="flex justify-end mr-9 mt-[-30px]">
+                    <CourseCreateButton
+                    // coursePageResponse={courseResponse.data}
+                    />
+                </div>
+
+            </div>
+
+
+
             <CourseTable
                 coursePageResponse={courseResponse.data}
             />

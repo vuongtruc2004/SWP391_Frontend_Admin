@@ -63,4 +63,15 @@ declare global {
         email: string;
         password: string;
     }
+    interface CourseRequest {
+        courseId?: number;
+        courseName: string;
+        description: string;
+        objectives: string[];
+        thumbnail: string;
+        salePrice: number;
+        subjects: string[];
+        introduction: string;
+        originalPrice: number;
+    }
 }
