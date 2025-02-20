@@ -43,6 +43,24 @@ declare global {
         content: T;
     }
 
+    interface GenderCountResponse {
+        femaleCount: number;
+        maleCount: number;
+        unknownCount: number;
+    }
+
+    interface DashboardResponse {
+        totalRevenue: number;
+        totalStudents: number;
+        totalOrders: number;
+        todayRevenue: number;
+        todayStudents: number;
+        todayOrders: number;
+        yesterdayRevenue: number;
+        yesterdayStudents: number;
+        yesterdayOrders: number;
+    }
+
     interface AnswerResponse {
         answerId: number;
         content: string;
@@ -86,6 +104,14 @@ declare global {
         totalPurchased: number,
         createdAt: string,
         updatedAt: string,
+    }
+
+    interface AgeRangeResponse {
+        [key: string]: number;
+    }
+
+    interface CourseWeekResponse {
+        [key: string]: number;
     }
 
     interface DocumentResponse {
