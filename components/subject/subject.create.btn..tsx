@@ -6,7 +6,7 @@ import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
 import { Avatar, Button, Col, Image, Input, Modal, notification, Row, Select } from "antd";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 
 const initState: ErrorResponse = {
     error: false,
@@ -24,6 +24,7 @@ const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: an
     const [loading, setLoading] = useState(false);
     const [subjectName, setSubjectName] = useState<ErrorResponse>(initState);
     const [description, setDescription] = useState<ErrorResponse>(initState);
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     const showModal = () => {
         setIsRotated(!isRotated); // Đảo ngược trạng thái xoay icon
@@ -78,6 +79,13 @@ const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: an
             });
         }
         setLoading(false);
+    };
+
+    const handleSyncClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+            fileInputRef.current.click();
+        }
     };
 
     const handleCancel = () => {
@@ -152,7 +160,8 @@ const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: an
             <Modal
                 title="Tạo công nghệ"
                 open={isModalOpen}
-                footer={null}>
+                footer={null}
+                onCancel={handleCancel}            >
                 <Row gutter={24} className="mb-7">
                     <Col span={17} className="flex flex-col space-y-6 ">
                         <div>
@@ -243,11 +252,13 @@ const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: an
                                         />
                                     </div>
 
-                                    <SyncOutlined className="text-blue-500 text-lg ml-6" onClick={() => document.getElementById("chooseFile")?.click()} />
+                                    <SyncOutlined className="text-blue-500 text-lg ml-6"
+                                        onClick={handleSyncClick}
+                                    />
 
                                     <input
                                         type="file"
-                                        id="chooseFile"
+                                        ref={fileInputRef}
                                         onChange={handleUploadFile}
                                         className="hidden"
                                     />

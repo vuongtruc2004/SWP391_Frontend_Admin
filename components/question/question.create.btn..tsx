@@ -146,6 +146,7 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
                 title="Tạo câu hỏi"
                 open={isModalOpen}
                 footer={null}
+                onCancel={handleCancel}
             >
                 <div>
                     <span className="text-red-500 mr-2">*</span>Tiêu đề:

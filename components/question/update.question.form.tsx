@@ -182,17 +182,11 @@ const UpdateQuestionForm = (props: {
     };
 
     return (
-        <Modal title="Cập nhật câu hỏi" open={openEditForm} footer={null}>
-            <div className="mb-3">
-                <span className="text-red-500 mr-2">*</span>Id:
-                <Input
-                    disabled
-                    allowClear
-                    value={editingQuestion?.questionId}
-                    className="mt-1"
-                    name="subjectId"
-                />
-            </div>
+        <Modal title="Cập nhật câu hỏi"
+            open={openEditForm}
+            footer={null}
+            onCancel={handleCancel}
+        >
             <div className="mb-3">
                 <span className="text-red-500 mr-2">*</span>Tiêu đề:
                 <Input

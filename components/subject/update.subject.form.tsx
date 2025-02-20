@@ -1,5 +1,5 @@
 'use client'
-import { ChangeEvent, useActionState, useEffect, useState } from 'react';
+import { ChangeEvent, useActionState, useEffect, useRef, useState } from 'react';
 import { Button, Image, Input, Modal, notification } from 'antd';
 import { EyeOutlined, SyncOutlined, WarningOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
@@ -24,6 +24,7 @@ const UpdateSubjectForm = (props: {
     const [description, setDescription] = useState<ErrorResponse>(initState);
     const [errThumbnail, setErrThumbnail] = useState("")
     const [urlThumbnail, setUrlThumbnail] = useState("");
+    const fileInputRef = useRef<HTMLInputElement>(null)
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     useEffect(() => {
@@ -83,6 +84,13 @@ const UpdateSubjectForm = (props: {
         setLoading(false)
     };
 
+    const handleSyncClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+            fileInputRef.current.click();
+        }
+    };
+
     const handleCancel = () => {
         setUrlThumbnail("");
         setEditingSubject(null);
@@ -112,18 +120,11 @@ const UpdateSubjectForm = (props: {
     }
 
     return (
-        <Modal title="Cập nhật công nghệ" open={openEditForm} footer={null}>
-            <div className="mb-3">
-                <span className="text-red-500 mr-2">*</span>Id:
-                <Input
-                    disabled
-                    placeholder="Nhập Id"
-                    allowClear
-                    value={editingSubject?.subjectId}
-                    className="mt-1"
-                    name="subjectId"
-                />
-            </div>
+        <Modal title="Cập nhật công nghệ"
+            open={openEditForm}
+            footer={null}
+            onCancel={handleCancel}
+        >
             <div className="mb-3">
                 <span className="text-red-500 mr-2">*</span>Tên công nghệ:
                 <Input
@@ -194,10 +195,13 @@ const UpdateSubjectForm = (props: {
                             alt="Xem trước"
                         />
                     </div>
-                    <SyncOutlined style={{ color: 'blue' }} className="text-lg ml-6" onClick={() => document.getElementById("chooseFile")?.click()} />
+                    <SyncOutlined style={{ color: '#4096ff' }} className=" text-lg ml-6"
+                        onClick={handleSyncClick}
+                    />
+
                     <input
                         type="file"
-                        id="chooseFile"
+                        ref={fileInputRef}
                         onChange={handleUploadFile}
                         className="hidden"
                     />

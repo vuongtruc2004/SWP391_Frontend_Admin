@@ -91,6 +91,7 @@ declare global {
         questionId: number;
         title: string;
         correctAnswer: string[];
+        answers: AnswerResponse[];
     }
 
     interface CourseResponse {
