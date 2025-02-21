@@ -1,6 +1,6 @@
 'use client'
 import { DeleteOutlined, DoubleRightOutlined, EditOutlined, EyeOutlined, InboxOutlined, PictureOutlined } from '@ant-design/icons';
-import { Image, notification, Popconfirm, Space, Table, TableProps } from 'antd';
+import { Empty, Image, notification, Popconfirm, Space, Table, TableProps } from 'antd';
 import React, { RefObject, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
 import Link from 'next/link';
@@ -102,7 +102,7 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
                                     </ul>
                                 ) : (
                                     <div className='text-center'>
-                                        <InboxOutlined className='text-4xl text-gray-500' />
+                                        <InboxOutlined className='text-5xl text-gray-500' />
                                         <p >Không tìm thấy khóa học nào!</p>
                                     </div>
                                 )}
@@ -185,6 +185,9 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
                     columns={columns}
                     dataSource={subjectPageResponse.content}
                     rowKey={"subjectId"}
+                    locale={{
+                        emptyText: <Empty description="Không có dữ liệu!" />,
+                    }}
                     pagination={{
                         current: page,
                         pageSize: subjectPageResponse.pageSize,
