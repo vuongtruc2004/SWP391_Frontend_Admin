@@ -70,6 +70,7 @@ const UpdateSubjectForm = (props: {
 
         if (updateResponse.status === 200) {
             handleCancel();
+            setErrThumbnail("")
             router.refresh();
             notification.success({
                 message: "Thành công",
@@ -114,7 +115,7 @@ const UpdateSubjectForm = (props: {
             if (imageResponse.status === 200) {
                 setUrlThumbnail(imageResponse.data)
             } else {
-                setErrThumbnail(imageResponse.errorMessage)
+                setErrThumbnail(imageResponse.message.toString())
             }
         }
     }
@@ -174,11 +175,11 @@ const UpdateSubjectForm = (props: {
                 )}
             </div>
             <span className="text-red-500 mr-2">*</span>Ảnh:
-            <div className={`${errThumbnail !== "" ? "border-red-500 border-2 w-fit rounded-lg" : ""}`}>
+            <div className="rounded-lg">
                 <div className="flex items-end">
                     <div className="h-[120px] w-[120px]">
                         <Image
-                            className="h-full w-full object-contain"
+                            className={`${errThumbnail !== "" ? "border-red-500 border-2 w-fit rounded-lg" : "h-full w-full object-contain"}`}
                             width="100%"
                             height="100%"
                             preview={{
@@ -207,6 +208,12 @@ const UpdateSubjectForm = (props: {
                     />
                 </div>
             </div>
+            {errThumbnail !== "" && (
+                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                    <WarningOutlined />
+                    {errThumbnail}
+                </p>
+            )}
 
             <div className="flex justify-end mt-5">
                 <Button className="mr-4" onClick={() => handleCancel()}>Hủy</Button>

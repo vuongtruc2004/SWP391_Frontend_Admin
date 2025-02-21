@@ -28,7 +28,6 @@ const SubjectPageClient = ({ keyword, subjectPageResponse, allSubjects }: {
             alert("Không tìm thấy nội dung để in!");
         }
     };
-    console.log("Cập nhật sheetData với dữ liệu:", allSubjects);
 
     useEffect(() => {
         if (allSubjects.length > 0) {

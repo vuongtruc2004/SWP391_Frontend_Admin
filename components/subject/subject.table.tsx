@@ -1,6 +1,6 @@
 'use client'
-import { DeleteOutlined, DoubleRightOutlined, EditOutlined, PictureOutlined } from '@ant-design/icons';
-import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
+import { DeleteOutlined, DoubleRightOutlined, EditOutlined, EyeOutlined, InboxOutlined, PictureOutlined } from '@ant-design/icons';
+import { Image, notification, Popconfirm, Space, Table, TableProps } from 'antd';
 import React, { RefObject, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
 import Link from 'next/link';
@@ -29,6 +29,9 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
     const page = Number(searchParams.get('page')) || 1; // Lấy số trang từ URL
     const [openEditForm, setOpenEditForm] = useState(false);
     const [editingUSubject, setEditingSubject] = useState<SubjectResponse | null>(null)
+    const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+
+
     const deleteSubject = async (subjectId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<SubjectResponse>>({
             url: `${apiUrl}/subjects/delete/${subjectId}`,
@@ -40,13 +43,13 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
         if (deleteResponse.status === 200) {
             notification.success({
                 message: String(deleteResponse.message),
-                description: deleteResponse.errorMessage,
+                description: "Bạn đã xóa thành công công nghệ này!",
             });
             router.refresh()
         } else {
             notification.error({
                 message: String(deleteResponse.message),
-                description: deleteResponse.errorMessage,
+                description: "Không thể xóa công nghệ này do đang có khóa học!",
             })
         }
 
@@ -84,15 +87,26 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
                 <Popconfirm
                     title={
                         <div>
-                            <p className='pb-4 text-blue-500 text-lg'>Các khóa học chi tiết</p>
-                            <div className="max-h-[150px] overflow-y-auto pr-2">
-                                <ul className='pl-4'>
-                                    {record.listCourses.map((course, index) => (
-                                        <li key={index}> <span className='gap-2 mr-2'><DoubleRightOutlined style={{ color: 'green' }} /></span>{course}</li>
-                                    ))}
-                                </ul>
+                            <p className='pb-4 text-blue-500 text-lg text-center font-bold'>Các Khóa Học Chi Tiết</p>
+                            <div className="max-h-[200px] w-[350px] overflow-y-auto pr-2">
+                                {record.listCourses && record.listCourses.length > 0 ? (
+                                    <ul className='pl-4'>
+                                        {record.listCourses.map((course, index) => (
+                                            <li key={index}>
+                                                <span className='gap-2 mr-2'>
+                                                    <DoubleRightOutlined style={{ color: 'green' }} />
+                                                </span>
+                                                {course}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <div className='text-center'>
+                                        <InboxOutlined className='text-4xl text-gray-500' />
+                                        <p >Không tìm thấy khóa học nào!</p>
+                                    </div>
+                                )}
                             </div>
-
                         </div>
                     }
                     icon={null}
@@ -112,14 +126,19 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             render: (text, record) => (
                 <Popconfirm
                     title={
-                        <div className='h-[180px] w-[180px] shadow-xl rounded-lg overflow-hidden bg-white flex items-center justify-center'>
-                            <img className='max-h-full max-w-full rounded object-contain'
-                                src={`${storageUrl}/subject/${record.thumbnail}`}
-                                //@ts-ignore
-                                onError={(e) => { e.target.src = `${storageUrl}/other/notfound.png`; }}
-                                alt={record.subjectName}
-                            />
-                        </div>
+                        <Image
+                            width="180px"
+                            height="auto"
+                            preview={{
+                                visible: isPreviewVisible,
+                                mask: <span><EyeOutlined className='mr-2' />Xem</span>,
+                                onVisibleChange: (visible) => setIsPreviewVisible(visible),
+                            }}
+                            src={`${storageUrl}/subject/${record.thumbnail}`}
+                            //@ts-ignore
+                            onError={(e) => { e.target.src = `${storageUrl}/other/notfound.png`; }}
+                            alt={record.subjectName}
+                        />
                     }
                     icon={null}
                     showCancel={false}
@@ -144,8 +163,8 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
                     />
                     <Popconfirm
                         placement="left"
-                        title="Xóa môn học"
-                        description="Bạn có chắc chắn muốn xóa môn học này không?"
+                        title="Xóa công nghệ"
+                        description="Bạn có chắc chắn muốn xóa công nghệ này không?"
                         onConfirm={() => deleteSubject(record.subjectId)}
                         okText="Có"
                         cancelText="Không"

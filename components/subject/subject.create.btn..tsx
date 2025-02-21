@@ -114,7 +114,7 @@ const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: an
                 setUrlThumbnail(imageResponse.data)
 
             } else {
-                setErrThumbnail(imageResponse.errorMessage)
+                setErrThumbnail(imageResponse.message.toString())
             }
         }
     }
@@ -141,7 +141,7 @@ const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: an
                         style={{ background: 'green', borderColor: "green" }}
                         type="primary"
                         onClick={() => handelOnExportExcel()}
-                        className="w-fit hover:bg-green-100 hover:border-green-700">
+                        className="w-fit hover:bg-green-100 hover:border-green-700 !pt-5 !pb-5">
                         Xuất Excel
                     </Button>
                 </div>
@@ -150,7 +150,7 @@ const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: an
                         style={{ background: 'orange', borderColor: "orange" }}
                         type="primary"
                         onClick={() => { handleExportPDF() }}
-                        className="w-fit hover:bg-orange-500 hover:border-orange-700">
+                        className="w-fit hover:bg-orange-500 hover:border-orange-700 !pt-5 !pb-5">
                         Xuất PDF
                     </Button>
                 </div>
@@ -218,9 +218,9 @@ const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: an
 
                     <Col span={7}>
                         <span className="text-red-500 mr-2">*</span>Ảnh:
-                        <div className={`${errThumbnail !== "" ? "border-red-500 border-2 w-fit rounded-lg" : ""}`}>
+                        <div>
                             {urlThumbnail === "" ? (
-                                <div className="relative w-fit">
+                                <div className={`${errThumbnail !== "" ? "border-red-500 border-2 w-fit rounded-lg " : "relative w-fit"}`}>
                                     <Avatar
                                         shape="square"
                                         size={120}
@@ -231,7 +231,7 @@ const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: an
                                         type="file"
                                         onChange={handleUploadFile}
                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                        style={{ maxWidth: "120px", maxHeight: "120px" }} // Giới hạn kích thước input file
+                                        style={{ maxWidth: "120px", maxHeight: "120px" }}
                                     />
                                 </div>
 
