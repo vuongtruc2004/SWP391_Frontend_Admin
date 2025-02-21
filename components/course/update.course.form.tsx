@@ -1,13 +1,13 @@
 'use client'
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { Button, Checkbox, Image, Input, Modal, notification } from 'antd';
-import { EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, SyncOutlined, WarningOutlined } from '@ant-design/icons';
-import { useRouter } from 'next/navigation';
-import '@ant-design/v5-patch-for-react-19';
+import { validDes, validIntroduction, validOriginPrice, validSalePrice, validTitle } from '@/helper/create.course.helper';
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl, storageUrl } from '@/utils/url';
-import { validDes, validIntroduction, validOriginPrice, validSalePrice, validTitle } from '@/helper/create.course.helper';
+import { EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, SyncOutlined, WarningOutlined } from '@ant-design/icons';
+import '@ant-design/v5-patch-for-react-19';
+import { Button, Checkbox, Image, Input, Modal, notification } from 'antd';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 
 const initState: ErrorResponse = {
@@ -41,7 +41,7 @@ const UpdateCourseForm = (props: {
     ]);
     const [errLessThan, setErrLessThan] = useState("")
     const [errorMessage, setErrorMessage] = useState("");
-    const [isSubmitted, setIsSubmitted] = useState(false); // Theo dõi trạng thái đã nhấn "Tạo"
+    const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     useEffect(() => {
@@ -138,9 +138,8 @@ const UpdateCourseForm = (props: {
     }
     const handleOk = async () => {
 
-        setIsSubmitted(true); // Đánh dấu đã submit
+        setIsSubmitted(true);
         setLoading(true);
-        // Kiểm tra tất cả các giá trị
         const isTitleValid = validTitle(title, setTitle);
         const isIntroduction = validIntroduction(introduction, setIntroduction);
         const isOriginPrice = validOriginPrice(originPrice, setOriginPrice);
@@ -155,7 +154,7 @@ const UpdateCourseForm = (props: {
             setErrLessThan("")
         }
 
-        // Nếu bất kỳ giá trị nào không hợp lệ, dừng lại
+
         if (!isTitleValid || !isIntroduction || !isOriginPrice || !isSalePrice || !isDes || !subjectChecked || subjectChecked.length === 0) {
             setEmptySubject("Vui lòng chọn ít nhất một công nghệ sử dụng trong khóa học!")
             if (subjectChecked.length !== 0) {

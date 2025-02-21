@@ -4,8 +4,8 @@ import { validDes, validIntroduction, validOriginPrice, validSalePrice } from "@
 import { validTitle } from "@/helper/create.question.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
-import { PlusCircleOutlined, PlusOutlined, WarningOutlined, MinusCircleOutlined, EyeOutlined, SyncOutlined } from "@ant-design/icons";
-import { Alert, Avatar, Button, Checkbox, Image, Input, message, Modal, notification, Space } from "antd";
+import { EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
+import { Avatar, Button, Checkbox, Image, Input, Modal, notification } from "antd";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
@@ -21,14 +21,14 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
     const [isRotated, setIsRotated] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [emptySubject, setEmptySubject] = useState("");
-    const [isSubmitted, setIsSubmitted] = useState(false); // Theo dõi trạng thái đã nhấn "Tạo"
+    const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [introduction, setIntroduction] = useState<ErrorResponse>(initState);
     const [originPrice, setOriginPrice] = useState<ErrorResponse>(initState);
     const [salePrice, setSalePrice] = useState<ErrorResponse>(initState);
     const [des, setDes] = useState<ErrorResponse>(initState);
-    const [objects, setObjects] = useState([{ content: "", empty: true }]); // Mảng câu trả lời
+    const [objects, setObjects] = useState([{ content: "", empty: true }]);
     const CheckboxGroup = Checkbox.Group;
     const [subjects, setSubjects] = useState<string[]>([]);
     const [checkedList, setCheckedList] = useState<string[]>();
