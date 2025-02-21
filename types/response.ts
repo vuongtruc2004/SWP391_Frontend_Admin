@@ -211,4 +211,33 @@ declare global {
         comment: CommentResponse,
         createdAt: string,
     }
+    interface QuizResponse {
+
+        quizId: number;
+        title: string;
+        maxAttempts: number;
+        published: boolean;
+        createdAt: string;
+        updatedAt: string;
+        startedAt: string;
+        endedAt: string;
+        lesson: LessonResponse;
+        expert: ExpertResponse;
+        questions: QuestionResponse[];
+    }
+
+    interface OrderResponse {
+        orderId: number;
+        orderStatus: string;
+        createdAt: string;
+        updatedAt: string;
+        user: UserResponse;
+        orderDetails: OrderDetailsResponse[];
+    }
+
+    interface OrderDetailsResponse {
+        orderDetailsId: number;
+        price: number;
+        course: CourseResponse;
+    }
 }

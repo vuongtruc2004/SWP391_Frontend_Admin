@@ -69,7 +69,7 @@ const UserCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: any }
             });
             console.log('>>> handleOk >>>', uploadResponse)
             if (uploadResponse.status === 200 && uploadResponse.data?.avatar) {
-                setUrlAvatar({ ...urlAvatar, value: uploadResponse.data.avatar }) // Lấy avatar từ API response
+                setUrlAvatar({ ...urlAvatar, value: uploadResponse.data.avatar })
             } else {
                 setErrorMessage(uploadResponse.message.toString());
                 return;
@@ -139,8 +139,8 @@ const UserCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: any }
 
     const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            const selectedFile = e.target.files[0]; // Lấy file người dùng chọn
-            setAvatar(selectedFile); // Cập nhật state avatar
+            const selectedFile = e.target.files[0];
+            setAvatar(selectedFile);
 
             const formData = new FormData();
             formData.append('file', selectedFile);
@@ -155,7 +155,7 @@ const UserCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: any }
 
             console.log('handleUploadFile >>>>', imageResponse)
             if (imageResponse.status === 200 && imageResponse.data?.avatar) {
-                setUrlAvatar({ ...urlAvatar, value: imageResponse.data.avatar }); // Lưu URL avatar mới
+                setUrlAvatar({ ...urlAvatar, value: imageResponse.data.avatar });
                 setErrorMessage("")
             } else {
                 setErrorMessage(imageResponse.message.toString());
@@ -165,7 +165,7 @@ const UserCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: any }
 
     const handleSyncClick = () => {
         if (fileInputRef.current) {
-            fileInputRef.current.value = ""; // Reset input file để đảm bảo onchange luôn kích hoạt
+            fileInputRef.current.value = "";
             fileInputRef.current.click();
         }
     };

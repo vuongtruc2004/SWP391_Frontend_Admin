@@ -1,5 +1,5 @@
 'use client'
-import { SearchOutlined } from '@ant-design/icons'
+import { SearchOutlined, UndoOutlined } from '@ant-design/icons'
 import { Button, Form, Input, Select } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import Search from 'antd/es/input/Search'
@@ -45,11 +45,11 @@ const UserSearch = (props: {
     }, []);
 
     return (
-        <div className="flex gap-4 ml-10 mt-10">
+        <div className="flex gap-2 ml-10 mt-10">
             <Form className='w-[40%]' onFinish={onFinish} form={form} initialValues={{ keyword: keyword, locked: locked, roleName: roleName, gender: gender }}>
                 <Form.Item name="keyword" className="mb-0">
                     <Input
-                        placeholder="Tìm kiếm người dùng, email, role"
+                        placeholder="Tìm kiếm bằng tên người dùng, email, vai trò"
                         prefix={<SearchOutlined />}
                         className='!p-[10px]'
                         onPressEnter={() => form.submit()}
@@ -98,7 +98,8 @@ const UserSearch = (props: {
                             options={[
                                 { value: "ALL", label: "Tất cả" },
                                 { value: "MALE", label: 'Nam' },
-                                { value: "FEMALE", label: 'Nữ' }
+                                { value: "FEMALE", label: 'Nữ' },
+                                { value: 'UNKNOWN', label: 'Chưa thiết lập' }
                             ]}
                         />
                     </Form.Item>
@@ -106,7 +107,7 @@ const UserSearch = (props: {
 
             </Form >
 
-            <Button type='primary' onClick={handleReset} className='!p-[20px]'>Làm mới</Button>
+            <Button icon={<UndoOutlined style={{ fontSize: '20px' }} />} type='primary' onClick={handleReset} className='!p-[20px]'></Button>
         </div >
 
 

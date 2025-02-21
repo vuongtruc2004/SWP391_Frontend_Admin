@@ -1,35 +1,23 @@
 'use client'
-import { EditOutlined, InfoCircleOutlined, LockFilled, LockOutlined, UnlockOutlined } from '@ant-design/icons';
-import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
-import React, { RefObject, useEffect, useRef, useState } from 'react'
-import { sendRequest } from '@/utils/fetch.api';
-import '@ant-design/v5-patch-for-react-19';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { apiUrl } from '@/utils/url';
-import ViewUserDetail from './view.user.detail';
-import UpdateUserForm from './update.user.form';
+import { sendRequest } from "@/utils/fetch.api";
+import { apiUrl } from "@/utils/url";
+import { InfoCircleOutlined, LockOutlined } from "@ant-design/icons";
+import { notification, Popconfirm, Space, Table, TableProps } from "antd";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import ViewPurchaserDetail from "./view.purchaser.detail";
 
-
-
-const UserTable = (props: {
-    userPageResponse: PageDetailsResponse<UserResponse[]>,
-    componentPDF: RefObject<HTMLDivElement | null>,
+const PurchaserTable = (props: {
+    purchaserPageResponse: PageDetailsResponse<UserResponse[]>;
 }) => {
-    const { userPageResponse, componentPDF } = props;
+    const { purchaserPageResponse } = props;
     const [openDraw, setOpenDraw] = useState(false);
-    const [user, setUser] = useState<UserResponse | null>(null);
-    const searchParams = useSearchParams();
+    const [userDetail, setUserDetail] = useState<UserResponse | null>(null);
     const pathname = usePathname();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const page = Number(searchParams.get('page')) || 1;
-    const [openEditForm, setOpenEditForm] = useState(false);
-    const [editingUser, setEditingUser] = useState<UserResponse | null>(null)
-
-    const [sheetData, setSheetData] = useState<UserResponse[]>([]);
-
-
-
     const lockUser = async (userId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<Boolean>>({
             url: `${apiUrl}/users/${userId}`,
@@ -62,13 +50,13 @@ const UserTable = (props: {
             key: 'index',
             width: '5%',
             align: 'center',
-            render: (text, record, index) => <>{(index + 1) + (page - 1) * userPageResponse.pageSize}</>,
+            render: (text, record, index) => <>{(index + 1) + (page - 1) * purchaserPageResponse.pageSize}</>,
         },
         {
             title: 'Tên người dùng',
             dataIndex: 'fullname',
             key: 'fullname',
-            width: '30%',
+            width: '25%',
             align: 'center',
             sorter: (a, b) => a.fullname.localeCompare(b.fullname),
         },
@@ -76,17 +64,17 @@ const UserTable = (props: {
             title: 'Email',
             dataIndex: 'email',
             key: 'email',
-            width: '30%',
+            width: '25%',
             align: 'center',
             sorter: (a, b) => a.email.localeCompare(b.email),
         },
         {
-            title: 'Vai trò',
-            dataIndex: 'roleName',
-            key: 'rolename',
-            width: '10%',
+            title: 'Loại tài khoản',
+            dataIndex: 'accountType',
+            key: 'accountType',
+            width: '15%',
             align: 'center',
-            sorter: (a, b) => a.roleName.localeCompare(b.roleName),
+            sorter: (a, b) => a.accountType.localeCompare(b.accountType),
         },
         {
             title: 'Giới tính',
@@ -96,7 +84,7 @@ const UserTable = (props: {
             align: 'center',
             render: (gender: string) => {
                 if (!gender) {
-                    return <span className='text-nowrap'>Chưa thiết lập</span>;
+                    return <span className="text-nowrap">Chưa thiết lập</span>;
                 }
                 return gender === "MALE" ? "Nam" : "Nữ";
             },
@@ -121,19 +109,14 @@ const UserTable = (props: {
             title: 'Hành động',
             key: 'action',
             width: '40%',
+            align: 'center',
             render: (_, record: any) => (
                 <Space size="middle">
                     <InfoCircleOutlined style={{ color: "green" }} onClick={() => {
                         setOpenDraw(true);
-                        setUser(record);
+                        setUserDetail(record);
                     }} />
 
-                    <EditOutlined className="text-blue-500" style={{ color: "blue" }}
-                        onClick={() => {
-                            setEditingUser(record)
-                            setOpenEditForm(true)
-                        }}
-                    />
                     <Popconfirm
                         placement="left"
                         title={`${record.locked ? "Mở khóa" : "Khóa"} người dùng`}
@@ -149,47 +132,31 @@ const UserTable = (props: {
         },
     ];
 
-
     return (
         <>
-
-
-            <div className='overflow-y-auto' ref={componentPDF} >
-
-
-                <Table
-                    className=" max-h-[calc(100vh-100px)] mb-8 pl-6 pr-6"
-                    columns={columns}
-                    dataSource={userPageResponse.content}
-                    rowKey={"userId"}
-                    pagination={{
-                        current: page,
-                        pageSize: userPageResponse.pageSize,
-                        total: userPageResponse.totalElements,
-                        onChange(page, pageSize) {
-                            const params = new URLSearchParams(searchParams);
-                            params.set('page', page.toString());
-                            router.replace(`${pathname}?${params}`);
-                        },
-                    }}
-                    showSorterTooltip={false}
-                />
-            </div>
-            <ViewUserDetail
+            <Table
+                className="overflow-y-auto max-h-[calc(100vh-100px)] mb-8 pl-6 pr-6"
+                columns={columns}
+                dataSource={purchaserPageResponse.content}
+                rowKey={"userId"}
+                pagination={{
+                    current: page,
+                    pageSize: purchaserPageResponse.pageSize,
+                    total: purchaserPageResponse.totalElements,
+                    onChange(page, pageSize) {
+                        const params = new URLSearchParams(searchParams);
+                        params.set('page', page.toString());
+                        router.replace(`${pathname}?${params}`);
+                    },
+                }}
+                showSorterTooltip={false}
+            />
+            <ViewPurchaserDetail
                 setOpenDraw={setOpenDraw}
                 openDraw={openDraw}
-                user={user}
-                setUser={setUser}
+                userDetail={userDetail}
             />
-
-            <UpdateUserForm
-                openEditForm={openEditForm}
-                setOpenEditForm={setOpenEditForm}
-                editingUser={editingUser}
-                setEditingUser={setEditingUser}
-            />
-
         </>
-    );
-};
-export default UserTable;
+    )
+}
+export default PurchaserTable;

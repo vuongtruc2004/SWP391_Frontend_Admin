@@ -1,5 +1,5 @@
 'use client'
-import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, UserOutlined } from '@ant-design/icons';
 import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
 import React, { useEffect, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
@@ -85,13 +85,11 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
     }
     const columns: TableProps<CourseDetailsResponse>['columns'] = [
         {
-            title: 'Id',
-            dataIndex: 'courseId',
-            key: 'id',
+            title: 'STT',
+            dataIndex: 'index',
+            key: 'index',
             width: '10%',
-            sorter: {
-                compare: (a, b) => a.courseId - b.courseId,
-            },
+            render: (text, record, index) => <>{(index + 1) + (page - 1) * coursePageResponse.pageSize}</>,
         },
         {
             title: 'Tên khóa học',
@@ -174,6 +172,9 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                         }}
                         onClick={() => acceptCourse(record.courseId)}
                     />
+                    <Link href={`/course/purchaser/${record.courseId}`}>
+                        <UserOutlined />
+                    </Link>
 
                 </Space>
             ),

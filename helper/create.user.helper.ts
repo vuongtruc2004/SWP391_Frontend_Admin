@@ -150,7 +150,16 @@ export const getRoleName = (value: string | undefined | null) => {
 
 export const getGender = (value: string | null | undefined) => {
 
-    if (!value || (value !== 'MALE' && value !== 'FEMALE')) {
+    if (!value || (value !== 'MALE' && value !== 'FEMALE' && value !== 'UNKNOWN')) {
+        return 'ALL';
+    } else {
+        return value;
+    }
+}
+
+export const getAccountType = (value: string | null | undefined) => {
+
+    if (!value || (value !== 'CREDENTIALS' && value !== 'GITHUB' && value != 'GOOGLE')) {
         return 'ALL';
     } else {
         return value;

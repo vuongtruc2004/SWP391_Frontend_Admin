@@ -4,7 +4,7 @@ import { useReactToPrint } from "react-to-print";
 import { notification } from "antd";
 import UserSearch from "@/components/user/user.search";
 import UserTable from "@/components/user/user.table";
-import UserCreateBtn from "./user.create.btn.";
+import UserCreateBtn from "./user.create.btn";
 import * as XLSX from 'xlsx';
 import dayjs from "dayjs";
 const UserPageClient = ({ keyword, userResponse, allUsers, roleName, locked, gender }: {
@@ -29,15 +29,16 @@ const UserPageClient = ({ keyword, userResponse, allUsers, roleName, locked, gen
             alert("Không tìm thấy nội dung để in!");
         }
     };
+
+
+
+
+
     useEffect(() => {
         if (allUsers.length > 0) {
-            console.log("Cập nhật sheetData với dữ liệu:", allUsers);
-            setSheetData([...allUsers]); // Sao chép dữ liệu, tránh lỗi reference
+            setSheetData([...allUsers]);
         }
     }, [allUsers]);
-
-
-
     const handelOnExportExcel = () => {
 
         if (sheetData.length > 0) {

@@ -39,10 +39,10 @@ const ViewUserDetail = (props: IProps) => {
         <>
             <Drawer title="THÔNG TIN CHI TIẾT" onClose={onClose} open={openDraw}>
                 {user ? <>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Id:</span>{user.userId}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tên người dùng: </span>{user.fullname}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Email: </span>{user.email}</div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Giới tính: </span>{user.gender ? (user.gender === "MALE" ? 'Nam' : 'Nữ)') : 'Chưa thiết lập'}</div>
+                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Giới tính: </span>{user.gender ? (user.gender === "MALE" ? 'Nam' : 'Nữ') : 'Chưa thiết lập'}</div>
+                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Vai trò: </span>{user.roleName}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ngày sinh: </span>{user.dob == null ? 'Chưa cung cấp ngày sinh' : user.dob}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Loại tài khoản: </span>{user.accountType}</div>
 

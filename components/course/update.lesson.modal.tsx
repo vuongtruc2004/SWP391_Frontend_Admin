@@ -20,7 +20,7 @@ const initState: ErrorResponse = {
 const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCourse }: {
     openUpdateLesson: boolean,
     setOpenUpdateLesson: React.Dispatch<SetStateAction<boolean>>,
-    selectedCourse: CourseResponse
+    selectedCourse: CourseResponse | null
 }) => {
     const { data: session, status } = useSession();
     const [form] = Form.useForm();
