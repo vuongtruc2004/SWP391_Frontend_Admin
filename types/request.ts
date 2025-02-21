@@ -20,6 +20,18 @@ declare global {
         thumbnail?: string;
     }
 
+    interface CourseRequest {
+        courseId?: number;
+        salePrice?: number;
+        originalPrice?: number;
+        courseName?: string;
+        description?: string;
+        thumbnail?: string;
+        introduction?: string;
+        objectives?: string[];
+        subjects?: string[];
+    }
+
     interface QuestionRequest {
         questionId?: number;
         title?: string;

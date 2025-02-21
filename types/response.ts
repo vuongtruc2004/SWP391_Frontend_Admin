@@ -105,6 +105,10 @@ declare global {
         totalPurchased: number,
         createdAt: string,
         updatedAt: string,
+        subjects: SubjectResponse[],
+        introduction: string,
+        objectives: string[],
+
     }
 
     interface AgeRangeResponse {

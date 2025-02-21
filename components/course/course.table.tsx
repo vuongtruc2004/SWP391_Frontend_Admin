@@ -10,6 +10,9 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl } from '@/utils/url';
 import ViewCourseDetail from './view.course.detail';
 import BlogUpdate from '../blog/blog.update';
+import UpdateCourseForm from './update.course.form';
+import { GrChapterAdd } from 'react-icons/gr';
+import UpdateLessonModal from './update.lesson.modal';
 
 
 
@@ -32,6 +35,12 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
     const router = useRouter();
     const [render, setRender] = useState(false);
     const page = Number(searchParams.get('page')) || 1; // Lấy số trang từ URL
+    const [editingCourse, setEditingCourse] = useState<CourseResponse | null>(null)
+    const [openEditForm, setOpenEditForm] = useState(false);
+    const [selectedCourse, setSelectedCourse] = useState<CourseDetailsResponse | null>(null);
+    const [openUpdateLesson, setOpenUpdateLesson] = useState(false);
+
+
     const deleteCourse = async (courseId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<CourseDetailsResponse>>({
             url: `${apiUrl}/courses/delete/${courseId}`,
@@ -137,6 +146,16 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                         setOpenDraw(true);
                         setCourse(record);
                     }} />
+                    <EditOutlined style={{ color: "blue" }}
+                        onClick={() => {
+                            setEditingCourse(record)
+                            setOpenEditForm(true)
+                        }}
+                    />
+                    <GrChapterAdd style={{ color: "black" }} onClick={() => {
+                        setSelectedCourse(record);
+                        setOpenUpdateLesson(true);
+                    }} />
                     <Popconfirm
                         placement="left"
                         title="Xóa môn học"
@@ -194,6 +213,16 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                 course={course}
                 setCourse={setCourse}
             />
+
+            <UpdateCourseForm
+                openEditForm={openEditForm}
+                setOpenEditForm={setOpenEditForm}
+                editingCourse={editingCourse}
+                setEditingCourse={setEditingCourse}
+            />
+
+            <UpdateLessonModal selectedCourse={selectedCourse} openUpdateLesson={openUpdateLesson} setOpenUpdateLesson={setOpenUpdateLesson} />
+
         </>
     );
 };
