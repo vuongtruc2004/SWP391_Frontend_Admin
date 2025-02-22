@@ -4,7 +4,7 @@ import { validDescription, validSubjectName } from "@/helper/create.subject.help
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
-import { Avatar, Button, Col, Image, Input, Modal, notification, Row, Select } from "antd";
+import { Avatar, Button, Col, Image, Input, Modal, notification, Row, Select, Spin } from "antd";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useRef, useState } from "react";
@@ -35,54 +35,59 @@ const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: an
 
     const handleOk = async () => {
         setLoading(true);
-        // Kiểm tra tất cả các giá trị
-        const isSubjectNameValid = validSubjectName(subjectName, setSubjectName);
-        const isDescriptionValid = validDescription(description, setDescription);
 
-        // Nếu bất kỳ giá trị nào không hợp lệ, dừng lại
-        if (!isSubjectNameValid || !isDescriptionValid || urlThumbnail === "") {
-            setErrThumbnail("Ảnh không được để rỗng!")
-            if (urlThumbnail !== "") {
-                setErrThumbnail("")
+        setTimeout(async () => {
+
+            // Kiểm tra tất cả các giá trị
+            const isSubjectNameValid = validSubjectName(subjectName, setSubjectName);
+            const isDescriptionValid = validDescription(description, setDescription);
+
+            // Nếu bất kỳ giá trị nào không hợp lệ, dừng lại
+            if (!isSubjectNameValid || !isDescriptionValid || urlThumbnail === "") {
+                setErrThumbnail("Ảnh không được để rỗng!")
+                if (urlThumbnail !== "") {
+                    setErrThumbnail("")
+                    setLoading(false);
+                    return
+                }
                 setLoading(false);
                 return
             }
+
+
+            const subjectRequest: SubjectRequest = {
+                subjectName: subjectName.value,
+                description: description.value,
+                thumbnail: urlThumbnail,
+            }
+            const createResponse = await sendRequest<ApiResponse<SubjectResponse>>({
+                url: `${apiUrl}/subjects`,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: subjectRequest
+            });
+
+            if (createResponse.status === 201) {
+                handleCancel();
+                router.refresh();
+                notification.success({
+                    message: "Thành công",
+                    description: createResponse.message.toString(),
+                    showProgress: true
+                });
+            } else {
+                setErrorMessage(createResponse.message.toString());
+                notification.error({
+                    message: "Thất bại",
+                    description: createResponse.message.toString(),
+                    showProgress: true
+                });
+            }
             setLoading(false);
-            return
-        }
+        }, 500);
 
-
-        const subjectRequest: SubjectRequest = {
-            subjectName: subjectName.value,
-            description: description.value,
-            thumbnail: urlThumbnail,
-        }
-        const createResponse = await sendRequest<ApiResponse<SubjectResponse>>({
-            url: `${apiUrl}/subjects`,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: subjectRequest
-        });
-
-        if (createResponse.status === 201) {
-            handleCancel();
-            router.refresh();
-            notification.success({
-                message: "Thành công",
-                description: createResponse.message.toString(),
-                showProgress: true
-            });
-        } else {
-            setErrorMessage(createResponse.message.toString());
-            notification.error({
-                message: "Thất bại",
-                description: createResponse.message.toString(),
-                showProgress: true
-            });
-        }
-        setLoading(false);
     };
 
     const handleSyncClick = () => {
@@ -168,124 +173,127 @@ const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: an
                 title="Tạo công nghệ"
                 open={isModalOpen}
                 footer={null}
-                onCancel={handleCancel}            >
-                <Row gutter={24} className="mb-7">
-                    <Col span={17} className="flex flex-col space-y-6 ">
-                        <div>
-                            <span className="text-red-500 mr-2">*</span>Tên công nghệ:
-                            <Input
-                                status={subjectName.error ? 'error' : ''}
-                                className="mt-1"
-                                placeholder="Nhập tên môn học"
-                                allowClear
-                                value={subjectName.value}
-                                onChange={(e) => {
-                                    setSubjectName({
-                                        ...subjectName,
-                                        value: e.target.value,
-                                        error: false
-                                    })
+                onCancel={handleCancel}
+            >
+                <Spin spinning={loading}>
+                    <Row gutter={24} className="mb-7">
+                        <Col span={17} className="flex flex-col space-y-6 ">
+                            <div>
+                                <span className="text-red-500 mr-2">*</span>Tên công nghệ:
+                                <Input
+                                    status={subjectName.error ? 'error' : ''}
+                                    className="mt-1"
+                                    placeholder="Nhập tên môn học"
+                                    allowClear
+                                    value={subjectName.value}
+                                    onChange={(e) => {
+                                        setSubjectName({
+                                            ...subjectName,
+                                            value: e.target.value,
+                                            error: false
+                                        })
 
-                                }}
+                                    }}
 
-                            />
-                            {subjectName.error && (
-                                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                    <WarningOutlined />
-                                    {subjectName.message}
-                                </p>
-                            )}
+                                />
+                                {subjectName.error && (
+                                    <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                        <WarningOutlined />
+                                        {subjectName.message}
+                                    </p>
+                                )}
 
-                        </div>
-                        <div className="mb-3">
-                            <span className="text-red-500 mr-2">*</span>Mô tả:
-                            <Input
-                                status={description.error ? 'error' : ''}
-                                className="mt-1"
-                                placeholder="Nhập mô tả công nghệ"
-                                allowClear
-                                value={description.value}
-                                onChange={(e) => {
-                                    setDescription({
-                                        ...description,
-                                        value: e.target.value,
-                                        error: false
-                                    })
+                            </div>
+                            <div className="mb-3">
+                                <span className="text-red-500 mr-2">*</span>Mô tả:
+                                <Input
+                                    status={description.error ? 'error' : ''}
+                                    className="mt-1"
+                                    placeholder="Nhập mô tả công nghệ"
+                                    allowClear
+                                    value={description.value}
+                                    onChange={(e) => {
+                                        setDescription({
+                                            ...description,
+                                            value: e.target.value,
+                                            error: false
+                                        })
 
-                                }}
-                            />
-                            {description.error && (
-                                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                    <WarningOutlined />
-                                    {description.message}
-                                </p>
-                            )}
-                        </div>
-                    </Col>
+                                    }}
+                                />
+                                {description.error && (
+                                    <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                        <WarningOutlined />
+                                        {description.message}
+                                    </p>
+                                )}
+                            </div>
+                        </Col>
 
-                    <Col span={7}>
-                        <span className="text-red-500 mr-2">*</span>Ảnh:
-                        <div>
-                            {urlThumbnail === "" ? (
-                                <div className={`${errThumbnail !== "" ? "border-red-500 border-2 w-fit rounded-lg " : "relative w-fit"}`}>
-                                    <Avatar
-                                        shape="square"
-                                        size={120}
-                                        icon={<PlusOutlined />}
-                                        alt="avatar"
-                                    />
-                                    <input
-                                        type="file"
-                                        onChange={handleUploadFile}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                        style={{ maxWidth: "120px", maxHeight: "120px" }}
-                                    />
-                                </div>
-
-                            ) : (
-                                <div className="flex items-end">
-                                    <div className="h-[120px] w-[120px]">
-                                        <Image
-                                            className="h-full w-full object-contain"
-                                            width="100%"
-                                            height="100%"
-                                            preview={{
-                                                visible: isPreviewVisible,
-                                                mask: <span><EyeOutlined className='mr-2' />Xem</span>,
-                                                onVisibleChange: (visible) => setIsPreviewVisible(visible),
-                                            }}
-                                            src={`${storageUrl}/subject/${urlThumbnail}`}
-                                            alt="Preview"
+                        <Col span={7}>
+                            <span className="text-red-500 mr-2">*</span>Ảnh:
+                            <div>
+                                {urlThumbnail === "" ? (
+                                    <div className={`${errThumbnail !== "" ? "border-red-500 border-2 w-fit rounded-lg " : "relative w-fit"}`}>
+                                        <Avatar
+                                            shape="square"
+                                            size={120}
+                                            icon={<PlusOutlined />}
+                                            alt="avatar"
+                                        />
+                                        <input
+                                            type="file"
+                                            onChange={handleUploadFile}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                            style={{ maxWidth: "120px", maxHeight: "120px" }}
                                         />
                                     </div>
 
-                                    <SyncOutlined className="text-blue-500 text-lg ml-6"
-                                        onClick={handleSyncClick}
-                                    />
+                                ) : (
+                                    <div className="flex items-end">
+                                        <div className="h-[120px] w-[120px]">
+                                            <Image
+                                                className="h-full w-full object-contain"
+                                                width="100%"
+                                                height="100%"
+                                                preview={{
+                                                    visible: isPreviewVisible,
+                                                    mask: <span><EyeOutlined className='mr-2' />Xem</span>,
+                                                    onVisibleChange: (visible) => setIsPreviewVisible(visible),
+                                                }}
+                                                src={`${storageUrl}/subject/${urlThumbnail}`}
+                                                alt="Preview"
+                                            />
+                                        </div>
 
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        onChange={handleUploadFile}
-                                        className="hidden"
-                                    />
-                                </div>
+                                        <SyncOutlined className="text-blue-500 text-lg ml-6"
+                                            onClick={handleSyncClick}
+                                        />
 
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            onChange={handleUploadFile}
+                                            className="hidden"
+                                        />
+                                    </div>
+
+                                )}
+                            </div>
+                            {errThumbnail !== "" && (
+                                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                    <WarningOutlined />
+                                    {errThumbnail}
+                                </p>
                             )}
-                        </div>
-                        {errThumbnail !== "" && (
-                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                <WarningOutlined />
-                                {errThumbnail}
-                            </p>
-                        )}
-                    </Col>
-                </Row>
+                        </Col>
+                    </Row>
 
-                <div className="flex justify-end mt-5">
-                    <Button className="mr-4" onClick={() => handleCancel()}>Hủy</Button>
-                    <Button loading={loading} type="primary" onClick={() => handleOk()}>Tạo</Button>
-                </div>
+                    <div className="flex justify-end mt-5">
+                        <Button className="mr-4" onClick={() => handleCancel()}>Hủy</Button>
+                        <Button loading={loading} type="primary" onClick={() => handleOk()}>Tạo</Button>
+                    </div>
+                </Spin>
 
             </Modal >
         </>

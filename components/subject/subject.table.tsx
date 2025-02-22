@@ -1,6 +1,6 @@
 'use client'
 import { DeleteOutlined, DoubleRightOutlined, EditOutlined, EyeOutlined, InboxOutlined, PictureOutlined } from '@ant-design/icons';
-import { Empty, Image, notification, Popconfirm, Space, Table, TableProps } from 'antd';
+import { Empty, Image, notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
 import React, { RefObject, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
 import Link from 'next/link';
@@ -128,28 +128,31 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             width: '10%',
             align: 'center',
             render: (text, record) => (
-                <Popconfirm
-                    title={
-                        <Image
-                            width="180px"
-                            height="auto"
-                            preview={{
-                                visible: isPreviewVisible,
-                                mask: <span><EyeOutlined className='mr-2' />Xem</span>,
-                                onVisibleChange: (visible) => setIsPreviewVisible(visible),
-                            }}
-                            src={`${storageUrl}/subject/${record.thumbnail}`}
-                            //@ts-ignore
-                            onError={(e) => { e.target.src = `${storageUrl}/other/notfound.png`; }}
-                            alt={record.subjectName}
-                        />
-                    }
-                    icon={null}
-                    showCancel={false}
-                    okText="Đóng"
-                >
-                    <PictureOutlined style={{ color: 'green' }} />
-                </Popconfirm>
+                <Tooltip title='Ảnh bìa'>
+                    <Popconfirm
+                        title={
+                            <Image
+                                width="180px"
+                                height="auto"
+                                preview={{
+                                    visible: isPreviewVisible,
+                                    mask: <span><EyeOutlined className='mr-2' />Xem</span>,
+                                    onVisibleChange: (visible) => setIsPreviewVisible(visible),
+                                }}
+                                src={`${storageUrl}/subject/${record.thumbnail}`}
+                                //@ts-ignore
+                                onError={(e) => { e.target.src = `${storageUrl}/other/notfound.png`; }}
+                                alt={record.subjectName}
+                            />
+                        }
+                        icon={null}
+                        showCancel={false}
+                        okText="Đóng"
+                    >
+                        <PictureOutlined style={{ color: 'green' }} />
+                    </Popconfirm>
+                </Tooltip>
+
             ),
         },
         {
@@ -160,23 +163,29 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             render: (_, record: any) => (
                 <Space size="middle">
                     {session?.user.roleName === 'EXPERT' &&
-                        <EditOutlined style={{ color: "blue" }}
-                            onClick={() => {
-                                setEditingSubject(record)
-                                setOpenEditForm(true)
-                            }}
-                        />
+                        <Tooltip title='Chỉnh sửa'>
+                            <EditOutlined style={{ color: "blue" }}
+                                onClick={() => {
+                                    setEditingSubject(record)
+                                    setOpenEditForm(true)
+                                }}
+                            />
+                        </Tooltip>
+
                     }
-                    <Popconfirm
-                        placement="left"
-                        title="Xóa công nghệ"
-                        description="Bạn có chắc chắn muốn xóa công nghệ này không?"
-                        onConfirm={() => deleteSubject(record.subjectId)}
-                        okText="Có"
-                        cancelText="Không"
-                    >
-                        <DeleteOutlined style={{ color: "red" }} />
-                    </Popconfirm>
+                    <Tooltip title='Xóa'>
+                        <Popconfirm
+                            placement="left"
+                            title="Xóa công nghệ"
+                            description="Bạn có chắc chắn muốn xóa công nghệ này không?"
+                            onConfirm={() => deleteSubject(record.subjectId)}
+                            okText="Có"
+                            cancelText="Không"
+                        >
+                            <DeleteOutlined style={{ color: "red" }} />
+                        </Popconfirm>
+                    </Tooltip>
+
                 </Space>
             ),
         },

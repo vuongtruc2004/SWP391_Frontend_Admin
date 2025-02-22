@@ -1,6 +1,6 @@
 'use client'
 import { RedoOutlined, SearchOutlined } from '@ant-design/icons'
-import { Button, Form, Input } from 'antd'
+import { Button, Form, Input, Tooltip } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
@@ -37,10 +37,13 @@ const SubjectSearch = (props: {
                         placeholder="Tìm kiếm tên công nghệ, mô tả"
                         prefix={<SearchOutlined />}
                         className='!p-[10px]'
+                        onChange={() => { form.submit() }}
                     />
                 </Form.Item>
             </Form>
-            <Button type='primary' onClick={handleReset} className='!pt-[20px] !pb-[20px]'><RedoOutlined className='text-2xl' /></Button>
+            <Tooltip title="Làm mới" color='blue'>
+                <Button type='primary' onClick={handleReset} className='!pt-[20px] !pb-[20px]'><RedoOutlined className='text-2xl' /></Button>
+            </Tooltip>
         </div>
 
 
