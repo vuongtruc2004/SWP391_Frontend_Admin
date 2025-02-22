@@ -4,17 +4,23 @@ import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import { Bar } from '@ant-design/plots'
 import { Divider, Select } from 'antd';
+import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react'
 
 const CourseTrendingChart = () => {
 
     const [chartData, setChartData] = useState<{ type: string; value: number }[]>([]);
     const [courseNumber, setCourseNumber] = useState<number>(5)
+    const { data: session, status } = useSession();
 
     useEffect(() => {
         const fetchData = async () => {
             const response = await sendRequest<ApiResponse<PageDetailsResponse<CourseResponse[]>>>({
                 url: `${apiUrl}/courses/purchased`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                    "Content-Type": "application/json"
+                },
                 queryParams: {
                     page: 1,
                     size: courseNumber,
