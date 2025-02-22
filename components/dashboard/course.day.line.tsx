@@ -58,7 +58,6 @@ const CourseDayLine = () => {
         });
 
         if (response.status === 200) {
-            console.log(">>>check", response)
             setMonday(response.data["MONDAY"]);
             setTuesday(response.data["TUESDAY"]);
             setWednesday(response.data["WEDNESDAY"]);

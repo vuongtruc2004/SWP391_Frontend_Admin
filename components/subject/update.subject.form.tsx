@@ -75,11 +75,13 @@ const UpdateSubjectForm = (props: {
             notification.success({
                 message: "Thành công",
                 description: updateResponse.message.toString(),
+                showProgress: true
             });
         } else {
             notification.error({
                 message: "Thất bại",
                 description: "Thay đổi thông tin thất bại!",
+                showProgress: true
             });
         }
         setLoading(false)

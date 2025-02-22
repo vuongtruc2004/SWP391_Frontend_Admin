@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import ViewQuestionDetail from './view.question.detail';
 import UpdateQuestionForm from './update.question.form';
+import { useSession } from 'next-auth/react';
 
 
 
@@ -29,6 +30,7 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
     const pathname = usePathname();
     const router = useRouter();
     const page = Number(searchParams.get('page')) || 1;
+    const { data: session, status } = useSession();
 
 
     const columns: TableProps<QuestionResponse>['columns'] = [
@@ -58,12 +60,14 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
                         setOpenDraw(true);
                         setQuestion(record);
                     }} />
-                    <EditOutlined style={{ color: "blue" }}
-                        onClick={() => {
-                            setEditingQuestion(record)
-                            setOpenEditForm(true)
-                        }}
-                    />
+                    {session?.user.roleName === 'EXPERT' &&
+                        <EditOutlined style={{ color: "blue" }}
+                            onClick={() => {
+                                setEditingQuestion(record)
+                                setOpenEditForm(true)
+                            }}
+                        />
+                    }
                     <Popconfirm
                         placement="left"
                         title="Xóa câu hỏi"
@@ -80,7 +84,6 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
         },
     ];
 
-    console.log("check 2", question)
     return (
         <>
             <Table

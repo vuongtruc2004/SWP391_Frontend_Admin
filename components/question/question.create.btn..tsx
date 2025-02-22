@@ -5,6 +5,7 @@ import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import { PlusCircleOutlined, PlusOutlined, WarningOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import { Alert, Button, Checkbox, Input, message, Modal, notification, Space } from "antd";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -22,6 +23,7 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
     const [loading, setLoading] = useState(false);
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [answers, setAnswers] = useState([{ content: "", correct: false, empty: true }]); // Mảng câu trả lời
+    const { data: session, status } = useSession();
 
     const showModal = () => {
         setIsRotated(!isRotated);
@@ -54,7 +56,10 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
                 return await sendRequest<ApiResponse<AnswerResponse>>({
                     url: `${apiUrl}/answers`,
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`,
+                        "Content-Type": "application/json"
+                    },
                     body: {
                         content: current.content,
                         correct: current.correct
@@ -74,7 +79,8 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
             url: `${apiUrl}/questions`,
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                Authorization: `Bearer ${session?.accessToken}`,
+                "Content-Type": "application/json"
             },
             body: questionRequest
         });
@@ -85,12 +91,14 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
             notification.success({
                 message: "Thành công",
                 description: createQuestionResponse.message.toString(),
+                showProgress: true
             });
         } else {
             setErrorMessage(createQuestionResponse.message.toString());
             notification.error({
                 message: "Thất bại",
                 description: createQuestionResponse.message.toString(),
+                showProgress: true
             });
         }
         setLoading(false);
@@ -132,14 +140,16 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
     return (
         <>
             <div>
-                <Button
-                    type="primary"
-                    onClick={showModal}
-                    className="w-fit ml-[40px] !pt-5 !pb-5"
-                    icon={<PlusOutlined className={`transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`} />}
-                >
-                    Tạo mới
-                </Button>
+                {session?.user.roleName === 'EXPERT' &&
+                    <Button
+                        type="primary"
+                        onClick={showModal}
+                        className="w-fit ml-[40px] !pt-5 !pb-5"
+                        icon={<PlusOutlined className={`transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`} />}
+                    >
+                        Tạo mới
+                    </Button>
+                }
             </div>
 
             <Modal

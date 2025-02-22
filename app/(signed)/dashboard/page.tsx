@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 const DashboardPage = () => {
     return (
-        <div className="max-h-[640px] overflow-y-auto overflow-x-hidden">
+        <div className="max-h-[87vh] overflow-y-auto overflow-x-hidden">
             <Row gutter={[16, 24]}>
                 <Col span={16}>
                     <TotalRevenueCard />

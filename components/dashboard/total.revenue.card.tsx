@@ -11,12 +11,15 @@ const TotalRevenueCard = () => {
     const [percentSale, setPercentSale] = useState<number>(0)
     const [totalSales, setTotalSales] = useState<number>(0)
     const [totalSalesToday, setTotalSalesToday] = useState<number>(0)
+    const [totalSalesYsterday, setTotalSalesYsterday] = useState<number>(0)
     const [percentStudent, setPercentStudent] = useState<number>(0)
     const [totalStudents, setTotalStudents] = useState<number>(0)
     const [totalStudentsToday, setTotalStudentsToday] = useState<number>(0)
+    const [totalStudentsYesterday, setTotalStudentsYesterday] = useState<number>(0)
     const [percentCoursesSell, setPercentCoursesSell] = useState<number>(0)
     const [totalCoursesSell, setTotalCoursesSell] = useState<number>(0)
     const [totalCoursesSellToday, setTotalCoursesSellToday] = useState<number>(0)
+    const [totalCoursesSellYesterday, setTotalCoursesSellYesterday] = useState<number>(0)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -30,28 +33,30 @@ const TotalRevenueCard = () => {
 
             if (response.status === 200) {
 
-                console.log(">>check ne", response)
-
                 const percentSale = response.data.yesterdayRevenue > 0
                     ? ((response.data.todayRevenue - response.data.yesterdayRevenue) / response.data.yesterdayRevenue) * 100
-                    : 0;
+                    : 100;
                 setTotalSalesToday(response.data.todayRevenue);
                 setPercentSale(percentSale);
                 setTotalSales(response.data.totalRevenue);
+                setTotalSalesYsterday(response.data.yesterdayRevenue);
 
                 const percentStudent = response.data.yesterdayStudents > 0
                     ? ((response.data.todayStudents - response.data.yesterdayStudents) / response.data.yesterdayStudents) * 100
-                    : 0;
+                    : 100;
                 setTotalStudentsToday(response.data.todayStudents);
                 setPercentStudent(percentStudent);
                 setTotalStudents(response.data.totalStudents);
+                setTotalStudentsYesterday(response.data.yesterdayStudents);
 
                 const percentCoursesSell = response.data.yesterdayOrders > 0
                     ? ((response.data.todayOrders - response.data.yesterdayOrders) / response.data.yesterdayOrders) * 100
-                    : 0;
+                    : 100;
                 setTotalCoursesSellToday(response.data.todayOrders);
                 setPercentCoursesSell(percentCoursesSell);
                 setTotalCoursesSell(response.data.totalOrders);
+                setTotalCoursesSellYesterday(response.data.yesterdayOrders);
+
             }
         };
         fetchData();
@@ -73,13 +78,13 @@ const TotalRevenueCard = () => {
                         <div className="flex items-center">
                             <div>
                                 <p>
-                                    <CountUp className="font-bold text-lg mr-2" end={totalSales} duration={1.5} separator="," />VND
+                                    <CountUp className="font-bold text-lg mr-2" end={totalSales} duration={1.5} separator="," />₫
                                 </p>
 
                                 <p className="text-[17px]">Tổng doanh số</p>
                                 <p className="text-xs mt-1 text-blue-500 cursor-pointer" >
-                                    <span title={`Hôm nay được ${totalSalesToday ?? 0} VND`}>
-                                        +{percentSale ?? 0}% hôm qua
+                                    <span title={`Hôm nay thu được ${totalSalesToday ?? 0} ₫\nHôm qua thu được ${totalSalesYsterday} ₫`}>
+                                        {percentSale >= 0 ? "+" : ""}{percentSale ?? 0}% hôm qua
                                     </span>
                                 </p>
                             </div>
@@ -101,8 +106,8 @@ const TotalRevenueCard = () => {
                                 </p>
                                 <p className="text-[17px]">Tổng học viên</p>
                                 <p className="text-xs mt-1 text-blue-500 cursor-pointer" >
-                                    <span title={`Hôm nay có ${totalStudentsToday ?? 0} học viên`}>
-                                        +{percentStudent ?? 0}% hôm qua
+                                    <span title={`Hôm nay có ${totalStudentsToday ?? 0} học viên\nHôm qua có ${totalStudentsYesterday ?? 0} học viên`}>
+                                        {percentStudent >= 0 ? "+" : ""}{percentStudent ?? 0}% hôm qua
                                     </span>
                                 </p>
                             </div>
@@ -126,8 +131,8 @@ const TotalRevenueCard = () => {
                                 </p>
                                 <p className="text-[17px]">Khóa học đã bán</p>
                                 <p className="text-xs mt-1 text-blue-500 cursor-pointer" >
-                                    <span title={`Hôm nay đã bán ${totalCoursesSellToday ?? 0} khóa học`}>
-                                        +{percentCoursesSell ?? 0}% hôm qua
+                                    <span title={`Hôm nay đã bán ${totalCoursesSellToday ?? 0} khóa học\nHôm qua đã bán ${totalCoursesSellYesterday ?? 0} khóa học`}>
+                                        {percentCoursesSell >= 0 ? "+" : ""}{percentCoursesSell ?? 0}% hôm qua
                                     </span>
                                 </p>
                             </div>

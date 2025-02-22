@@ -9,6 +9,7 @@ import '@ant-design/v5-patch-for-react-19';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl, storageUrl } from '@/utils/url';
 import UpdateSubjectForm from './update.subject.form';
+import { useSession } from 'next-auth/react';
 
 
 export const init = {
@@ -30,6 +31,7 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
     const [openEditForm, setOpenEditForm] = useState(false);
     const [editingUSubject, setEditingSubject] = useState<SubjectResponse | null>(null)
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+    const { data: session, status } = useSession();
 
 
     const deleteSubject = async (subjectId: number) => {
@@ -44,12 +46,14 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             notification.success({
                 message: String(deleteResponse.message),
                 description: "Bạn đã xóa thành công công nghệ này!",
+                showProgress: true
             });
             router.refresh()
         } else {
             notification.error({
                 message: String(deleteResponse.message),
                 description: "Không thể xóa công nghệ này do đang có khóa học!",
+                showProgress: true
             })
         }
 
@@ -155,12 +159,14 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             align: 'center',
             render: (_, record: any) => (
                 <Space size="middle">
-                    <EditOutlined style={{ color: "blue" }}
-                        onClick={() => {
-                            setEditingSubject(record)
-                            setOpenEditForm(true)
-                        }}
-                    />
+                    {session?.user.roleName === 'EXPERT' &&
+                        <EditOutlined style={{ color: "blue" }}
+                            onClick={() => {
+                                setEditingSubject(record)
+                                setOpenEditForm(true)
+                            }}
+                        />
+                    }
                     <Popconfirm
                         placement="left"
                         title="Xóa công nghệ"

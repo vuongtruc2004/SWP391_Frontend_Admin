@@ -5,6 +5,7 @@ import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
 import { Avatar, Button, Col, Image, Input, Modal, notification, Row, Select } from "antd";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useRef, useState } from "react";
 
@@ -25,6 +26,7 @@ const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: an
     const [subjectName, setSubjectName] = useState<ErrorResponse>(initState);
     const [description, setDescription] = useState<ErrorResponse>(initState);
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const { data: session, status } = useSession();
 
     const showModal = () => {
         setIsRotated(!isRotated); // Đảo ngược trạng thái xoay icon
@@ -70,12 +72,14 @@ const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: an
             notification.success({
                 message: "Thành công",
                 description: createResponse.message.toString(),
+                showProgress: true
             });
         } else {
             setErrorMessage(createResponse.message.toString());
             notification.error({
                 message: "Thất bại",
                 description: createResponse.message.toString(),
+                showProgress: true
             });
         }
         setLoading(false);
@@ -122,18 +126,21 @@ const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: an
     return (
         <><div className="flex justify-between items-center mb-4 px-6">
             <div className="">
-                <Button
-                    type="primary"
-                    onClick={showModal}
-                    className="w-fit !pt-5 !pb-5"
-                    icon={
-                        <PlusOutlined
-                            className={`transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`}
-                        />
-                    }
-                >
-                    Tạo mới
-                </Button>
+                {session?.user.roleName === 'EXPERT' &&
+                    <Button
+                        type="primary"
+                        onClick={showModal}
+                        className="w-fit !pt-5 !pb-5"
+                        icon={
+                            <PlusOutlined
+                                className={`transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`}
+                            />
+                        }
+                    >
+                        Tạo mới
+                    </Button>
+                }
+
             </div>
             <div className="flex gap-2">
                 <div>

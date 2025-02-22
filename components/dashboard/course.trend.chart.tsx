@@ -3,7 +3,7 @@
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import { Bar } from '@ant-design/plots'
-import { Select } from 'antd';
+import { Divider, Select } from 'antd';
 import React, { useEffect, useState } from 'react'
 
 const CourseTrendingChart = () => {
@@ -50,17 +50,17 @@ const CourseTrendingChart = () => {
         interaction: {
             elementSelect: true,
         },
-        onReady: ({ chart, ...rest }: { chart: { on: Function; getContext: Function };[key: string]: any }) => {
-            chart.on(
-                'afterrender',
-                () => {
-                    const { document } = chart.getContext().canvas;
-                    const elements = document.getElementsByClassName('element');
-                    elements[0]?.emit('click');
-                },
-                true,
-            );
-        },
+        // onReady: ({ chart, ...rest }: { chart: { on: Function; getContext: Function };[key: string]: any }) => {
+        //     chart.on(
+        //         'afterrender',
+        //         () => {
+        //             const { document } = chart.getContext().canvas;
+        //             const elements = document.getElementsByClassName('element');
+        //             elements[0]?.emit('click');
+        //         },
+        //         true,
+        //     );
+        // },
     };
 
 
@@ -98,6 +98,9 @@ const CourseTrendingChart = () => {
             <div className='h-[350px]'>
                 <Bar {...config} />
             </div>
+
+            <div className='pl-3 mt-[-5vh] mb-6'>Số khóa học đã bán</div>
+
         </div>
     )
 }
