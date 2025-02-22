@@ -17,6 +17,8 @@ const ViewCourseDetail = (props: {
         setOpenDraw(false);
     };
 
+    console.log(">>> check", course)
+
     return (
         <>
             <Drawer title="THÔNG TIN CHI TIẾT" onClose={onClose} open={openDraw}>
@@ -36,7 +38,8 @@ const ViewCourseDetail = (props: {
                         {course.updatedAt ? dayjs(course.updatedAt).format("DD/MM/YYYY") : "Chưa chỉnh sửa"}
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>
-                        Số lượng bài học: </span>{course.lessons.length}
+                        Số lượng bài học: </span>{ }
+
                         <Collapse
                             items={[{
                                 label: 'Xem chi tiết',

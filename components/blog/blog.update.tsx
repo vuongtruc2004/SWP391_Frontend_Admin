@@ -7,6 +7,7 @@ import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-d
 import MDEditor from "@uiw/react-md-editor";
 import { Avatar, Form, Image, Input, message, Modal, notification } from "antd";
 import { marked } from "marked";
+import { HtmlContext } from "next/dist/server/route-modules/pages/vendored/contexts/entrypoints";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import TurndownService from 'turndown'
@@ -181,6 +182,7 @@ const BlogUpdate = (props: IProps) => {
                 okText="Lưu"
                 cancelText="Hủy"
                 onOk={handleOnOk}
+                maskClosable={false}
             >
                 <Form>
                     <div>
@@ -209,7 +211,8 @@ const BlogUpdate = (props: IProps) => {
                     </div>
                     <div>
                         <Form.Item>
-                            <MDEditor
+                            {/* Chọn một file trong máy tính rồi gắn vào */}
+                            {/* <MDEditor
                                 value={inputMarkdown}
                                 onChange={(event) => {
                                     setInputMarkdown(event ? event : "")
@@ -218,12 +221,80 @@ const BlogUpdate = (props: IProps) => {
                                     console.log(event)
                                 }}
                                 preview="edit"
-                                commandsFilter={(cmd) => (cmd.name && ["preview", "live"].includes(cmd.name)) ? false : cmd}
+                                commandsFilter={(cmd) => {
+                                    if (cmd.name && ["preview", "live"].includes(cmd.name)) {
+                                        return false;
+                                    }
+
+                                    if (cmd.name === "image") {
+
+                                        cmd.execute = () => {
+                                            const input = document.createElement("input");
+                                            input.type = "file";
+                                            input.accept = "image/jpg, image/jpeg, image/png";
+                                            input.onchange = async (event) => {
+                                                const file = (event.target as HTMLInputElement);
+                                                if (file.files && file.files[0]) {
+                                                    const formData = new FormData();
+                                                    formData.set('file', file.files[0]);
+                                                    formData.set('folder', 'blog');
+
+                                                    const imageRes = await sendRequest<ApiResponse<string>>({
+                                                        url: `${apiUrl}/blogs/up-thumbnail`,
+                                                        method: 'POST',
+                                                        headers: {},
+                                                        body: formData
+                                                    });
+
+                                                    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+                                                    const imageMarkdown = `![image](${storageUrl}/blog/${imageRes.data})`
+                                                    setInputMarkdown((prev) => prev + "\n </br>" + imageMarkdown + "</br>")
+                                                    console.log(imageRes)
+
+
+                                                }
+                                            };
+
+                                            input.click();
+
+                                        }
+                                    }
+
+                                    return cmd;
+
+                                }
+                                    // cmd.name && ["preview", "live"].includes(cmd.name)) ? false : cmd
+
+
+                                }
+
+                                style={{
+                                    background: '#e9ecef',
+                                    color: 'black'
+                                }}
+                            /> */}
+
+                            {/* Ở dưới: Copy url của ảnh trên mạng gắn vào */}
+
+                            <MDEditor
+                                value={inputMarkdown}
+                                onChange={(event) => {
+                                    setInputMarkdown(event ? event : "")
+                                    setContent({
+                                        ...content,
+                                        value: event ? event : ""
+                                    })
+                                    console.log(event)
+                                }}
+                                preview="edit"
+                                commandsFilter={(cmd) => (cmd.name && ["preview", "live", "fullscreen"].includes(cmd.name)) ? false : cmd}
                                 style={{
                                     background: '#e9ecef',
                                     color: 'black'
                                 }}
                             />
+
+
                             {content.error && (
                                 <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
                                     <WarningOutlined />

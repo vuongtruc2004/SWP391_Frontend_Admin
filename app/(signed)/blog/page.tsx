@@ -14,6 +14,8 @@ const BlogPage = async (props: {
         keyword: string,
         page: string,
         published: string,
+        createdFrom: string,
+        createdTo: string
     }>
 }) => {
 
@@ -21,6 +23,9 @@ const BlogPage = async (props: {
     const keyword = searchParam.keyword || ""
     const page = searchParam.page || 1
     const published = searchParam.published || "all"
+    const createdFrom = searchParam.createdFrom || ""
+    const createdTo = searchParam.createdTo || ""
+
     let filter = ""
     if (isFullNumber(keyword)) {
         filter = `blogId : ${keyword}`
@@ -29,7 +34,11 @@ const BlogPage = async (props: {
     }
 
     if (published !== "all") {
-        filter += `and published : ${published === "public" ? true : false}`
+        filter += ` and published : ${published === "public" ? true : false}`
+    }
+
+    if (createdFrom !== "" && createdTo !== "") {
+        filter += ` and createdAt > '${createdFrom}' and createdAt < '${createdTo}'`
     }
 
     const blogResponse = await sendRequest<ApiResponse<PageDetailsResponse<BlogDetailsResponse[]>>>({
@@ -43,7 +52,7 @@ const BlogPage = async (props: {
     console.log("check", blogResponse)
     return (
         <div className="border w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
-            <BlogSearch keyword={keyword} published={published} />
+            <BlogSearch keyword={keyword} published={published} createdFrom={createdFrom} createdTo={createdTo} />
             <BlogTable blogPageResponse={blogResponse.data} />
 
         </div>

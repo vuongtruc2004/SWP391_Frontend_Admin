@@ -1,5 +1,5 @@
 'use client'
-import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, UserOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
 import React, { useEffect, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
@@ -9,10 +9,7 @@ import '@ant-design/v5-patch-for-react-19';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl } from '@/utils/url';
 import ViewCourseDetail from './view.course.detail';
-import BlogUpdate from '../blog/blog.update';
-import UpdateCourseForm from './update.course.form';
-import { GrChapterAdd } from 'react-icons/gr';
-import UpdateLessonModal from './update.lesson.modal';
+import { useSession } from 'next-auth/react';
 
 
 
@@ -35,12 +32,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
     const router = useRouter();
     const [render, setRender] = useState(false);
     const page = Number(searchParams.get('page')) || 1; // Lấy số trang từ URL
-    const [editingCourse, setEditingCourse] = useState<CourseResponse | null>(null)
-    const [openEditForm, setOpenEditForm] = useState(false);
-    const [selectedCourse, setSelectedCourse] = useState<CourseDetailsResponse | null>(null);
-    const [openUpdateLesson, setOpenUpdateLesson] = useState(false);
-
-
+    const { data: session, status } = useSession();
     const deleteCourse = async (courseId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<CourseDetailsResponse>>({
             url: `${apiUrl}/courses/delete/${courseId}`,
@@ -83,13 +75,37 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             })
         }
     }
+
+    const unacceptCourse = async (courseId: number) => {
+        const unacceptRes = await sendRequest<ApiResponse<CourseDetailsResponse>>({
+            url: `${apiUrl}/courses/unaccept/${courseId}`,
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (unacceptRes.status === 200) {
+            notification.success({
+                message: String(unacceptRes.message),
+                description: unacceptRes.errorMessage,
+            });
+            router.refresh()
+        } else {
+            notification.error({
+                message: String(unacceptRes.message),
+                description: unacceptRes.errorMessage,
+            })
+        }
+    }
     const columns: TableProps<CourseDetailsResponse>['columns'] = [
         {
-            title: 'STT',
-            dataIndex: 'index',
-            key: 'index',
+            title: 'Id',
+            dataIndex: 'courseId',
+            key: 'id',
             width: '10%',
-            render: (text, record, index) => <>{(index + 1) + (page - 1) * coursePageResponse.pageSize}</>,
+            sorter: {
+                compare: (a, b) => a.courseId - b.courseId,
+            },
         },
         {
             title: 'Tên khóa học',
@@ -110,7 +126,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             dataIndex: 'originalPrice',
             key: 'originalPrice',
             width: '10%',
-            // render: (originalPrice: number) => originalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
+            render: (originalPrice: number) => originalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
             sorter: {
                 compare: (a, b) => a.originalPrice - b.originalPrice,
             },
@@ -120,7 +136,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             dataIndex: 'salePrice',
             key: 'salePrice',
             width: '10%',
-            // render: (salePrice: number) => salePrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
+            render: (salePrice: number) => salePrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
             sorter: {
                 compare: (a, b) => a.salePrice - b.salePrice,
             },
@@ -138,21 +154,11 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             title: 'Hành động',
             key: 'action',
             width: '20%',
-            render: (_, record: any) => (
+            render: (_, record: CourseDetailsResponse) => (
                 <Space size="middle">
                     <InfoCircleOutlined style={{ color: "blue" }} onClick={() => {
                         setOpenDraw(true);
                         setCourse(record);
-                    }} />
-                    <EditOutlined style={{ color: "blue" }}
-                        onClick={() => {
-                            setEditingCourse(record)
-                            setOpenEditForm(true)
-                        }}
-                    />
-                    <GrChapterAdd style={{ color: "black" }} onClick={() => {
-                        setSelectedCourse(record);
-                        setOpenUpdateLesson(true);
                     }} />
                     <Popconfirm
                         placement="left"
@@ -164,17 +170,32 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                     >
                         <DeleteOutlined style={{ color: "red" }} />
                     </Popconfirm>
-                    <CheckOutlined
-                        style={{
-                            color: record.accepted ? "gray" : "#16db65",
-                            cursor: record.accepted ? "not-allowed" : "pointer",
-                            pointerEvents: record.accepted ? "none" : "auto"
-                        }}
-                        onClick={() => acceptCourse(record.courseId)}
-                    />
-                    <Link href={`/course/purchaser/${record.courseId}`}>
-                        <UserOutlined />
-                    </Link>
+                    {
+                        session?.user.roleName && session?.user.roleName === "ADMIN" && (
+                            <CheckOutlined
+                                style={{
+                                    color: record.accepted ? "gray" : "#16db65",
+                                    cursor: record.accepted ? "not-allowed" : "pointer",
+                                    pointerEvents: record.accepted ? "none" : "auto"
+                                }}
+                                onClick={() => acceptCourse(record.courseId)}
+                            />
+                        )
+                    }
+
+                    {
+                        session?.user.roleName && session?.user.roleName === "ADMIN" && (
+                            <CloseOutlined
+                                style={{
+                                    color: record.accepted ? "red" : "gray",
+                                    cursor: record.accepted ? "pointer" : "not-allowed",
+                                    pointerEvents: record.accepted ? "auto" : "none"
+                                }}
+                                onClick={() => unacceptCourse(record.courseId)}
+                            />
+                        )
+                    }
+
 
                 </Space>
             ),
@@ -214,16 +235,6 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                 course={course}
                 setCourse={setCourse}
             />
-
-            <UpdateCourseForm
-                openEditForm={openEditForm}
-                setOpenEditForm={setOpenEditForm}
-                editingCourse={editingCourse}
-                setEditingCourse={setEditingCourse}
-            />
-
-            <UpdateLessonModal selectedCourse={selectedCourse} openUpdateLesson={openUpdateLesson} setOpenUpdateLesson={setOpenUpdateLesson} />
-
         </>
     );
 };

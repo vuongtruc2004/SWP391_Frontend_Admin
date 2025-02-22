@@ -8,6 +8,8 @@ import { Avatar, Form, Image, Input, Modal, notification } from "antd";
 import { error } from "console";
 import { marked } from "marked";
 import { getSession, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
 import { ChangeEvent, useEffect, useState } from "react";
 
 
@@ -30,7 +32,7 @@ const BlogCreate = (props: IProps) => {
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
     const [plainContent, setPlainContent] = useState("");
     const { data: session, status } = useSession();
-
+    const router = useRouter();
 
     //another function
     const stripHtml = (html: string) => {
@@ -51,7 +53,7 @@ const BlogCreate = (props: IProps) => {
         }
 
         const htmlText = marked(inputMarkdown);
-        setPlainContent(stripHtml(htmlText.toString()));
+
 
         const blogRequest: BlogRequest = {
             title: title.value,
@@ -59,8 +61,6 @@ const BlogCreate = (props: IProps) => {
             plainContent: stripHtml(htmlText.toString()),
             thumbnail: urlThumbnail,
         }
-
-        console.log(blogRequest)
 
         const createBlog = await sendRequest<ApiResponse<BlogResponse>>({
             url: `${apiUrl}/blogs/create-blog`,
@@ -83,6 +83,7 @@ const BlogCreate = (props: IProps) => {
                 message: "Thành công!",
                 description: "Tạo bài viết mới thành công!",
             })
+            router.refresh()
         } else {
             notification.error({
                 message: "Thất bại!",
@@ -94,8 +95,30 @@ const BlogCreate = (props: IProps) => {
 
     }
 
+    //useEffect
+    useEffect(() => {
+        if (openFormCreate) {
+            console.log("form open")
+            setTitle(initState);
+            setContent(initState);
+            setPlainContent("");
+            setInputMarkdown("");
+            setUrlThumbnail("");
+            setErrThumbnail("");
+        }
+    }, [openFormCreate]);
+
+    console.log(title)
+
     const handleOnCancel = () => {
-        console.log("cancel");
+        setUrlThumbnail("");
+        setErrThumbnail("");
+        setContent(initState);
+        setTitle({
+            ...title,
+            value: ""
+        })
+        setInputMarkdown("")
         setOpenFormCreate(false);
     }
 
@@ -128,7 +151,7 @@ const BlogCreate = (props: IProps) => {
 
     return (
         <>
-            <Modal title="Basic Modal" open={openFormCreate}
+            <Modal title="Tạo Bài Viết Mới" open={openFormCreate}
                 onOk={handleOnOk}
                 onCancel={handleOnCancel}
                 okText="Tạo"
@@ -138,18 +161,18 @@ const BlogCreate = (props: IProps) => {
             >
                 <Form>
                     <div>
-                        <h4>Tiêu đề bài viết:</h4>
-                        <Form.Item
-
-                        >
-                            <Input placeholder="Tiêu đề"
+                        <h4 className="mb-3"><span className="text-red-600">*</span>Tiêu đề bài viết:</h4>
+                        <Form.Item>
+                            <Input
+                                value={title.value}
+                                placeholder="Tiêu đề"
                                 status={title.error ? "error" : ""}
                                 type="text"
                                 onChange={(e) => {
-                                    setTitle({
-                                        ...title,
+                                    setTitle((prev) => ({
+                                        ...prev,
                                         value: e.target.value
-                                    })
+                                    }))
                                     console.log(title.value)
                                 }}
                             />
@@ -162,13 +185,12 @@ const BlogCreate = (props: IProps) => {
                         </Form.Item>
                     </div>
                     <div>
+                        <h4 className="mb-3"><span className="text-red-600">*</span>Nội dung:</h4>
                         <Form.Item>
                             <MDEditor
                                 value={inputMarkdown}
                                 onChange={(event) => {
                                     setInputMarkdown(event ? event : "")
-
-
                                     setContent({
                                         ...content,
                                         value: event ? event : ""
@@ -191,7 +213,7 @@ const BlogCreate = (props: IProps) => {
                         </Form.Item>
                     </div>
                     <div>
-                        <span className="text-red-500 mr-2">*</span>Ảnh:
+                        <span className="text-red-500 mr-2 mb-3">*</span>Ảnh:
                         <div className={`${errThumbnail !== "" ? "border-red-500 border-2 w-fit rounded-lg" : ""}`}>
                             {urlThumbnail === "" ? (
                                 <div className="relative w-fit">

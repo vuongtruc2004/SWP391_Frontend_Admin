@@ -34,7 +34,7 @@ const CoursePage = async (props: {
     if (isFullNumber(keyword)) {
         filter = `courseId : ${keyword}`
     } else {
-        filter = `(courseName ~ '${keyword}' or description ~ '${keyword}' or expert.user.fullname ~ '${keyword}')`
+        filter = `(courseName ~ '${keyword}' or expert.user.fullname ~ '${keyword}')`
     }
 
     if (accepted !== "all") {

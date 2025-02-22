@@ -113,13 +113,6 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
         }, 800);
     };
 
-    const handleInputChange = (index: number, value: number | null) => {
-        if (value !== null) {
-            const newRange = [...range] as [number, number];
-            newRange[index] = value;
-            setRange(newRange);
-        }
-    };
 
     if (!render) {
         return <></>;
@@ -129,19 +122,19 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
     return (
         <div className="flex flex-col gap-2 ml-10 mt-5">
             <Form
-                className='w-[40%]'
+                className='w-[90%]'
                 onFinish={onFinish}
                 form={form}
                 initialValues={{ keyword: keyword, accepted: accepted, inputValue: inputValue }}
             >
-                <Form.Item name="keyword" className="mb-0">
+                <Form.Item name="keyword" className="mb-0 w-[50%]">
                     <Input
                         placeholder="Tìm kiếm tên môn học, mô tả"
                         prefix={<SearchOutlined />}
                         className='!p-[10px]'
                     />
                 </Form.Item>
-                <div>
+                <div className='w-full flex items-center gap-5'>
                     <Form.Item name="accepted" className="mb-0" label="Trạng Thái">
                         <Select
 
@@ -156,8 +149,8 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
                             ]}
                         />
                     </Form.Item>
-                    <div className='flex gap-3 align-middle'>
-                        <h4>Ngày Tạo:</h4>
+                    <div className='flex gap-3'>
+                        <h4 className='pt-1'>Ngày Tạo:</h4>
                         <Form.Item name="createdFrom" initialValue={getValidDayjs(createdFrom)}>
                             <DatePicker onChange={onChangeFrom} format={dateFormat} placeholder='Từ Ngày' allowClear={false} />
                         </Form.Item>
@@ -166,54 +159,54 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
                             <DatePicker onChange={onChangeTo} format={dateFormat} placeholder='Đến Ngày' allowClear={false} />
                         </Form.Item>
                     </div>
-                    <Form.Item label="Khoảng giá">
-                        <Row align="middle" gutter={5}>
-                            {/* Input Min */}
-                            <Col>
-                                <InputNumber
-                                    min={minPrice}
-                                    max={maxPrice}
-                                    step={step}
-                                    value={range[0]}
-                                    // onChange={(value) => handleInputChange(0, value)}
-                                    readOnly
-                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ"}
-                                />
-                            </Col>
+                    <div className='flex gap-2 pt-10'>
+                        <Form.Item label="Khoảng giá">
+                            <Row align="middle" gutter={5}>
+                                {/* Input Min */}
+                                <Col>
+                                    <InputNumber
+                                        min={minPrice}
+                                        max={maxPrice}
+                                        step={step}
+                                        value={range[0]}
+                                        // onChange={(value) => handleInputChange(0, value)}
+                                        readOnly
+                                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ"}
+                                    />
+                                </Col>
 
-                            <Col>~</Col>
+                                <Col>~</Col>
 
-                            {/* Input Max */}
-                            <Col>
-                                <InputNumber
-                                    min={minPrice}
-                                    max={maxPrice}
-                                    step={step}
-                                    value={range[1]}
-                                    // onChange={(value) => handleInputChange(1, value)}
-                                    readOnly
-                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ"}
-                                />
-                            </Col>
+                                {/* Input Max */}
+                                <Col>
+                                    <InputNumber
+                                        min={minPrice}
+                                        max={maxPrice}
+                                        step={step}
+                                        value={range[1]}
+                                        // onChange={(value) => handleInputChange(1, value)}
+                                        readOnly
+                                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ"}
+                                    />
+                                </Col>
 
-                            {/* Slider */}
-                            <Col span={24}>
-                                <Slider
-                                    range
-                                    min={minPrice}
-                                    max={maxPrice}
-                                    step={step}
-                                    value={range}
-                                    onChange={handleSliderChange}
-                                    style={{
-                                        width: '30%'
-                                    }}
-                                />
-                            </Col>
-                        </Row>
-                    </Form.Item>
-
-
+                                {/* Slider */}
+                                <Col span={24}>
+                                    <Slider
+                                        range
+                                        min={minPrice}
+                                        max={maxPrice}
+                                        step={step}
+                                        value={range}
+                                        onChange={handleSliderChange}
+                                        style={{
+                                            width: '90%'
+                                        }}
+                                    />
+                                </Col>
+                            </Row>
+                        </Form.Item>
+                    </div>
                 </div>
 
                 <div className="flex gap-4">

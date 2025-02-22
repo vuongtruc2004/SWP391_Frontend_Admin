@@ -1,6 +1,6 @@
 'use client'
 import { CheckOutlined, CloseOutlined, DeleteOutlined, InfoCircleOutlined, LikeOutlined, MessageOutlined, StarOutlined, ToTopOutlined } from "@ant-design/icons"
-import { Avatar, Button, Descriptions, DescriptionsProps, Empty, Flex, List, Modal, Pagination, Popconfirm, Space, Table, TableProps, Tree, TreeDataNode, TreeProps, Typography } from "antd"
+import { Avatar, Button, Descriptions, DescriptionsProps, Empty, Flex, List, Modal, notification, Pagination, Popconfirm, Space, Table, TableProps, Tree, TreeDataNode, TreeProps, Typography } from "antd"
 import dayjs from "dayjs"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useState } from "react"
@@ -9,6 +9,7 @@ import './overwrite.style.scss'
 import { apiUrl, storageUrl } from "@/utils/url"
 import { sendRequest } from "@/utils/fetch.api"
 import BlogCreate from "./blog.create"
+import { useSession } from "next-auth/react"
 
 type CommentDisplay = {
     comment: CommentResponse,
@@ -29,11 +30,56 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
     const [openUpdate, setOpenUpdate] = useState(false);
     const [expendKey, setExpendKey] = useState<string[]>([])
     const [currentPage, setCurrentPage] = useState(1);
+    const { data: session, status } = useSession();
     // const [replies, setReplies] = useState<CommentResponse[]>([]);
 
 
     const indexOfLastComment = currentPage * pageSize;
     const indexOfFirstComment = indexOfLastComment - pageSize;
+
+    //another function
+    const changeStatus = async (blogId: number) => {
+        const change = await sendRequest<ApiResponse<BlogResponse>>({
+            url: `${apiUrl}/blogs/status/${blogId}`,
+            method: 'PUT',
+            headers: { "Content-Type": "application/json" }
+        });
+
+        if (change.status === 200) {
+            notification.success({
+                message: change.message.toString(),
+                description: change.errorMessage,
+            })
+            router.refresh()
+        } else {
+            notification.error({
+                message: change.message.toString(),
+                description: change.errorMessage,
+            })
+        }
+    }
+
+    const handleDeleteBlog = async (blogId: number) => {
+        const deleteBlog = await sendRequest<ApiResponse<String>>({
+            url: `${apiUrl}/blogs/delete/${blogId}`,
+            method: 'DELETE',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        if (deleteBlog.status === 200) {
+            notification.success({
+                message: deleteBlog.message.toString(),
+                description: deleteBlog.errorMessage,
+            })
+            router.refresh()
+        } else {
+            notification.error({
+                message: deleteBlog.message.toString(),
+                description: deleteBlog.errorMessage
+            })
+        }
+    }
 
     const columns: TableProps<BlogResponse>['columns'] = [
         {
@@ -49,7 +95,7 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             title: 'Tiêu đề',
             dataIndex: 'title',
             key: 'title',
-            width: '20%',
+            width: '40%',
             sorter: (a, b) => a.title.localeCompare(b.title),
         },
         {
@@ -59,6 +105,15 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             width: '20%',
             sorter: (a, b) => a.user.fullname.localeCompare(b.user.fullname),
             render: (user) => user?.fullname || "No author!"
+        },
+        {
+            title: 'Trạng thái',
+            dataIndex: 'published',
+            key: 'published',
+            width: '10%',
+            sorter: (a, b) => a.user.fullname.localeCompare(b.user.fullname),
+            render: (published: boolean) => (published ? "Công khai" : "Chỉ mình tôi"),
+            align: "center"
         },
         {
             title: 'Hành động',
@@ -71,34 +126,42 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
                         setSelectRecord(record);
 
                     }} />
-                    <Popconfirm
-                        placement="left"
-                        title="Xóa môn học"
-                        description="Bạn có chắc chắn muốn xóa khóa học này không?"
-                        okText="Có"
-                        cancelText="Không"
-                    >
-                        <DeleteOutlined style={{ color: "red" }} />
-                    </Popconfirm>
-                    <CheckOutlined
-                        style={{
-                            color: record.accepted ? "gray" : "#16db65",
-                            cursor: record.accepted ? "not-allowed" : "pointer",
-                            pointerEvents: record.accepted ? "none" : "auto"
-                        }}
+                    {(session?.user.userId === record.user.userId || session?.user.roleName === "ADMIN") && (
+                        <>
+                            <Popconfirm
+                                placement="left"
+                                title="Xóa môn học"
+                                description="Bạn có chắc chắn muốn xóa bài viết này không?"
+                                okText="Có"
+                                cancelText="Không"
+                                onConfirm={() => { handleDeleteBlog(record.blogId) }}
+                            >
+                                <DeleteOutlined style={{ color: "red" }} />
+                            </Popconfirm>
+                            <CheckOutlined
+                                style={{
+                                    color: record.published ? "gray" : "#16db65",
+                                    cursor: record.published === true ? "not-allowed" : "pointer",
+                                    pointerEvents: record.published ? "none" : "auto"
+                                }}
+                                onClick={() => { changeStatus(record.blogId) }}
 
-                    />
-                    <CloseOutlined
-                        style={{
-                            color: record.accepted ? "red" : "gray",
-                            pointerEvents: record.accepted ? "auto" : "none"
-                        }}
+                            />
+                            <CloseOutlined
+                                style={{
+                                    color: record.published ? "red" : "gray",
+                                    cursor: record.published === false ? "not-allowed" : "pointer",
+                                    pointerEvents: record.published ? "auto" : "none"
+                                }}
+                                onClick={() => { changeStatus(record.blogId) }}
+                            />
+                            <ToTopOutlined onClick={() => {
+                                setOpenUpdate(true);
+                                setSelectRecord(record)
+                            }} />
+                        </>
+                    )}
 
-                    />
-                    <ToTopOutlined onClick={() => {
-                        setOpenUpdate(true);
-                        setSelectRecord(record)
-                    }} />
 
                 </Space>
             ),
@@ -195,26 +258,6 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
         })) : [];
 
     const currentComments = treeData.slice(indexOfFirstComment, indexOfLastComment);
-    // const repliesResponse = async (parentCommentId: number) => {
-    //     const repResponse = await sendRequest<ApiResponse<CommentResponse[] | null>>({
-    //         url: `${apiUrl}/comments/reply/${parentCommentId}`,
-    //         method: 'GET',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         }
-    //     });
-
-
-    //     setReplies(repResponse.data ? repResponse.data : []);
-
-    // };
-
-
-
-
-
-
-
     const handleOnSelect = () => {
         console.log("check")
     }
@@ -241,7 +284,7 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             <Modal open={isModalOpen} onCancel={closeDetail} className="w-[90%]" footer={null} width={850}>
                 {selectRecord ? (
                     <>
-                        <h1 className="mb-4"><strong>{selectRecord.title}</strong></h1>
+                        <h1 className="mb-4 text-[25px]"><strong>{selectRecord.title}</strong></h1>
                         <Descriptions items={items} />
                         <img src={selectRecord?.thumbnail ? `${storageUrl}/blog/${selectRecord.thumbnail}` : undefined} alt="" className="mt-5" />
                         <div dangerouslySetInnerHTML={{ __html: selectRecord.content }} className="my-10"></div>

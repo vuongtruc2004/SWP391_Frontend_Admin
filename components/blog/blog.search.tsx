@@ -1,22 +1,26 @@
 'use client'
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Select } from "antd";
+import { Button, DatePicker, DatePickerProps, Form, Input, Select } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import BlogCreate from "./blog.create";
+import dayjs from "dayjs";
 
 
 const BlogSearch = (props: {
     keyword: string,
-    published: string
+    published: string,
+    createdFrom: string,
+    createdTo: string
 }) => {
-    const { keyword, published } = props
+    const { keyword, published, createdFrom, createdTo } = props
     const [form] = useForm();
     const searchParam = useSearchParams();
     const pathName = usePathname();
     const router = useRouter();
     const [openFormCreate, setOpenFormCreate] = useState(false);
+
 
     // const handleOnChange = (input: string) => {
     //     console.log("check search: ", input);
@@ -52,6 +56,37 @@ const BlogSearch = (props: {
     const handleOnClickButton = () => {
         setOpenFormCreate(true);
     }
+
+    const onChangeFrom: DatePickerProps['onChange'] = (date, dateString) => {
+        const newSearchParam = new URLSearchParams(searchParam)
+        if (date) {
+            newSearchParam.set('createdFrom', date.format('YYYY-MM-DD')) // Định dạng chuẩn cho URL
+        } else {
+            newSearchParam.delete('createdFrom')
+        }
+        newSearchParam.set("page", "1")
+        router.replace(`${pathName}?${newSearchParam}`)
+    };
+    const onChangeTo: DatePickerProps['onChange'] = (date, dateString) => {
+        const newSearchParam = new URLSearchParams(searchParam)
+        if (date) {
+            newSearchParam.set('createdTo', date.format('YYYY-MM-DD')) // Định dạng chuẩn cho URL
+        } else {
+            newSearchParam.delete('createdTo')
+        }
+        newSearchParam.set("page", "1")
+        router.replace(`${pathName}?${newSearchParam}`)
+    };
+
+    const handleOnReset = () => {
+        form.setFieldsValue({ keyword: "", createdFrom: "", createdTo: "", published: "all" }),
+            router.push("/blog")
+    }
+
+    const dateFormat = 'DD/MM/YYYY';
+    const getValidDayjs = (dateString?: string) => {
+        return dateString ? dayjs(dateString, "YYYY-MM-DD").isValid() ? dayjs(dateString, "YYYY-MM-DD") : null : null;
+    };
     return (
         <>
             <div className="mt-5 ml-5">
@@ -64,25 +99,41 @@ const BlogSearch = (props: {
                     <Form.Item className="w-[50%]" name="keyword">
                         <Input prefix={<SearchOutlined />} placeholder="Tìm kiếm theo tiêu đề, tên tác giả,...." />
                     </Form.Item>
-                    <Form.Item className="w-[19%]" name="published" label="Trạng Thái:">
-                        <Select
-                            placeholder="Trạng Thái"
-                            onChange={handleOnChange}
-                            options={[
-                                { value: "all", label: 'All' },
-                                { value: "public", label: 'Công khai' },
-                                { value: "private", label: 'Không công khai' },
-                            ]}
-                        />
-                    </Form.Item>
-                    <Form.Item>
+                    <div className="flex gap-7">
+                        <div className="w-[15%]">
+                            <Form.Item className="w-[100%]" name="published" label="Trạng Thái:">
+                                <Select
+                                    placeholder="Trạng Thái"
+                                    onChange={handleOnChange}
+                                    options={[
+                                        { value: "all", label: 'All' },
+                                        { value: "public", label: 'Công khai' },
+                                        { value: "private", label: 'Không công khai' },
+                                    ]}
+                                />
+                            </Form.Item>
+                        </div>
+                        <div className='flex gap-3'>
+                            <h4 className='pt-1'>Ngày Tạo:</h4>
+                            <Form.Item name="createdFrom" initialValue={getValidDayjs(createdFrom)}>
+                                <DatePicker onChange={onChangeFrom} format={dateFormat} placeholder='Từ Ngày' allowClear />
+                            </Form.Item>
+                            <h4>~</h4>
+                            <Form.Item name="createdTo" initialValue={getValidDayjs(createdTo)}>
+                                <DatePicker onChange={onChangeTo} format={dateFormat} placeholder='Đến Ngày' allowClear />
+                            </Form.Item>
+                        </div>
+                    </div>
 
-                    </Form.Item>
+
 
                     <div className="w-full flex justify-between">
-                        <Button type="primary" icon={<SearchOutlined />} htmlType="submit">
-                            Search
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button type="primary" icon={<SearchOutlined />} htmlType="submit">
+                                Tìm kiếm
+                            </Button>
+                            <Button onClick={handleOnReset}>Làm mới</Button>
+                        </div>
                         <Button type="primary" icon={<PlusOutlined />} onClick={handleOnClickButton}>Tạo bài viết </Button>
 
                     </div>
