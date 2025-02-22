@@ -57,7 +57,7 @@ const SubjectPageClient = ({ keyword, subjectPageResponse, allSubjects }: {
         }
     }
     return (
-        <div className="borde w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
+        <div className="borde w-full h-[87vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
             <SubjectSearch keyword={keyword} />
             <SubjectCreateBtn handleExportPDF={handleExportPDF} handelOnExportExcel={handelOnExportExcel} />
             <SubjectTable subjectPageResponse={subjectPageResponse} componentPDF={componentPDF} />

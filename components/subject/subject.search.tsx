@@ -1,5 +1,5 @@
 'use client'
-import { SearchOutlined } from '@ant-design/icons'
+import { RedoOutlined, SearchOutlined } from '@ant-design/icons'
 import { Button, Form, Input } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -40,7 +40,7 @@ const SubjectSearch = (props: {
                     />
                 </Form.Item>
             </Form>
-            <Button type='primary' onClick={handleReset} className='!p-[20px]'>Làm mới</Button>
+            <Button type='primary' onClick={handleReset} className='!pt-[20px] !pb-[20px]'><RedoOutlined className='text-2xl' /></Button>
         </div>
 
 

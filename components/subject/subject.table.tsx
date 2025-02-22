@@ -185,7 +185,7 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
 
     return (
         <>
-            <div className='overflow-y-auto' ref={componentPDF} >
+            <div className='overflow-y-auto mb-6' ref={componentPDF} >
                 <Table
                     className="max-h-[calc(100vh-100px)] mb-8 pl-6 pr-6"
                     columns={columns}

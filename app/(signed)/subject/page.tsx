@@ -65,7 +65,7 @@ const SubjectPage = async (props: {
     return (
 
 
-        <div className="borde w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
+        <div className="borde w-full h-[87vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
             <SubjectPageClient keyword={keyword} subjectPageResponse={subjectResponse.data} allSubjects={allSubjects} />
         </div>
     )
