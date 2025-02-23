@@ -240,4 +240,20 @@ declare global {
         price: number;
         course: CourseResponse;
     }
+
+    interface NotificationResponse {
+        notificationId: number,
+        title: string,
+        content: string,
+        createdAt: string,
+        global: boolean,
+        userNotifications: UserNotificationResponse[],
+    }
+
+    interface UserNotificationResponse {
+        userNotificationId: number,
+        user: UserResponse,
+        notification: NotificationResponse,
+        isRead: boolean,
+    }
 }

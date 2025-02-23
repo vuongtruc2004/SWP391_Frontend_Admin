@@ -219,14 +219,17 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
     return (
         <>
             <div>
-                <Button
-                    type="primary"
-                    onClick={showModal}
-                    className="w-fit"
-                    icon={<PlusOutlined className={`transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`} />}
-                >
-                    Tạo mới
-                </Button>
+                {session?.user.roleName && session?.user.roleName === "EXPERT" && (
+                    <Button
+                        type="primary"
+                        onClick={showModal}
+                        className="w-fit"
+                        icon={<PlusOutlined className={`transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`} />}
+                    >
+                        Tạo mới
+                    </Button>
+                )}
+
             </div>
 
             <Modal

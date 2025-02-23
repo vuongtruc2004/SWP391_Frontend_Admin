@@ -82,4 +82,11 @@ declare global {
         plainContent: string;
         thumbnail: string;
     }
+
+    interface NotificationRequest {
+        title: string;
+        content: string;
+        global: boolean;
+        fullname: string[];
+    }
 }

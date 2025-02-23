@@ -274,7 +274,7 @@ const UpdateCourseForm = (props: {
                     className="mt-1"
                     placeholder="Nhập link giới thiệu khóa học"
                     allowClear
-                    value={introduction.value}
+                    defaultValue={introduction.value}
                     onChange={(e) => setIntroduction({ ...introduction, value: e.target.value, error: false })}
                 />
                 {introduction.error && (

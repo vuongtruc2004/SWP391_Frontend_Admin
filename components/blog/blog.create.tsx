@@ -9,7 +9,6 @@ import { error } from "console";
 import { marked } from "marked";
 import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
 import { ChangeEvent, useEffect, useState } from "react";
 
 
@@ -176,7 +175,7 @@ const BlogCreate = (props: IProps) => {
                                     console.log(title.value)
                                 }}
                             />
-                            {title.error && (
+                            {title.error && title.value === '' && (
                                 <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
                                     <WarningOutlined />
                                     {title.message}
@@ -204,7 +203,7 @@ const BlogCreate = (props: IProps) => {
                                     color: 'black'
                                 }}
                             />
-                            {content.error && (
+                            {content.error && content.value === '' && (
                                 <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
                                     <WarningOutlined />
                                     {content.message}

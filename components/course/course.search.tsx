@@ -3,6 +3,7 @@ import { SearchOutlined } from '@ant-design/icons'
 import { Button, Col, DatePicker, DatePickerProps, Form, Input, InputNumber, Row, Select, Slider } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import dayjs from 'dayjs'
+import { useSession } from 'next-auth/react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
@@ -16,6 +17,7 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
     const [render, setRender] = useState(false);
     const [inputValue, setInputValue] = useState(minPrice);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const { data: session, status } = useSession();
 
     const getValidDayjs = (dateString?: string) => {
         return dateString ? dayjs(dateString, "YYYY-MM-DD").isValid() ? dayjs(dateString, "YYYY-MM-DD") : null : null;
@@ -209,7 +211,7 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
                     </div>
                 </div>
 
-                <div className="flex gap-4">
+                <div className={`flex gap-4 ${session?.user.roleName !== "EXPERT" ? 'mb-10' : ''}`}>
                     <Button type="primary" htmlType="submit" className='!p-[10px]'>Tìm kiếm</Button>
                     <Button onClick={handleReset} className='!p-[10px]'>Làm mới</Button>
                 </div>

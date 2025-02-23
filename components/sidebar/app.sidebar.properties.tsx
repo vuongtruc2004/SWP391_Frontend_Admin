@@ -1,4 +1,4 @@
-import { BarChartOutlined, CodeOutlined, TeamOutlined } from '@ant-design/icons';
+import { BarChartOutlined, CodeOutlined, NotificationOutlined, TeamOutlined } from '@ant-design/icons';
 import { RxDashboard } from "react-icons/rx";
 import { LuNewspaper } from "react-icons/lu";
 import { BiBookReader } from "react-icons/bi";
@@ -41,6 +41,18 @@ export const sidebarItems: MenuItem[] = [
 
             },
             {
+                key: 'order',
+                label: <Link href="/order">Quản lí hóa đơn</Link>,
+                icon: <BarChartOutlined />
+
+            },
+            {
+                key: 'notification',
+                label: <Link href="/notification">Quản lí thông báo</Link>,
+                icon: <NotificationOutlined />
+
+            },
+            {
                 key: 'course_group',
                 label: 'Quản lí khóa học',
                 icon: <BiBookReader />,
@@ -58,12 +70,6 @@ export const sidebarItems: MenuItem[] = [
                     { key: 'question', label: <Link href="/question">Câu hỏi</Link> },
                 ],
             },
-            {
-                key: 'order',
-                label: <Link href="/order">Quản lí hóa đơn</Link>,
-                icon: <BarChartOutlined />
-
-            }
         ]
     }
 ];

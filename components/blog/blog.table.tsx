@@ -8,7 +8,6 @@ import BlogUpdate from "./blog.update"
 import './overwrite.style.scss'
 import { apiUrl, storageUrl } from "@/utils/url"
 import { sendRequest } from "@/utils/fetch.api"
-import BlogCreate from "./blog.create"
 import { useSession } from "next-auth/react"
 
 type CommentDisplay = {
@@ -83,13 +82,10 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
 
     const columns: TableProps<BlogResponse>['columns'] = [
         {
-            title: 'Id',
-            dataIndex: 'blogId',
-            key: 'id',
+            title: "STT",
+            key: "index",
             width: '10%',
-            sorter: {
-                compare: (a, b) => a.blogId - b.blogId,
-            },
+            render: (text, record, index) => <>{(index + 1) + (page - 1) * blogPageResponse.pageSize}</>,
         },
         {
             title: 'Tiêu đề',
