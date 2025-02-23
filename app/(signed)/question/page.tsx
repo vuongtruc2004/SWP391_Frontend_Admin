@@ -36,9 +36,6 @@ const QuestionPage = async (props: {
 
     })
 
-    console.log(">>> check answer", questionResponse)
-
-
     return (
         <div className="border w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
             <QuestionSearch keyword={keyword} />

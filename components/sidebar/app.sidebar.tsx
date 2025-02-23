@@ -1,5 +1,5 @@
 'use client'
-import { Avatar, Image, Menu } from 'antd';
+import { Avatar, Menu } from 'antd';
 import { sidebarItems } from './app.sidebar.properties'
 import Sider from 'antd/es/layout/Sider';
 import { useCollapseContext } from '../../wrapper/collapse-sidebar/collapse.sidebar.wrapper';

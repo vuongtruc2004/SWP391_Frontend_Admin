@@ -201,7 +201,6 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
                 ? prevKeys.filter((key) => key !== commentId) // Đóng lại nếu đã mở
                 : [...prevKeys, commentId]; // Mở rộng nếu chưa mở
 
-            console.log("Danh sách expandedKeys:", newKeys); // Kiểm tra log
             return newKeys;
         });
     };

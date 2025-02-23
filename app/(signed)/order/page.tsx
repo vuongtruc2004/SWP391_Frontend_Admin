@@ -75,13 +75,11 @@ const OrderPage = async (props: {
         queryParams.minPrice = minPrice;
         queryParams.maxPrice = maxPrice;
     }
-    console.log(queryParams);
 
     const orderResponse = await sendRequest<ApiResponse<PageDetailsResponse<OrderResponse[]>>>({
         url: `${apiUrl}/orders`,
         queryParams: queryParams
     })
-    console.log(orderResponse);
 
     return (
 

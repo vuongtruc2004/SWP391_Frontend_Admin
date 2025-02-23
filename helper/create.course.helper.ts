@@ -11,7 +11,7 @@ const isNumber = (s: string): boolean => {
 }
 
 export const isValidYouTubeUrl = (url: string): boolean => {
-    const regex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})(&.*)?$/;
+    const regex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}(\S*)?$/;
     if (!regex.test(url))
         return false;
     return true;

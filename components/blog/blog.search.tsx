@@ -21,11 +21,6 @@ const BlogSearch = (props: {
     const router = useRouter();
     const [openFormCreate, setOpenFormCreate] = useState(false);
 
-
-    // const handleOnChange = (input: string) => {
-    //     console.log("check search: ", input);
-    // }
-
     const handleOnFinish = (values: any) => {
         const { keyword, published } = values;
         const newSearchParam = new URLSearchParams(searchParam);

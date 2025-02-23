@@ -49,7 +49,6 @@ const CoursePage = async (props: {
         filter += ` and originalPrice >: ${priceFrom} and originalPrice <: ${priceTo}`
     }
 
-    console.log("filter: ", filter);
     const courseResponse = await sendRequest<ApiResponse<PageDetailsResponse<CourseDetailsResponse[]>>>({
         url: `${apiUrl}/courses/all`,
         queryParams: {

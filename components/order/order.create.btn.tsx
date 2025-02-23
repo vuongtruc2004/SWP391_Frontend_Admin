@@ -10,6 +10,7 @@ import { toCanvas } from 'html-to-image';
 import dayjs from "dayjs";
 import { CopyOutlined } from "@ant-design/icons";
 import { sendRequest } from "@/utils/fetch.api";
+import { useRouter } from "next/navigation";
 
 const OrderCreate = () => {
     const [messageApi, contextHolder] = message.useMessage();
@@ -17,6 +18,7 @@ const OrderCreate = () => {
     const [value, setValue] = useState("");
     const [orders, setOrders] = useState<OrderRequest | null>(null);
     const ref = useRef<HTMLDivElement>(null);
+    const { refresh } = useRouter();
 
     const handleOk = async () => {
         if (orders) {
@@ -36,12 +38,13 @@ const OrderCreate = () => {
                 body: createOrderRequest
             });
 
-            console.log(orderResponse);
             if (orderResponse.status === 200) {
                 messageApi.open({
                     type: 'success',
                     content: orderResponse.message.toString(),
                 });
+                setIsModalOpen(false);
+                refresh();
             } else {
                 messageApi.open({
                     type: 'error',

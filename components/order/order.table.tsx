@@ -1,11 +1,13 @@
 'use client'
 
 import { CheckCircleFilled, EditOutlined, InfoCircleOutlined, LockOutlined } from "@ant-design/icons";
-import { Popconfirm, Space, Table, TableProps } from "antd";
+import { message, Popconfirm, Space, Table, TableProps } from "antd";
 import dayjs from "dayjs";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import ViewOrderDetail from "./view.order.detail";
+import { sendRequest } from "@/utils/fetch.api";
+import { apiUrl } from "@/utils/url";
 
 const OrderTable = (props: {
     orderPageResponse: PageDetailsResponse<OrderResponse[]>
@@ -17,6 +19,8 @@ const OrderTable = (props: {
     const pathName = usePathname();
     const [orderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
     const [openDraw, setOpenDraw] = useState<boolean>(false);
+    const [messageApi, contextHolder] = message.useMessage();
+
     const columns: TableProps<OrderResponse>['columns'] = [
         {
             title: 'STT',
@@ -99,7 +103,7 @@ const OrderTable = (props: {
             title: 'Hành động',
             key: 'action',
             width: '40%',
-            render: (_, record: any) => (
+            render: (_, record: OrderResponse) => (
                 <Space size="middle">
                     <InfoCircleOutlined style={{ color: "green" }} onClick={() => {
                         setOpenDraw(true);
@@ -112,14 +116,32 @@ const OrderTable = (props: {
                             // setOpenEditForm(true)
                         }}
                     />
-                    <CheckCircleFilled style={{ color: 'green' }} />
+                    <CheckCircleFilled style={{ color: 'green' }} onClick={() => handleChangeStatus(record.orderId)} />
                 </Space>
             ),
         },
     ];
 
+    const handleChangeStatus = async (orderId: number) => {
+        const orderResponse = await sendRequest<ApiResponse<OrderResponse>>({
+            url: `${apiUrl}/orders/active/${orderId}`,
+        });
+        if (orderResponse.status === 200) {
+            messageApi.open({
+                type: 'success',
+                content: orderResponse.message.toString(),
+            });
+            router.refresh();
+        } else {
+            messageApi.open({
+                type: 'error',
+                content: orderResponse.message.toString(),
+            });
+        }
+    }
     return (
         <>
+            {contextHolder}
             <Table
                 className="overflow-y-auto max-h-[calc(100vh-100px)] mb-8 pl-6 pr-6"
                 columns={columns}

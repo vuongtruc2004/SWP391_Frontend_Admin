@@ -70,7 +70,6 @@ const BlogCreate = (props: IProps) => {
             },
             body: blogRequest,
         })
-        console.log(createBlog.message)
         if (createBlog.status === 201) {
             setTitle(initState);
             setContent(initState);
@@ -97,7 +96,6 @@ const BlogCreate = (props: IProps) => {
     //useEffect
     useEffect(() => {
         if (openFormCreate) {
-            console.log("form open")
             setTitle(initState);
             setContent(initState);
             setPlainContent("");
@@ -106,8 +104,6 @@ const BlogCreate = (props: IProps) => {
             setErrThumbnail("");
         }
     }, [openFormCreate]);
-
-    console.log(title)
 
     const handleOnCancel = () => {
         setUrlThumbnail("");
@@ -127,14 +123,12 @@ const BlogCreate = (props: IProps) => {
             const formData = new FormData();
             formData.set("file", e.target.files[0]);
             formData.set("folder", "blog");
-            console.log(formData)
             const uploadImage = await sendRequest<ApiResponse<string>>({
                 url: `${apiUrl}/blogs/up-thumbnail`,
                 method: 'POST',
                 headers: {},
                 body: formData
             });
-            console.log("Upload Response:", uploadImage);
 
             if (uploadImage.status === 200) {
                 setUrlThumbnail(uploadImage.data);
@@ -172,7 +166,6 @@ const BlogCreate = (props: IProps) => {
                                         ...prev,
                                         value: e.target.value
                                     }))
-                                    console.log(title.value)
                                 }}
                             />
                             {title.error && title.value === '' && (
@@ -194,7 +187,6 @@ const BlogCreate = (props: IProps) => {
                                         ...content,
                                         value: event ? event : ""
                                     })
-                                    console.log(event)
                                 }}
                                 preview="edit"
                                 commandsFilter={(cmd) => (cmd.name && ["preview", "live", "fullscreen"].includes(cmd.name)) ? false : cmd}

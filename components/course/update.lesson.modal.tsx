@@ -215,7 +215,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                                                                             message: 'Video url có định dạng không hợp lệ'
                                                                                         },
                                                                                         {
-                                                                                            pattern: /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/).+$/,
+                                                                                            pattern: /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}(\S*)?$/,
                                                                                             message: 'Chỉ chấp nhận URL YouTube!',
                                                                                         },
                                                                                     ]
