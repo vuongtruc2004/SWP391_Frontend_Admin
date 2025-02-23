@@ -24,6 +24,21 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [answers, setAnswers] = useState([{ content: "", correct: false, empty: true }]); // Mảng câu trả lời
     const { data: session, status } = useSession();
+    const [isDuplicateAnswer, setIsDuplicateAnswer] = useState(false)
+
+    useEffect(() => {
+        const answerCounts = answers
+            .map(a => a.content.trim().toLowerCase())
+            .filter(content => content !== "")
+            .reduce((acc: any, content: string) => {
+                acc[content] = (acc[content] || 0) + 1;
+                return acc;
+            }, {});
+
+        const duplicates = new Set(Object.keys(answerCounts).filter(content => answerCounts[content] > 1));
+
+        setIsDuplicateAnswer(duplicates.size > 0);
+    }, [answers]);
 
     const showModal = () => {
         setIsRotated(!isRotated);
@@ -47,6 +62,11 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
 
         // Kiểm tra nếu không có đáp án nào đúng
         if (!answers.some(answer => answer.correct)) {
+            setLoading(false);
+            return;
+        }
+
+        if (isDuplicateAnswer) {
             setLoading(false);
             return;
         }
@@ -137,6 +157,19 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
         setAnswers(newAnswers);
     };
 
+    const answerCounts = answers
+        .map(a => a.content.trim().toLowerCase())
+        .filter(content => content !== "") // Bỏ qua nội dung rỗng
+        .reduce((acc: any, content: string) => {
+            acc[content] = (acc[content] || 0) + 1;
+            return acc;
+        }, {});
+
+    const duplicateAnswers = new Set(
+        Object.keys(answerCounts).filter(content => answerCounts[content] > 1)
+    );
+
+
     return (
         <>
             <div>
@@ -178,30 +211,40 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
 
                 <div className="mt-4">
                     <span className="text-red-500 mr-2">*</span>Câu trả lời:
-                    {answers.map((answer, index) => (
-                        <div key={index} className="w-full flex flex-col gap-1 mt-2">
-                            <div className="flex items-center gap-2">
-                                <Checkbox checked={answer.correct} onChange={() => toggleCorrect(index)} />
-                                <Input
-                                    className={`w-full ${isSubmitted && answer.empty ? "border-red-500" : ""}`}
-                                    placeholder={`Câu trả lời ${index + 1}`}
-                                    value={answer.content}
-                                    onChange={(e) => updateAnswer(index, e.target.value)}
-                                    allowClear
-                                />
-                                {answers.length > 1 && (
-                                    <MinusCircleOutlined style={{ color: 'red' }} className="text-lg cursor-pointer" onClick={() => removeAnswer(index)} />
+                    {answers.map((answer, index) => {
+                        const isDuplicate = answers
+                            .filter(a => a.content.trim().toLowerCase() === answer.content.trim().toLowerCase()).length > 1;
+
+                        return (
+                            <div key={index} className="w-full flex flex-col gap-1 mt-2">
+                                <div className="flex items-center gap-2">
+                                    <Checkbox checked={answer.correct} onChange={() => toggleCorrect(index)} />
+                                    <Input
+                                        className={`w-full ${isSubmitted && answer.empty ? "border-red-500" : ""}`}
+                                        placeholder={`Câu trả lời ${index + 1}`}
+                                        value={answer.content}
+                                        onChange={(e) => updateAnswer(index, e.target.value)}
+                                        allowClear
+                                    />
+                                    {answers.length > 1 && (
+                                        <MinusCircleOutlined style={{ color: 'red' }} className="text-lg cursor-pointer" onClick={() => removeAnswer(index)} />
+                                    )}
+                                </div>
+                                {isSubmitted && answer.empty && (
+                                    <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                        <WarningOutlined />
+                                        Vui lòng không để trống câu trả lời
+                                    </p>
+                                )}
+                                {isDuplicate && isSubmitted && (
+                                    <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                        <WarningOutlined />
+                                        Vui lòng không thêm đáp án giống nhau
+                                    </p>
                                 )}
                             </div>
-                            {isSubmitted && answer.empty && (
-                                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                    <WarningOutlined />
-                                    Vui lòng không để trống câu trả lời
-                                </p>
-                            )}
-                        </div>
-                    ))
-                    }
+                        );
+                    })}
                     <Button type="dashed" onClick={addAnswer} icon={<PlusCircleOutlined />} className="mt-3 w-full">
                         Thêm câu trả lời
                     </Button>
@@ -211,6 +254,7 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
                             Bạn chưa chọn đáp án đúng!
                         </p>
                     )}
+
                 </div>
 
                 <div className="flex justify-end mt-5">
