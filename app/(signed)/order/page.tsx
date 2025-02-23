@@ -83,18 +83,16 @@ const OrderPage = async (props: {
     })
     console.log(orderResponse);
 
-
-
     return (
 
         <>
             <div className="border w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
-                <OrderSearch
+                {/* <OrderSearch
                     keyword={keyword} orderStatus={orderStatus} createdFrom={createdFrom}
                     createdTo={createdTo} updatedFrom={updatedFrom} updatedTo={updatedTo}
-                    minPrice={priceResponse.data.minPrice} maxPrice={priceResponse.data.maxPrice} />
+                    minPrice={priceResponse.data.minPrice} maxPrice={priceResponse.data.maxPrice} /> */}
                 <OrderCreate />
-                <OrderTable orderPageResponse={orderResponse.data} />
+                {/* <OrderTable orderPageResponse={orderResponse.data} /> */}
             </div>
         </>
 

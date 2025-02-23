@@ -89,4 +89,27 @@ declare global {
         global: boolean;
         fullname: string[];
     }
+
+    interface OrderRequest {
+        userId: number;
+        fullname: string;
+        gender: string;
+        courses: CourseOrder[];
+    }
+
+    interface CourseOrder {
+        courseId: number;
+        courseName: string;
+        thumbnail: string;
+        expertName: string;
+        price: number;
+    }
+
+    interface CreateOrderRequest {
+        userId: number;
+        courseOrders: {
+            courseId: number;
+            price: number;
+        }[];
+    }
 }
