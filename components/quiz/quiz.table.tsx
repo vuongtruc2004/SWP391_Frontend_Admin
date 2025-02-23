@@ -8,6 +8,7 @@ import { useState } from "react";
 import ViewQuizDetail from "./view.quiz.detail";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
+import UpdateQuizForm from "./update.quiz.form";
 
 const QuizTable = (props: {
     quizPageResponse: PageDetailsResponse<QuizResponse[]>
@@ -19,6 +20,8 @@ const QuizTable = (props: {
     const pathName = usePathname();
     const [quizDetail, setQuizDetail] = useState<QuizResponse | null>(null);
     const [openDraw, setOpenDraw] = useState<boolean>(false);
+    const [openEditForm, setOpenEditForm] = useState(false);
+    const [editingQuiz, SetEditingQuiz] = useState<QuizResponse | null>(null);
     const columns: TableProps<QuizResponse>['columns'] = [
         {
             title: 'STT',
@@ -106,8 +109,8 @@ const QuizTable = (props: {
 
                     <EditOutlined className="text-blue-500" style={{ color: "blue" }}
                         onClick={() => {
-                            // setEditingUser(record)
-                            // setOpenEditForm(true)
+                            SetEditingQuiz(record)
+                            setOpenEditForm(true)
                         }}
                     />
                     <Popconfirm
@@ -171,6 +174,14 @@ const QuizTable = (props: {
                 setOpenDraw={setOpenDraw}
                 openDraw={openDraw}
                 quizDetail={quizDetail}
+            />
+
+            <UpdateQuizForm
+                editingQuiz={editingQuiz}
+                setEditingQuiz={SetEditingQuiz}
+                openEditForm={openEditForm}
+                setOpenEditForm={setOpenEditForm}
+
             />
 
         </>

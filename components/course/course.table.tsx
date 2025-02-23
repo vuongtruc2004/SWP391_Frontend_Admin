@@ -1,6 +1,6 @@
 'use client'
-import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
+import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, UserOutlined } from '@ant-design/icons';
+import { notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
 import Link from 'next/link';
@@ -214,9 +214,13 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                             />
                         )
                     }
+                    <Tooltip title='Xem danh sách người mua' color='blue'>
+                        <Link href={`/course/purchaser/${record.courseId}`}>
+                            <UserOutlined />
+                        </Link>
+                    </Tooltip>
 
-
-                </Space>
+                </Space >
             ),
         },
     ];

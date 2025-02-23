@@ -61,7 +61,6 @@ const QuizPage = async (props: {
         filters.push(`endedAt > '${endedFrom}' and endedAt < '${endedTo}'`);
     }
 
-    // Ghép các điều kiện lại bằng " and "
     const filter = filters.length > 0 ? filters.join(" and ") : '';
     const quizResponse = await sendRequest<ApiResponse<PageDetailsResponse<QuizResponse[]>>>({
         url: `${apiUrl}/quiz`,
@@ -71,8 +70,7 @@ const QuizPage = async (props: {
             filter: filter
         }
     })
-    console.log(quizResponse);
-    console.log(filter);
+
 
     // const fetchAllQuiz = async () => {
     //     let allQuiz: QuizResponse[] = [];

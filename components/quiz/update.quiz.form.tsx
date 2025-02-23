@@ -1,22 +1,24 @@
-'use client'
+import { validTitle } from '@/helper/create.blog.helper';
+import { validDate, validMaxAttempts } from '@/helper/create.quiz.helper';
+import { sendRequest } from '@/utils/fetch.api';
+import { apiUrl } from '@/utils/url';
+import { DeleteFilled, MinusCircleOutlined, PlusCircleOutlined, WarningOutlined } from '@ant-design/icons';
+import { Button, Checkbox, DatePicker, DatePickerProps, Input, Modal, notification, Select, Space, Tooltip } from 'antd';
+import dayjs from 'dayjs';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react'
 
-import { validDate, validMaxAttempts, validTitle } from "@/helper/create.quiz.helper";
-import { sendRequest } from "@/utils/fetch.api";
-import { apiUrl } from "@/utils/url";
-import { DeleteFilled, EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, WarningOutlined } from "@ant-design/icons";
-import { Button, Checkbox, DatePicker, DatePickerProps, Image, Input, Modal, notification, Select, Space, Tooltip } from "antd";
-import dayjs from "dayjs";
-import { url } from "inspector";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import * as XLSX from 'xlsx';
 const initState: ErrorResponse = {
     error: false,
     value: ''
-
 }
-const QuizCreateBtn = (props: {
+const UpdateQuizForm = (props: {
+    editingQuiz: QuizResponse | null;
+    setEditingQuiz: React.Dispatch<React.SetStateAction<QuizResponse | null>>;
+    openEditForm: boolean;
+    setOpenEditForm: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+    const { openEditForm, setOpenEditForm, editingQuiz, setEditingQuiz } = props;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const router = useRouter();
     const [title, setTitle] = useState<ErrorResponse>(initState);
@@ -37,8 +39,6 @@ const QuizCreateBtn = (props: {
     const CheckboxGroup = Checkbox.Group;
     const [checkedList, setCheckedList] = useState<string[]>([]);
     const [questionList, setQuestionList] = useState<string[]>([]);
-
-
     useEffect(() => {
         fetchQuestions();
     }, []);
@@ -64,6 +64,35 @@ const QuizCreateBtn = (props: {
         }
     };
 
+
+    useEffect(() => {
+        if (editingQuiz) {
+            setTitle({
+                error: false,
+                value: editingQuiz.title
+            });
+            setMaxAttempts({
+                error: false,
+                value: editingQuiz.maxAttempts.toString()
+            })
+            setStartedAt({
+                error: false,
+                value: editingQuiz.startedAt
+            })
+            setEndedAt({
+                error: false,
+                value: editingQuiz.endedAt
+            })
+
+        }
+        if (editingQuiz?.questions) {
+            setCheckedList(
+                editingQuiz.questions
+                    .filter((question) => question.title?.trim() !== "")
+                    .map((question) => question.title)
+            );
+        }
+    }, [editingQuiz]);
     const handleOk = async () => {
         setIsSubmitted(true);
         const isValidTitle = validTitle(title, setTitle);
@@ -71,63 +100,50 @@ const QuizCreateBtn = (props: {
         const isValidDate = validDate(startedAt, endedAt, setStartedAt, setEndedAt);
         const questionValues = createQuestions.map(q => q.value.trim().toLowerCase());
         const hasCheckedList = checkedList.length > 0 ? true : false;
-
         let hasError = false;
-        // Kiểm tra nếu có bất kỳ câu trả lời nào được đánh dấu là đúng (correct: true)
-        const hasCorrectAnswer = createQuestions.some(q =>
-            q.answers.some(a => a.correct === true)
-        );
-
-        hasError = !hasCorrectAnswer
 
         const updatedQuestions = createQuestions.map(q => {
-            if (q.value.trim() === "") {
-                hasError = true;
-                return { ...q, errorMessage: "Vui lòng không để trống câu hỏi" };
+            const hasUserEdited = q.value.trim() !== ""; // Kiểm tra nếu người dùng đã nhập câu hỏi
+            const hasAnswer = q.answers.some(a => a.content.trim() !== ""); // Có câu trả lời nào không
+            const hasCorrectAnswer = q.answers.some(a => a.correct); // Có ít nhất một đáp án đúng không
+
+            if (hasUserEdited) {
+                if (!hasAnswer) {
+                    hasError = true;
+                    // return { ...q, errorMessage: "Vui lòng nhập ít nhất một câu trả lời. cccc" };
+                }
+                if (!hasCorrectAnswer) {
+                    hasError = true;
+                    // return { ...q, errorMessage: "Vui lòng chọn ít nhất một đáp án đúng." };
+                }
             }
-            if (questionValues.filter(v => v === q.value.trim().toLowerCase()).length > 1) {
-                hasError = true;
-                return { ...q, errorMessage: "Vui lòng không tạo câu hỏi giống nhau" };
-            }
+
             return { ...q, errorMessage: "" };
         });
-
         setCreateQuestions(updatedQuestions);
-        if (!isValidTitle) return;
 
-
-
-        const existingQuizResponse = await sendRequest<ApiResponse<QuizResponse>>({
-            url: `${apiUrl}/quiz/${(title.value.trim())}`,
-            method: 'GET',
-        });
-
-        if (existingQuizResponse.status === 200 && existingQuizResponse.data) {
-            setTitle({
-                ...title,
-                error: true,
-                message: "Tiêu đề bài kiểm tra đã tồn tại",
+        // 🔹 4. Nếu tiêu đề đã thay đổi, kiểm tra xem có bị trùng không
+        if (title.value.trim() !== editingQuiz?.title?.trim()) {
+            const existingQuizResponse = await sendRequest<ApiResponse<QuizResponse>>({
+                url: `${apiUrl}/quiz/${title.value.trim()}`,
+                method: 'GET',
             });
-            return;
+
+            if (existingQuizResponse.status === 200 && existingQuizResponse.data) {
+                setTitle({
+                    ...title,
+                    error: true,
+                    message: "Tiêu đề bài kiểm tra đã tồn tại",
+                });
+                return;
+            }
+        }
+        const hasNewQuestion = createQuestions.some(q => q.value.trim() !== "");
+
+        if (hasCheckedList && !hasNewQuestion) {
+            hasError = false; // Nếu chỉ dùng câu hỏi có sẵn và không nhập mới thì không cần kiểm tra lỗi
         }
 
-
-
-        const updatedQuestionsWithAnswers = updatedQuestions.map(q => ({
-            ...q,
-            answers: q.answers.map(a => ({
-                ...a,
-                empty: a.content.trim() === "",
-            })),
-        }));
-
-        setCreateQuestions(updatedQuestionsWithAnswers);
-
-
-        // Nếu có lỗi thì dừng lại
-        if (hasCheckedList) {
-            hasError = false; // Nếu có phần tử trong checkedList, bỏ qua lỗi câu hỏi & câu trả lời
-        }
         if (hasError || !isValidTitle || !isValidMaxAttempts || !isValidDate) {
             return;
         }
@@ -212,11 +228,12 @@ const QuizCreateBtn = (props: {
 
             // Tạo bài kiểm tra
             const quizRequest: QuizRequest = {
+                quizId: editingQuiz?.quizId,
                 title: title.value,
                 maxAttempts: Number(maxAttempts.value),
                 published: published.value == 'active' ? true : false,
-                startedAt: startedAt.value !== '' ? dayjs(startedAt.value).format("YYYY-MM-DD") : '',
-                endedAt: endedAt.value !== '' ? dayjs(endedAt.value).format("YYYY-MM-DD") : '',
+                startedAt: startedAt.value ? dayjs(startedAt.value).format("YYYY-MM-DD") : editingQuiz?.startedAt || '',
+                endedAt: endedAt.value ? dayjs(endedAt.value).format("YYYY-MM-DD") : editingQuiz?.endedAt || '',
                 questions: [...checkedList, ...createQuestionResponses.filter(q => q !== null) as string[]]
             }
 
@@ -224,7 +241,7 @@ const QuizCreateBtn = (props: {
 
             const createQuizResponse = await sendRequest<ApiResponse<QuizResponse>>({
                 url: `${apiUrl}/quiz`,
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -233,7 +250,7 @@ const QuizCreateBtn = (props: {
 
             console.log("createQuizResponse>>", createQuizResponse);
 
-            if (createQuizResponse.status === 201) {
+            if (createQuizResponse.status === 200) {
                 handleCancel();
                 await fetchQuestions();
                 router.refresh();
@@ -242,11 +259,10 @@ const QuizCreateBtn = (props: {
                     description: createQuizResponse.message.toString(),
                 });
             } else {
-                setTitle({
-                    ...title,
-                    error: true,
-                    message: createQuizResponse.message.toString()
-                });
+                notification.error({
+                    message: "Thất bại",
+                    description: "sai rồi",
+                })
             }
         } catch (error) {
             console.error("Lỗi khi tạo câu hỏi/câu trả lời:", error);
@@ -263,14 +279,13 @@ const QuizCreateBtn = (props: {
     };
 
     const handleCancel = () => {
-        setTitle(initState);
-        setMaxAttempts(initState);
-        setStartedAt(initState);
-        setEndedAt(initState);
+
         setIsSubmitted(false);
+        // setAnswers([{ content: "", correct: false, empty: true }]);
         setCreateQuestions([{ value: "", answers: [{ content: "", correct: false, empty: true }], errorMessage: "" }]);
-        setIsModalOpen(false);
+        setOpenEditForm(false);
         setCheckedList([]);
+        setEditingQuiz(null);
     };
     const handleStartedAtChange: DatePickerProps["onChange"] = (date) => {
         setStartedAt({ ...startedAt, value: date ? dayjs(date).format("YYYY-MM-DD") : "", error: false });
@@ -317,22 +332,7 @@ const QuizCreateBtn = (props: {
     return (
         <>
 
-            <div className="ml-6">
-                <Button type="primary" onClick={showModal} className="w-fit ">
-                    Tạo bài kiểm tra
-                </Button>
-            </div>
-            {/* <div>
-                <Button
-                    style={{ background: 'green', borderColor: "green" }}
-                    type="primary"
-                    onClick={() => handelOnExportExcel()}
-                    className="w-fit hover:bg-green-100 hover:border-green-700">
-                    Xuất Excel
-                </Button>
-            </div> */}
-
-            <Modal title="Tạo bài kiểm tra" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okText="Tạo" cancelText="Hủy">
+            <Modal title="Cập nhật bài kiểm tra" open={openEditForm} onOk={handleOk} onCancel={handleCancel} okText="Cập nhật" cancelText="Hủy">
 
                 <div className="mb-3">
                     <span className="text-red-500 mr-2">*</span>Tiêu đề:
@@ -455,12 +455,7 @@ const QuizCreateBtn = (props: {
                             placeholder="Nhập câu hỏi"
                             value={question.value}
                             onChange={(e) => updateQuestion(qIndex, e.target.value)} />
-                        {/* {isSubmitted && (question.value == '') && (
-                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                <WarningOutlined />
-                                Vui lòng không để trống câu hỏi
-                            </p>
-                        )} */}
+
                         {question.errorMessage && (
                             <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                 <WarningOutlined />
@@ -475,7 +470,7 @@ const QuizCreateBtn = (props: {
                                         onChange={() => toggleCorrect(qIndex, aIndex)} />
 
                                     <Input
-                                        status={(isSubmitted && answer.content == '') ? 'error' : ''}
+                                        status={(isSubmitted && answer.content == '' && question.value !== '') ? 'error' : ''}
                                         placeholder={`Câu trả lời ${aIndex + 1}`}
                                         value={answer.content}
                                         onChange={(e) => updateAnswer(qIndex, aIndex, e.target.value)} />
@@ -483,7 +478,7 @@ const QuizCreateBtn = (props: {
 
                                 </div>
 
-                                {isSubmitted && answer.content == '' && (
+                                {isSubmitted && answer.content == '' && question.value !== '' && (
                                     <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                         <WarningOutlined />
                                         Vui lòng không để trống câu trả lời
@@ -498,7 +493,7 @@ const QuizCreateBtn = (props: {
                             icon={<PlusCircleOutlined />}>
                             Thêm câu trả lời
                         </Button>
-                        {!question.answers.some(answer => answer.correct === true) && isSubmitted && (
+                        {!question.answers.some(answer => answer.correct === true) && question.value !== '' && isSubmitted && (
                             <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                 <WarningOutlined />
                                 Bạn chưa chọn đáp án đúng!
@@ -543,4 +538,5 @@ const QuizCreateBtn = (props: {
         </>
     )
 }
-export default QuizCreateBtn;
+
+export default UpdateQuizForm

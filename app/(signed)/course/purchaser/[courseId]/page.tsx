@@ -45,7 +45,6 @@ const PurchaserPage = async ({ params, searchParams }: {
             filter: filter
         }
     });
-    console.log("Giois tinh", filter);
 
     return (
         <>

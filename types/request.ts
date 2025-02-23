@@ -112,4 +112,14 @@ declare global {
             price: number;
         }[];
     }
+    interface QuizRequest {
+
+        quizId?: number;
+        title?: string;
+        maxAttempts?: number;
+        published?: boolean;
+        startedAt: string;
+        endedAt: string;
+        questions: string[];
+    }
 }

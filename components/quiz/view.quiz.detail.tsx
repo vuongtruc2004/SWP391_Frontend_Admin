@@ -28,8 +28,8 @@ const ViewQuizDetail = (props: {
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Trạng thái: </span>{quizDetail.published ? 'Đang mở' : 'Bị đóng'}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Bắt đầu: </span>{quizDetail.startedAt == null ? 'Vô thời hạn' : dayjs(quizDetail.createdAt).format("DD/MM/YYYY HH:mm:ss")}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Kết thúc: </span>{quizDetail.endedAt == null ? 'Vô thời hạn' : dayjs(quizDetail.endedAt).format("DD/MM/YYYY HH:mm:ss")}</div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tác giả: </span>{quizDetail.expert.user.fullname}</div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Bài học: </span>{quizDetail.lesson.title}</div>
+                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tác giả: </span>{quizDetail.expert != null ? quizDetail.expert.user.fullname : ''}</div>
+                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Bài học: </span>{quizDetail.lesson != null ? quizDetail.lesson.title : ''}</div>
 
 
                     <div className='mb-2'>
