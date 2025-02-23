@@ -10,35 +10,65 @@ import React, { useEffect, useState } from 'react'
 const CourseTrendingChart = () => {
 
     const [chartData, setChartData] = useState<{ type: string; value: number }[]>([]);
-    const [courseNumber, setCourseNumber] = useState<number>(5)
+    const [courseNumber, setCourseNumber] = useState<number>(5);
     const { data: session, status } = useSession();
 
+    // Lưu session vào localStorage để không mất khi reload
     useEffect(() => {
+        if (session) {
+            localStorage.setItem("sessionData", JSON.stringify(session));
+        }
+    }, [session]);
+
+    // Lấy session từ localStorage nếu bị mất khi reload
+    const getSessionFromStorage = () => {
+        const storedSession = localStorage.getItem("sessionData");
+        return storedSession ? JSON.parse(storedSession) : null;
+    };
+
+    const [cachedSession, setCachedSession] = useState(getSessionFromStorage());
+
+    // Cập nhật cachedSession khi session thay đổi
+    useEffect(() => {
+        if (!cachedSession && session) {
+            setCachedSession(session);
+        }
+    }, [session]);
+
+    const accessToken = cachedSession?.accessToken || session?.accessToken;
+
+    useEffect(() => {
+        if (!accessToken) return;
+
         const fetchData = async () => {
-            const response = await sendRequest<ApiResponse<PageDetailsResponse<CourseResponse[]>>>({
-                url: `${apiUrl}/courses/purchased`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                    "Content-Type": "application/json"
-                },
-                queryParams: {
-                    page: 1,
-                    size: courseNumber,
+            try {
+                const response = await sendRequest<ApiResponse<PageDetailsResponse<CourseResponse[]>>>({
+                    url: `${apiUrl}/courses/purchased`,
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        "Content-Type": "application/json"
+                    },
+                    queryParams: {
+                        page: 1,
+                        size: courseNumber,
+                    }
+                });
+
+                if (response?.data?.content) {
+                    const formattedData = response.data.content.map(course => ({
+                        type: course.courseName,
+                        value: course.totalPurchased,
+                    }));
+
+                    setChartData(formattedData);
                 }
-
-            })
-
-            if (response?.data?.content) {
-                const formattedData = response.data.content.map(course => ({
-                    type: course.courseName,
-                    value: course.totalPurchased,
-                }));
-
-                setChartData(formattedData);
+            } catch (error) {
+                console.error("API error:", error);
             }
         };
+
         fetchData();
-    }, [courseNumber]);
+    }, [accessToken, courseNumber]);
 
     const handleChange = (value: string) => {
         setCourseNumber(Number(value));
@@ -56,19 +86,7 @@ const CourseTrendingChart = () => {
         interaction: {
             elementSelect: true,
         },
-        // onReady: ({ chart, ...rest }: { chart: { on: Function; getContext: Function };[key: string]: any }) => {
-        //     chart.on(
-        //         'afterrender',
-        //         () => {
-        //             const { document } = chart.getContext().canvas;
-        //             const elements = document.getElementsByClassName('element');
-        //             elements[0]?.emit('click');
-        //         },
-        //         true,
-        //     );
-        // },
     };
-
 
     return (
         <div className="border bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] ">
@@ -81,22 +99,10 @@ const CourseTrendingChart = () => {
                     defaultValue="5"
                     onChange={handleChange}
                     options={[
-                        {
-                            value: '5',
-                            label: '5 Khóa học',
-                        },
-                        {
-                            value: '11',
-                            label: '11 Khóa học',
-                        },
-                        {
-                            value: '15',
-                            label: '15 Khóa học',
-                        },
-                        {
-                            value: '20',
-                            label: '20 Khóa học',
-                        },
+                        { value: '5', label: '5 Khóa học' },
+                        { value: '11', label: '11 Khóa học' },
+                        { value: '15', label: '15 Khóa học' },
+                        { value: '20', label: '20 Khóa học' },
                     ]}
                 />
             </div>
@@ -108,7 +114,7 @@ const CourseTrendingChart = () => {
             <div className='pl-3 mt-[-5vh] mb-6'>Số khóa học đã bán</div>
 
         </div>
-    )
+    );
 }
 
-export default CourseTrendingChart
+export default CourseTrendingChart;
