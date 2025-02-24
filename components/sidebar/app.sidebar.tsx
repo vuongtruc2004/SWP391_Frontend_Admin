@@ -1,15 +1,17 @@
 'use client'
 import { Avatar, Menu } from 'antd';
-import { sidebarItems } from './app.sidebar.properties'
+import { sidebarItems, sidebarItemsExpert } from './app.sidebar.properties'
 import Sider from 'antd/es/layout/Sider';
 import { useCollapseContext } from '../../wrapper/collapse-sidebar/collapse.sidebar.wrapper';
 import './overwrite.style.scss';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 const AppSidebar = () => {
     const { collapsed } = useCollapseContext();
     const pathname = usePathname();
+    const { data: session } = useSession();
 
     return (
         <Sider
@@ -31,7 +33,7 @@ const AppSidebar = () => {
                 style={{ width: '100%' }}
                 selectedKeys={[pathname.split('/')[1]]}
                 mode="inline"
-                items={sidebarItems}
+                items={session?.user.roleName === "ADMIN" ? sidebarItems : sidebarItemsExpert}
                 theme="light"
             />
         </Sider>

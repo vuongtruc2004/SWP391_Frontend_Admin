@@ -164,7 +164,7 @@ const NotificationCreate = (props: {
                         <Form.Item>
                             <Select
                                 value={global}
-                                style={{ width: 120 }}
+                                style={{ width: 470 }}
                                 onChange={handleOnChangeSelect}
                                 options={[
                                     { value: true, label: "Toàn bộ người dùng" },

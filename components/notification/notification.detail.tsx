@@ -69,6 +69,7 @@ const NotificationDetail = (props: {
 
                 </Space>
             ),
+            align: "center"
         },
     ];
 
@@ -77,9 +78,9 @@ const NotificationDetail = (props: {
         <>
             <Modal open={openModal} onCancel={() => setOpenModal(false)} className="w-[90%]" footer={null} width={850}>
                 <div>
-                    <h1 className='font-semibold text-[30px]'>{recordNotification?.title}</h1>
-                    <p>{recordNotification?.content}</p>
-                    <p><span className='font-semibold'>Thể loại:</span> {recordNotification?.global ? "Tất cả mọi người" : "Giới hạn người nhận"}</p>
+                    <h1 className='font-semibold text-lg'>Tiêu đề: {recordNotification?.title}</h1>
+                    <p><span className='font-semibold'>Nội dung: </span>{recordNotification?.content}</p>
+                    <p><span className='font-semibold'>Người nhận: </span> {recordNotification?.global ? "Tất cả mọi người" : "Giới hạn người nhận"}</p>
                     {recordNotification?.global === false && (
                         <>
                             <Table

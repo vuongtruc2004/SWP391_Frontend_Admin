@@ -78,8 +78,8 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             router.refresh()
         } else {
             notification.error({
-                message: String(acceptRes.message),
-                description: acceptRes.errorMessage,
+                message: "Lỗi!",
+                description: String(acceptRes.message),
             })
         }
     }
