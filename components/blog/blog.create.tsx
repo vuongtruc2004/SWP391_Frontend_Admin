@@ -5,9 +5,8 @@ import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
 import MDEditor from "@uiw/react-md-editor";
 import { Avatar, Form, Image, Input, Modal, notification } from "antd";
-import { error } from "console";
 import { marked } from "marked";
-import { getSession, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 
@@ -39,20 +38,22 @@ const BlogCreate = (props: IProps) => {
         return doc.body.textContent || "";
     }
 
-
-
     //function handle
     const handleOnOk = async () => {
 
         const isValidTitle = validTitle(title, setTitle);
         const isValidContent = validContent(content, setContent);
 
+        if (urlThumbnail === "") {
+            setErrThumbnail("Ảnh không được để trống!");
+            return;
+        }
+
         if (!isValidTitle || !isValidContent) {
             return
         }
 
         const htmlText = marked(inputMarkdown);
-
 
         const blogRequest: BlogRequest = {
             title: title.value,
@@ -88,9 +89,6 @@ const BlogCreate = (props: IProps) => {
                 description: "Tạo bài viết thất bại"
             })
         }
-
-
-
     }
 
     //useEffect
@@ -136,11 +134,7 @@ const BlogCreate = (props: IProps) => {
                 setErrThumbnail("Ảnh không hợp lệ!");
             }
         }
-
-
-
     }
-
 
     return (
         <>
@@ -150,7 +144,6 @@ const BlogCreate = (props: IProps) => {
                 okText="Tạo"
                 cancelText="Hủy"
                 width={1000}
-
             >
                 <Form>
                     <div>

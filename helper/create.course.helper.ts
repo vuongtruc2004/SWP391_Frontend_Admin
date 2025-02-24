@@ -1,7 +1,4 @@
-import dayjs from "dayjs";
 import { SetStateAction } from "react";
-import { isFullNumber } from "./subject.helper";
-
 
 const isNumber = (s: string): boolean => {
     const regex = /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/;

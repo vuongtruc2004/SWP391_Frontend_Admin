@@ -100,7 +100,7 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
         const isSalePrice = validSalePrice(salePrice, setSalePrice);
         const isDes = validDes(des, setDes);
 
-        if (salePrice.value > originPrice.value) {
+        if (Number(salePrice.value) > Number(originPrice.value)) {
             setErrLessThan("Giá khuyến mãi không được lớn hơn giá gốc!");
             setLoading(false)
             return;

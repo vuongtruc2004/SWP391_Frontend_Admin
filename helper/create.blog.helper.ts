@@ -32,5 +32,3 @@ export const validContent = (content: ErrorResponse, setContent: React.Dispatch<
     })
     return true;
 }
-
-

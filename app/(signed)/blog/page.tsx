@@ -53,7 +53,6 @@ const BlogPage = async (props: {
         <div className="border w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
             <BlogSearch keyword={keyword} published={published} createdFrom={createdFrom} createdTo={createdTo} />
             <BlogTable blogPageResponse={blogResponse.data} />
-
         </div>
     )
 }

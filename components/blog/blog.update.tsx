@@ -1,13 +1,11 @@
 'use client'
-
 import { validContent, validTitle } from "@/helper/create.blog.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
 import MDEditor from "@uiw/react-md-editor";
-import { Avatar, Form, Image, Input, message, Modal, notification } from "antd";
+import { Avatar, Form, Image, Input, Modal, notification } from "antd";
 import { marked } from "marked";
-import { HtmlContext } from "next/dist/server/route-modules/pages/vendored/contexts/entrypoints";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import TurndownService from 'turndown'
@@ -29,8 +27,6 @@ const BlogUpdate = (props: IProps) => {
     const router = useRouter();
     const [value, setValue] = useState("");
     const [inputMarkdown, setInputMarkdown] = useState("");
-    const [previewOpen, setPreviewOpen] = useState(false);
-    const [previewImage, setPreviewImage] = useState('');
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
     const [errThumbnail, setErrThumbnail] = useState("");
     const [urlThumbnail, setUrlThumbnail] = useState("");
@@ -40,7 +36,6 @@ const BlogUpdate = (props: IProps) => {
     const [thumbnail, setThumbnail] = useState<File | null>(null);
     const [author, setAuthor] = useState<UserResponse | null>(null);
 
-    console.log("check: ", selectRecord?.thumbnail)
     useEffect(() => {
         const md = turndownService.turndown(`${selectRecord?.content}`);
         setInputMarkdown(md);
