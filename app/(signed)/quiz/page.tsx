@@ -1,6 +1,4 @@
-import QuizCreateBtn from "@/components/quiz/quiz.create.btn";
-import QuizSearch from "@/components/quiz/quiz.search";
-import QuizTable from "@/components/quiz/quiz.table";
+import QuizPageClient from "@/components/quiz/quiz.page.client";
 import { getMaxAttempts, getPublished, getStartedAt } from "@/helper/create.quiz.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
@@ -33,7 +31,6 @@ const QuizPage = async (props: {
     const startedTo = searchParam.startedTo || '';
     const endedFrom = searchParam.endedFrom || '';
     const endedTo = searchParam.endedTo || '';
-
 
     let filters: string[] = [];
     if (keyword !== '') {
@@ -72,44 +69,51 @@ const QuizPage = async (props: {
     })
 
 
-    // const fetchAllQuiz = async () => {
-    //     let allQuiz: QuizResponse[] = [];
-    //     let currentPage = 1;
-    //     let totalPages = 1;
+    const fetchAllQuiz = async () => {
+        let allQuiz: QuizResponse[] = [];
+        let currentPage = 1;
+        let totalPages = 1;
 
-    //     while (currentPage <= totalPages) {
-    //         const response = await sendRequest<ApiResponse<PageDetailsResponse<QuizResponse[]>>>({
-    //             url: `${apiUrl}/quiz`,
-    //             queryParams: {
-    //                 page: currentPage,
-    //                 size: 10,
-    //                 filter: filter
-    //             },
-    //         });
+        while (currentPage <= totalPages) {
+            const response = await sendRequest<ApiResponse<PageDetailsResponse<QuizResponse[]>>>({
+                url: `${apiUrl}/quiz`,
+                queryParams: {
+                    page: currentPage,
+                    size: 10,
+                    filter: filter
+                },
+            });
 
-    //         if (!response?.data) break; // Nếu không có dữ liệu, thoát vòng lặp tránh lặp vô hạn
+            if (!response?.data) break; // Nếu không có dữ liệu, thoát vòng lặp tránh lặp vô hạn
 
-    //         allQuiz = [...allQuiz, ...response.data.content];
-    //         totalPages = response.data.totalPages;
+            allQuiz = [...allQuiz, ...response.data.content];
+            totalPages = response.data.totalPages;
 
-    //         if (currentPage >= totalPages) break; // Thêm điều kiện để tránh lặp vô tận
-    //         currentPage++;
-    //     }
+            if (currentPage >= totalPages) break; // Thêm điều kiện để tránh lặp vô tận
+            currentPage++;
+        }
 
-    //     return allQuiz;
-    // };
+        return allQuiz;
+    };
 
-    // const allQuiz = await fetchAllQuiz();
+    const allQuiz = await fetchAllQuiz();
+
+
+
 
     return (
         <>
             <div className="borde w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
 
-                <QuizSearch
-                    keyword={keyword} published={published} maxAttempts={maxAttempts}
-                    haveTime={haveTime} startedFrom={startedFrom} startedTo={startedTo} endedFrom={endedFrom} endedTo={endedTo} />
-                <QuizCreateBtn />
-                <QuizTable quizPageResponse={quizResponse.data} />
+                <QuizPageClient
+                    allQuiz={allQuiz}
+                    keyword={keyword}
+                    published={published}
+                    maxAttempts={maxAttempts}
+                    haveTime={haveTime}
+                    startedFrom={startedFrom} startedTo={startedTo}
+                    endedFrom={endedFrom} endedTo={endedTo}
+                    quizPageResponse={quizResponse.data} />
             </div>
 
         </>

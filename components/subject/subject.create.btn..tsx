@@ -13,8 +13,8 @@ const initState: ErrorResponse = {
     error: false,
     value: ''
 }
-const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: any }) => {
-    const { handelOnExportExcel, handleExportPDF } = props;
+const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
+    const { handelOnExportExcel } = props;
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
@@ -147,25 +147,16 @@ const SubjectCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: an
                 }
 
             </div>
-            <div className="flex gap-2">
-                <div>
-                    <Button
-                        style={{ background: 'green', borderColor: "green" }}
-                        type="primary"
-                        onClick={() => handelOnExportExcel()}
-                        className="w-fit hover:bg-green-100 hover:border-green-700 !pt-5 !pb-5">
-                        Xuất Excel
-                    </Button>
-                </div>
-                <div>
-                    <Button
-                        style={{ background: 'orange', borderColor: "orange" }}
-                        type="primary"
-                        onClick={() => { handleExportPDF() }}
-                        className="w-fit hover:bg-orange-500 hover:border-orange-700 !pt-5 !pb-5">
-                        Xuất PDF
-                    </Button>
-                </div>
+            <div className="flex gap-2 mr-2">
+
+                <Button
+                    style={{ background: 'green', borderColor: "green" }}
+                    type="primary"
+                    onClick={() => handelOnExportExcel()}
+                    className="w-fit hover:bg-green-100 hover:border-green-700 !pt-5 !pb-5">
+                    Xuất Excel
+                </Button>
+
             </div>
 
         </div>

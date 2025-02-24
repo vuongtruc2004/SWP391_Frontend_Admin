@@ -14,8 +14,8 @@ const initState: ErrorResponse = {
     value: ''
 
 }
-const UserCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: any }) => {
-    const { handleExportPDF, handelOnExportExcel } = props
+const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
+    const { handelOnExportExcel } = props
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -181,26 +181,17 @@ const UserCreateBtn = (props: { handleExportPDF: any, handelOnExportExcel: any }
                     </Button>
                 </div>
 
-                <div className="flex gap-2">
-                    <div>
-                        <Button
-                            style={{ background: 'green', borderColor: "green" }}
-                            type="primary"
-                            onClick={() => handelOnExportExcel()}
-                            className="w-fit hover:bg-green-100 hover:border-green-700">
-                            Xuất Excel
-                        </Button>
-                    </div>
-                    <div>
-                        <Button
-                            style={{ background: 'orange', borderColor: "orange" }}
-                            type="primary"
-                            onClick={() => { handleExportPDF() }}
-                            className="w-fit hover:bg-orange-500 hover:border-orange-700">
-                            Xuất PDF
-                        </Button>
-                    </div>
+                <div className="mr-2">
+                    <Button
+                        style={{ background: 'green', borderColor: "green" }}
+                        type="primary"
+                        onClick={() => handelOnExportExcel()}
+                        className="w-fit hover:bg-green-100 hover:border-green-700">
+                        Xuất Excel
+                    </Button>
                 </div>
+
+
 
             </div>
             <Modal title="Tạo người dùng" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okText="Tạo" cancelText="Hủy">

@@ -16,7 +16,9 @@ const initState: ErrorResponse = {
 
 }
 const QuizCreateBtn = (props: {
+    handelOnExportExcel: any;
 }) => {
+    const { handelOnExportExcel } = props;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const router = useRouter();
     const [title, setTitle] = useState<ErrorResponse>(initState);
@@ -316,21 +318,23 @@ const QuizCreateBtn = (props: {
 
     return (
         <>
-
-            <div className="ml-6">
-                <Button type="primary" onClick={showModal} className="w-fit ">
-                    Tạo bài kiểm tra
-                </Button>
+            <div className="flex justify-between">
+                <div className="ml-6">
+                    <Button type="primary" onClick={showModal} className="w-fit ">
+                        Tạo bài kiểm tra
+                    </Button>
+                </div>
+                <div className="mr-8">
+                    <Button
+                        style={{ background: 'green', borderColor: "green" }}
+                        type="primary"
+                        onClick={() => handelOnExportExcel()}
+                        className="w-fit hover:bg-green-100 hover:border-green-700">
+                        Xuất Excel
+                    </Button>
+                </div>
             </div>
-            {/* <div>
-                <Button
-                    style={{ background: 'green', borderColor: "green" }}
-                    type="primary"
-                    onClick={() => handelOnExportExcel()}
-                    className="w-fit hover:bg-green-100 hover:border-green-700">
-                    Xuất Excel
-                </Button>
-            </div> */}
+
 
             <Modal title="Tạo bài kiểm tra" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okText="Tạo" cancelText="Hủy">
 
