@@ -42,33 +42,39 @@ const CourseTrendingChart = () => {
 
         const fetchData = async () => {
             try {
-                const response = await sendRequest<ApiResponse<PageDetailsResponse<CourseResponse[]>>>({
-                    url: `${apiUrl}/courses/purchased`,
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        "Content-Type": "application/json"
-                    },
-                    queryParams: {
-                        page: 1,
-                        size: courseNumber,
+                const fetchData = async () => {
+                    try {
+                        const response = await sendRequest<ApiResponse<CourseSalesEntryResponse>>({
+                            url: `${apiUrl}/orders/count`,
+                            headers: {
+                                Authorization: `Bearer ${accessToken}`,
+                                "Content-Type": "application/json"
+                            },
+                        });
+
+                        console.log("data", response)
+                        // setChartData(response.data);
+
+                        if (response?.data && Array.isArray(response.data)) {
+                            const formattedData = response.data
+                                .slice(0, courseNumber) // Chỉ lấy số lượng phần tử mong muốn
+                                .map((item: Record<string, number>) => {
+                                    const key = Object.keys(item)[0]; // Lấy tên khóa học
+                                    const value = Object.values(item)[0] as number; // Lấy số lượng bán
+                                    return { type: key, value: value };
+                                });
+
+                            setChartData(formattedData);
+
+                        }
+
+                    } catch (error) {
+                        console.error("API error:", error);
                     }
-                });
+                };
 
-                if (response?.data?.content) {
-                    const formattedData = response.data.content.map(course => ({
-                        type: course.courseName,
-                        value: course.totalPurchased,
-                    }));
-
-                    setChartData(formattedData);
-                }
-            } catch (error) {
-                console.error("API error:", error);
-            }
-        };
-
-        fetchData();
-    }, [accessToken, courseNumber]);
+                fetchData();
+            }, [accessToken, courseNumber]);
 
     const handleChange = (value: string) => {
         setCourseNumber(Number(value));

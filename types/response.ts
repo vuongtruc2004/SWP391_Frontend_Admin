@@ -256,4 +256,10 @@ declare global {
         notification: NotificationResponse,
         isRead: boolean,
     }
+
+    interface CourseSalesEntryResponse {
+        key: string;
+        value: number;
+    }
+
 }
