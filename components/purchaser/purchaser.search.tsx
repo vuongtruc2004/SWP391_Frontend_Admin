@@ -88,7 +88,7 @@ const PurchaserSearch = (props: {
                                     { value: "ALL", label: "Tất cả" },
                                     { value: "MALE", label: 'Nam' },
                                     { value: "FEMALE", label: 'Nữ' },
-                                    { value: 'UNKNOWN', label: 'Chưa thiết lập' }
+                                    { value: 'null', label: 'Chưa thiết lập' }
                                 ]}
                             />
                         </Form.Item>

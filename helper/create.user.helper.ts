@@ -150,7 +150,7 @@ export const getRoleName = (value: string | undefined | null) => {
 
 export const getGender = (value: string | null | undefined) => {
 
-    if (!value || (value !== 'MALE' && value !== 'FEMALE' && value !== 'UNKNOWN')) {
+    if (!value || (value !== 'MALE' && value !== 'FEMALE' && value != 'null')) {
         return 'ALL';
     } else {
         return value;

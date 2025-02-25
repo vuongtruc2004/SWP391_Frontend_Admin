@@ -32,7 +32,12 @@ const PurchaserPage = async ({ params, searchParams }: {
         filter += `and locked : ${locked === 'active' ? false : true}`;
     }
     if (gender !== 'ALL') {
-        filter += ` and gender : '${gender}'`;
+        if (gender == 'null') {
+            filter += ` and gender is null`;
+        } else {
+            filter += ` and gender : '${gender}'`;
+        }
+
     }
     if (accountType !== 'ALL') {
         filter += ` and accountType : '${accountType}'`;
