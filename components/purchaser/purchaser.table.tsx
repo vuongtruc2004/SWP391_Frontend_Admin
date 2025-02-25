@@ -7,6 +7,7 @@ import { notification, Popconfirm, Space, Table, TableProps } from "antd";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import ViewPurchaserDetail from "./view.purchaser.detail";
+import { useSession } from "next-auth/react";
 
 const PurchaserTable = (props: {
     purchaserPageResponse: PageDetailsResponse<UserResponse[]>;
@@ -18,6 +19,8 @@ const PurchaserTable = (props: {
     const router = useRouter();
     const searchParams = useSearchParams();
     const page = Number(searchParams.get('page')) || 1;
+    const { data: session, status } = useSession();
+
     const lockUser = async (userId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<Boolean>>({
             url: `${apiUrl}/users/${userId}`,
@@ -116,17 +119,20 @@ const PurchaserTable = (props: {
                         setOpenDraw(true);
                         setUserDetail(record);
                     }} />
+                    {
+                        session?.user.roleName == 'ADMIN' &&
 
-                    <Popconfirm
-                        placement="left"
-                        title={`${record.locked ? "Mở khóa" : "Khóa"} người dùng`}
-                        description={`Bạn có chắc chắn muốn ${record.locked ? "mở khóa" : "khóa"} người dùng này không?`}
-                        onConfirm={() => lockUser(record.userId)}
-                        okText="Có"
-                        cancelText="Không"
-                    >
-                        <LockOutlined style={{ color: 'red' }} />
-                    </Popconfirm>
+                        <Popconfirm
+                            placement="left"
+                            title={`${record.locked ? "Mở khóa" : "Khóa"} người dùng`}
+                            description={`Bạn có chắc chắn muốn ${record.locked ? "mở khóa" : "khóa"} người dùng này không?`}
+                            onConfirm={() => lockUser(record.userId)}
+                            okText="Có"
+                            cancelText="Không"
+                        >
+                            <LockOutlined style={{ color: 'red' }} />
+                        </Popconfirm>
+                    }
                 </Space>
             ),
         },
