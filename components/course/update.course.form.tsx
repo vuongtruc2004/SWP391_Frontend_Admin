@@ -5,6 +5,7 @@ import { apiUrl, storageUrl } from '@/utils/url';
 import { EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, SyncOutlined, WarningOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
 import { Button, Checkbox, Image, Input, Modal, notification } from 'antd';
+import TextArea from 'antd/es/input/TextArea';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
@@ -323,7 +324,7 @@ const UpdateCourseForm = (props: {
 
             <div>
                 <span className="text-red-500 mr-2">*</span>Mô tả:
-                <Input
+                <TextArea
                     status={des.error ? 'error' : ''}
                     className="mt-1"
                     placeholder="Nhập mô tả khóa học"

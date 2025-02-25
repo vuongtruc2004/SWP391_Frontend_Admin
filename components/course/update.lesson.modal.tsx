@@ -4,6 +4,7 @@ import { apiUrl } from "@/utils/url";
 import { CloseOutlined, PlusCircleOutlined, SnippetsOutlined, YoutubeOutlined } from "@ant-design/icons";
 import MDEditor from "@uiw/react-md-editor";
 import { Button, Divider, Form, Input, Modal, notification, Space } from "antd";
+import TextArea from "antd/es/input/TextArea";
 import { marked } from "marked";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -32,6 +33,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
     const [loading, setLoading] = useState(false);
     const [inputMarkdown, setInputMarkdown] = useState("");
     const [content, setContent] = useState<ErrorResponse>(initState);
+    const [des, setDes] = useState<ErrorResponse>(initState);
 
     const [checkUploadVideo, setCheckUploadVideo] = useState(false);
     if (!selectedCourse) {
@@ -72,17 +74,18 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
         const formValues = form.getFieldsValue();
         const htmlText = marked(inputMarkdown);
 
-        const payload = formValues.lessons.map((lesson: any) => ({
-            title: lesson.lessonName,
+        const payload = formValues.lessons.map((chapter: any) => ({
+            title: chapter.lessonName,
+            description: chapter.descriptionChapter,
             course: {
                 courseId: selectedCourse.courseId
             },
-            videos: (lesson.videos || []).map((video: any) => ({
+            videos: (chapter.videos || []).map((video: any) => ({
                 title: video.videoTitle,
                 //@ts-ignore
                 videoUrl: video.videoUrl || (videoFile ? videoFile.name : ""), // Lấy tên file nếu có
             })),
-            documents: (lesson.documents || []).map((doc: any) => ({
+            documents: (chapter.documents || []).map((doc: any) => ({
                 title: doc.title,
                 content: htmlText.toString(),
                 plainContent: stripHtml(htmlText.toString())
@@ -109,16 +112,16 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                 router.refresh();
                 notification.success({
                     message: "Thành công",
-                    description: "Tạo bài giảng thành công!",
+                    description: "Tạo chương thành công!",
                 });
 
 
 
-                setOpenUpdateLesson(false); // Đóng modal sau khi tạo thành công
+                setOpenUpdateLesson(false);
             } else {
                 notification.error({
                     message: "Thất bại",
-                    description: "Tạo bài giảng thất bại!",
+                    description: "Tạo chương thất bại!",
                 });
             }
         } catch (error) {
@@ -135,22 +138,11 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
             footer={null}
             width="50vw"
         >
-            <h1 className="text-center text-2xl font-semibold">Tạo bài giảng  </h1>
+            <h1 className="text-center text-2xl font-semibold">Tạo chương  </h1>
             <div className="mt-4">
 
                 {lessions.map((answer, index) => (
                     <div key={index} className="w-full flex gap-2 mt-2 pl-5">
-                        {/* Cột chứa icon trừ */}
-                        {/* {lessions.length > 1 && (
-                            <div className="flex flex-col items-center gap-2 pt-6">
-                                <MinusCircleOutlined
-                                    style={{ color: 'red' }}
-                                    className="text-lg cursor-pointer"
-                                    onClick={() => removeLessions(index)}
-                                />
-                            </div>
-                        )} */}
-                        {/* Cột chứa input */}
                         <div className="flex flex-col w-full gap-2">
                             <Form
                                 labelCol={{ span: 6 }}
@@ -162,23 +154,40 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                 initialValues={{ lessons: [{ videos: [], documents: [] }] }}
                                 onFinish={onFinish}
                             >
-                                {/* Form.List cho danh sách bài giảng */}
+                                {/* Form.List cho danh sách chương */}
                                 <Form.List name="lessons">
                                     {(lessonFields, { add: addLesson, remove: removeLesson }) => (
                                         <div>
                                             {lessonFields.map((lessonField) => (
                                                 <div key={lessonField.key} style={{ padding: 16 }}>
                                                     <Form.Item
-                                                        label="Tên bài giảng "
+                                                        label="Tên chương "
                                                         name={[lessonField.name, 'lessonName']}
-                                                        rules={[{ required: true, message: 'Tên bài giảng không được để trống' }]}
+                                                        rules={[{ required: true, message: 'Tên chương học không được để trống' }]}
                                                         labelCol={{ span: 24 }}
                                                     >
+                                                        <Input className="!w-[135%]" placeholder="Nhập tên chương học" />
 
-                                                        <Input className="!w-[135%]" placeholder="Nhập tên bài giảng" />
+                                                    </Form.Item>
+                                                    <Form.Item
+                                                        label="Mô tả chương "
+                                                        name={[lessonField.name, 'descriptionChapter']}
+                                                        rules={[{ required: true, message: 'Mô tả chương học không được để trống' }]}
+                                                        labelCol={{ span: 24 }}
+                                                    >
+                                                        <TextArea
+                                                            status={des.error ? 'error' : ''}
+                                                            className="!w-[135%]"
+                                                            placeholder="Nhập mô tả chương học"
+                                                            allowClear
+                                                            value={des.value}
+                                                            onChange={(e) => setDes({ ...des, value: e.target.value, error: false })}
+                                                        />
+
                                                     </Form.Item>
 
-                                                    {/* Form.List cho danh sách video của bài giảng */}
+
+                                                    {/* Form.List cho danh sách video của chương */}
                                                     <Form.List name={[lessonField.name, 'videos']}>
                                                         {(videoFields, { add: addVideo, remove: removeVideo }) => (
                                                             <div style={{ display: 'flex', flexDirection: 'column', rowGap: 16 }}>
@@ -237,7 +246,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
 
 
 
-                                                    {/* Form.List cho danh sách tài liệu của bài giảng */}
+                                                    {/* Form.List cho danh sách tài liệu của chương */}
                                                     <Form.List name={[lessonField.name, 'documents']}>
                                                         {(documentFields, { add: addDocument, remove: removeDocument }) => (
                                                             <div style={{ display: 'flex', flexDirection: 'column', rowGap: 16 }}>
@@ -303,7 +312,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                                                 danger
                                                                 onClick={() => removeLesson(lessonField.name)}
                                                             >
-                                                                Xóa bài giảng
+                                                                Xóa chương
                                                             </Button>
                                                         </Divider>
 
@@ -317,7 +326,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                                 icon={<PlusCircleOutlined />}
                                                 className="mt-3 w-full"
                                             >
-                                                Thêm bài giảng
+                                                Thêm chương
                                             </Button>
 
                                         </div>
@@ -332,14 +341,14 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                             form.validateFields()
                                                 .then(values => {
                                                     const lessonsData: { videos?: any[]; documents?: any[] }[] = values.lessons || [];
-                                                    const hasValidLesson = lessonsData.some((lesson) =>
-                                                        (lesson.videos && lesson.videos.length > 0) ||
-                                                        (lesson.documents && lesson.documents.length > 0)
+                                                    const hasValidLesson = lessonsData.some((chapter) =>
+                                                        (chapter.videos && chapter.videos.length > 0) ||
+                                                        (chapter.documents && chapter.documents.length > 0)
                                                     );
                                                     if (!hasValidLesson) {
                                                         notification.error({
                                                             message: 'Lỗi',
-                                                            description: 'Mỗi bài giảng cần có ít nhất 1 video hoặc tài liệu.',
+                                                            description: 'Mỗi chương cần có ít nhất 1 video hoặc tài liệu.',
                                                         });
                                                         return;
                                                     }

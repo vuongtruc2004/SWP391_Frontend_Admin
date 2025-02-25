@@ -6,6 +6,7 @@ import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
 import { Avatar, Button, Checkbox, Image, Input, Modal, notification } from "antd";
+import TextArea from "antd/es/input/TextArea";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
@@ -312,7 +313,7 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
 
                 <div>
                     <span className="text-red-500 mr-2">*</span>Mô tả:
-                    <Input
+                    <TextArea
                         status={des.error ? 'error' : ''}
                         className="mt-1"
                         placeholder="Nhập mô tả khóa học"
@@ -416,7 +417,6 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
                                         }}
                                         src={`${storageUrl}/course/${urlThumbnail}`}
                                         alt="Preview"
-
                                     />
                                 </div>
 
