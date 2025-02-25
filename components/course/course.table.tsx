@@ -1,18 +1,18 @@
 'use client'
-import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, UserOutlined } from '@ant-design/icons';
-import { notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
-import React, { useEffect, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
-import Link from 'next/link';
+import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, UserOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
+import { notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl } from '@/utils/url';
-import ViewCourseDetail from './view.course.detail';
 import { useSession } from 'next-auth/react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { GrChapterAdd } from 'react-icons/gr';
 import UpdateCourseForm from './update.course.form';
 import UpdateLessonModal from './update.lesson.modal';
+import ViewCourseDetail from './view.course.detail';
 
 
 
@@ -167,16 +167,26 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                     }} />
                     {session?.user.roleName && session.user.roleName === "EXPERT" && (
                         <>
-                            <EditOutlined style={{ color: "blue" }}
-                                onClick={() => {
-                                    setEditingCourse(record)
-                                    setOpenEditForm(true)
-                                }}
-                            />
-                            <GrChapterAdd style={{ color: "black", cursor: "pointer" }} onClick={() => {
-                                setSelectedCourse(record);
-                                setOpenUpdateLesson(true);
-                            }} />
+                            <Tooltip title='Cập nhật khoá học' color='blue'>
+                                <EditOutlined style={{ color: "blue" }}
+                                    onClick={() => {
+                                        setEditingCourse(record)
+                                        setOpenEditForm(true)
+                                    }}
+                                />
+                            </Tooltip>
+                            <Tooltip title="Thêm chương học" color="blue">
+                                <span>
+                                    <GrChapterAdd
+                                        style={{ color: "black", cursor: "pointer" }}
+                                        onClick={() => {
+                                            setSelectedCourse(record);
+                                            setOpenUpdateLesson(true);
+                                        }}
+                                    />
+                                </span>
+                            </Tooltip>
+
                         </>
                     )}
                     <Popconfirm

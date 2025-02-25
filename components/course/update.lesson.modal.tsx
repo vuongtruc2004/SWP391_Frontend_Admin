@@ -289,6 +289,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                                                                     }}
                                                                                 />
                                                                             </Form.Item>
+
                                                                         </div>
                                                                     </Space>
                                                                 ))}
@@ -312,7 +313,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                                                 danger
                                                                 onClick={() => removeLesson(lessonField.name)}
                                                             >
-                                                                Xóa chương
+                                                                Xóa chương học
                                                             </Button>
                                                         </Divider>
 
@@ -326,7 +327,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                                 icon={<PlusCircleOutlined />}
                                                 className="mt-3 w-full"
                                             >
-                                                Thêm chương
+                                                Thêm chương học
                                             </Button>
 
                                         </div>
@@ -348,7 +349,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                                     if (!hasValidLesson) {
                                                         notification.error({
                                                             message: 'Lỗi tạo chương học',
-                                                            description: 'Mỗi chương học cần có ít nhất 1 video hoặc 1 tài liệu.',
+                                                            description: 'Chương học cần có ít nhất 1 video hoặc 1 tài liệu.',
                                                         });
                                                         return;
                                                     }
