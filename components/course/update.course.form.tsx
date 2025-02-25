@@ -1,5 +1,5 @@
 'use client'
-import { validDes, validIntroduction, validOriginPrice, validSalePrice, validTitle } from '@/helper/create.course.helper';
+import { validDes, validIntroduction, validOriginPrice, validTitle } from '@/helper/create.course.helper';
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl, storageUrl } from '@/utils/url';
 import { EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, SyncOutlined, WarningOutlined } from '@ant-design/icons';
@@ -143,7 +143,6 @@ const UpdateCourseForm = (props: {
         const isTitleValid = validTitle(title, setTitle);
         const isIntroduction = validIntroduction(introduction, setIntroduction);
         const isOriginPrice = validOriginPrice(originPrice, setOriginPrice);
-        const isSalePrice = validSalePrice(salePrice, setSalePrice);
         const isDes = validDes(des, setDes);
 
         if (salePrice.value > originPrice.value) {
@@ -155,7 +154,7 @@ const UpdateCourseForm = (props: {
         }
 
 
-        if (!isTitleValid || !isIntroduction || !isOriginPrice || !isSalePrice || !isDes || !subjectChecked || subjectChecked.length === 0) {
+        if (!isTitleValid || !isIntroduction || !isOriginPrice || !isDes || !subjectChecked || subjectChecked.length === 0) {
             setEmptySubject("Vui lòng chọn ít nhất một công nghệ sử dụng trong khóa học!")
             if (subjectChecked.length !== 0) {
                 setEmptySubject("")
@@ -274,7 +273,7 @@ const UpdateCourseForm = (props: {
                     className="mt-1"
                     placeholder="Nhập link giới thiệu khóa học"
                     allowClear
-                    defaultValue={introduction.value}
+                    value={introduction.value}
                     onChange={(e) => setIntroduction({ ...introduction, value: e.target.value, error: false })}
                 />
                 {introduction.error && (
@@ -304,7 +303,7 @@ const UpdateCourseForm = (props: {
                     )}
                 </div>
                 <div>
-                    <span className="text-red-500 mr-2">*</span>Giá khuyến mãi:
+                    Giá khuyến mãi:
                     <Input
                         status={salePrice.error ? 'error' : ''}
                         className="mt-1"
@@ -313,12 +312,6 @@ const UpdateCourseForm = (props: {
                         value={salePrice.value}
                         onChange={(e) => setSalePrice({ ...salePrice, value: e.target.value, error: false })}
                     />
-                    {salePrice.error && (
-                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                            <WarningOutlined />
-                            {salePrice.message}
-                        </p>
-                    )}
                     {errLessThan !== "" && (
                         <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                             <WarningOutlined />

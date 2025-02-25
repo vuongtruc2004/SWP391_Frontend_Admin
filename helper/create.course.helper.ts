@@ -59,25 +59,6 @@ export const validOriginPrice = (originPrice: ErrorResponse, setOriginPrice: Rea
     return true;
 }
 
-export const validSalePrice = (salePrice: ErrorResponse, setSalePrice: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
-    if (salePrice.value.trim() === '') {
-        setSalePrice({
-            ...salePrice,
-            error: true,
-            message: 'Giá khuyến mãi không được để rỗng!'
-        })
-        return false;
-    }
-    if (!isNumber(salePrice.value.trim())) {
-        setSalePrice({
-            ...salePrice,
-            error: true,
-            message: 'Giá khuyến mãi phải là một số lớn hơn 0!'
-        })
-        return false;
-    }
-    return true;
-}
 
 export const validDes = (des: ErrorResponse, setDes: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
     if (des.value.trim() === '') {

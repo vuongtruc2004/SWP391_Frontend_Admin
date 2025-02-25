@@ -1,15 +1,13 @@
 'use client'
 // import { validIntroduction, validLessionDes, validLessionName, validObject, validOriginPrice, validSalePercentPrice } from "@/helper/create.course.helper";
-import { validTitle } from "@/helper/create.question.helper";
-import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
-import { CloseOutlined, PlusCircleOutlined, SnippetsOutlined, UploadOutlined, YoutubeOutlined } from "@ant-design/icons";
+import { CloseOutlined, PlusCircleOutlined, SnippetsOutlined, YoutubeOutlined } from "@ant-design/icons";
 import MDEditor from "@uiw/react-md-editor";
-import { Button, Divider, Form, Input, Modal, notification, Space, Upload } from "antd";
+import { Button, Divider, Form, Input, Modal, notification, Space } from "antd";
 import { marked } from "marked";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, SetStateAction, useState } from "react";
+import { SetStateAction, useState } from "react";
 
 
 const initState: ErrorResponse = {
@@ -152,10 +150,8 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                 />
                             </div>
                         )} */}
-
                         {/* Cột chứa input */}
                         <div className="flex flex-col w-full gap-2">
-
                             <Form
                                 labelCol={{ span: 6 }}
                                 wrapperCol={{ span: 18 }}
@@ -166,9 +162,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                 initialValues={{ lessons: [{ videos: [], documents: [] }] }}
                                 onFinish={onFinish}
                             >
-
                                 {/* Form.List cho danh sách bài giảng */}
-
                                 <Form.List name="lessons">
                                     {(lessonFields, { add: addLesson, remove: removeLesson }) => (
                                         <div>

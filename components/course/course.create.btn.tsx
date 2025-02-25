@@ -1,6 +1,6 @@
 'use client'
 
-import { validDes, validIntroduction, validOriginPrice, validSalePrice } from "@/helper/create.course.helper";
+import { validDes, validIntroduction, validOriginPrice } from "@/helper/create.course.helper";
 import { validTitle } from "@/helper/create.question.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
@@ -96,10 +96,9 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
         const isTitleValid = validTitle(title, setTitle);
         const isIntroduction = validIntroduction(introduction, setIntroduction);
         const isOriginPrice = validOriginPrice(originPrice, setOriginPrice);
-        const isSalePrice = validSalePrice(salePrice, setSalePrice);
         const isDes = validDes(des, setDes);
 
-        if (Number(salePrice.value) > Number(originPrice.value)) {
+        if (Number(salePrice.value) > Number(originPrice.value) && Number(salePrice.value)) {
             setErrLessThan("Giá khuyến mãi không được lớn hơn giá gốc!");
             setLoading(false)
             return;
@@ -110,7 +109,7 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
 
 
 
-        if (!isTitleValid || !isIntroduction || !isOriginPrice || !isSalePrice || !isDes || !checkedList || checkedList.length === 0 || urlThumbnail === "") {
+        if (!isTitleValid || !isIntroduction || !isOriginPrice || !isDes || !checkedList || checkedList.length === 0 || urlThumbnail === "") {
             setErrThumbnail("Ảnh không được để rỗng!")
             setEmptySubject("Vui lòng chọn ít nhất một công nghệ sử dụng trong khóa học!")
             if (checkedList && checkedList.length > 0) {
@@ -293,7 +292,7 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
                         )}
                     </div>
                     <div>
-                        <span className="text-red-500 mr-2">*</span>Giá khuyến mãi:
+                        Giá khuyến mãi:
                         <Input
                             status={salePrice.error ? 'error' : ''}
                             className="mt-1"
@@ -302,12 +301,6 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
                             value={salePrice.value}
                             onChange={(e) => setSalePrice({ ...salePrice, value: e.target.value, error: false })}
                         />
-                        {salePrice.error && (
-                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                <WarningOutlined />
-                                {salePrice.message}
-                            </p>
-                        )}
                         {errLessThan !== "" && (
                             <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                 <WarningOutlined />
@@ -423,6 +416,7 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
                                         }}
                                         src={`${storageUrl}/course/${urlThumbnail}`}
                                         alt="Preview"
+
                                     />
                                 </div>
 
