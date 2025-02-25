@@ -81,6 +81,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
             },
             videos: (lesson.videos || []).map((video: any) => ({
                 title: video.videoTitle,
+                //@ts-ignore
                 videoUrl: video.videoUrl || (videoFile ? videoFile.name : ""), // Lấy tên file nếu có
             })),
             documents: (lesson.documents || []).map((doc: any) => ({
@@ -119,7 +120,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
             } else {
                 notification.error({
                     message: "Thất bại",
-                    description: "Tạo bài giảng thành công!",
+                    description: "Tạo bài giảng thất bại!",
                 });
             }
         } catch (error) {

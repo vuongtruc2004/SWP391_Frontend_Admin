@@ -81,14 +81,14 @@ const NotificationCreate = (props: {
             setContent(initState);
             notification.success({
                 message: "Thành công!",
-                description: "Tạo bài viết mới thành công!",
+                description: "Tạo thông báo mới thành công!",
             })
             router.refresh()
             setOpenCreate(false);
         } else {
             notification.error({
                 message: "Thất bại!",
-                description: "Tạo bài viết thất bại"
+                description: "Tạo thông báo thất bại"
             })
         }
     }
