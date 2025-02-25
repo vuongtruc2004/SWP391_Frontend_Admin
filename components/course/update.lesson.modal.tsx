@@ -112,7 +112,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                 router.refresh();
                 notification.success({
                     message: "Thành công",
-                    description: "Tạo chương thành công!",
+                    description: "Tạo chương học thành công!",
                 });
 
 
@@ -121,7 +121,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
             } else {
                 notification.error({
                     message: "Thất bại",
-                    description: "Tạo chương thất bại!",
+                    description: "Tạo chương học thất bại!",
                 });
             }
         } catch (error) {
@@ -138,7 +138,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
             footer={null}
             width="50vw"
         >
-            <h1 className="text-center text-2xl font-semibold">Tạo chương  </h1>
+            <h1 className="text-center text-2xl font-semibold">Tạo chương học  </h1>
             <div className="mt-4">
 
                 {lessions.map((answer, index) => (
@@ -161,7 +161,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                             {lessonFields.map((lessonField) => (
                                                 <div key={lessonField.key} style={{ padding: 16 }}>
                                                     <Form.Item
-                                                        label="Tên chương "
+                                                        label="Tên chương học"
                                                         name={[lessonField.name, 'lessonName']}
                                                         rules={[{ required: true, message: 'Tên chương học không được để trống' }]}
                                                         labelCol={{ span: 24 }}
@@ -170,7 +170,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
 
                                                     </Form.Item>
                                                     <Form.Item
-                                                        label="Mô tả chương "
+                                                        label="Mô tả chương học"
                                                         name={[lessonField.name, 'descriptionChapter']}
                                                         rules={[{ required: true, message: 'Mô tả chương học không được để trống' }]}
                                                         labelCol={{ span: 24 }}
@@ -347,8 +347,8 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                                     );
                                                     if (!hasValidLesson) {
                                                         notification.error({
-                                                            message: 'Lỗi',
-                                                            description: 'Mỗi chương cần có ít nhất 1 video hoặc tài liệu.',
+                                                            message: 'Lỗi tạo chương học',
+                                                            description: 'Mỗi chương học cần có ít nhất 1 video hoặc 1 tài liệu.',
                                                         });
                                                         return;
                                                     }

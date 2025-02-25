@@ -77,7 +77,7 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
             if (imageResponse.status === 200) {
                 setUrlThumbnail(imageResponse.data)
             } else {
-                setErrThumbnail(imageResponse.errorMessage)
+                setErrThumbnail(imageResponse.message.toString())
             }
         }
     }
