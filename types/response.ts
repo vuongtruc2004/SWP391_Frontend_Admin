@@ -144,7 +144,7 @@ declare global {
         createdAt: string;
         updatedAt: string;
     }
-    interface LessonResponse {
+    interface ChapterResponse {
         lessonId: number;
         title: string;
         description: string;
@@ -171,7 +171,7 @@ declare global {
         accepted: boolean,
         expert: ExpertDetailsResponse,
         subjects: SubjectResponse[],
-        lessons: LessonResponse[],
+        lessons: ChapterResponse[],
         totalLikes: number,
         totalComments: number,
     }
@@ -221,7 +221,7 @@ declare global {
         updatedAt: string;
         startedAt: string;
         endedAt: string;
-        lesson: LessonResponse;
+        lesson: ChapterResponse;
         expert: ExpertResponse;
         questions: QuestionResponse[];
     }

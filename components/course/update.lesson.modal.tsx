@@ -1,4 +1,6 @@
 'use client'
+import { extractVideoId, getYouTubeDuration } from "@/helper/get.youtube.duration.helper";
+import { sendRequest } from "@/utils/fetch.api";
 // import { validIntroduction, validLessionDes, validLessionName, validObject, validOriginPrice, validSalePercentPrice } from "@/helper/create.course.helper";
 import { apiUrl } from "@/utils/url";
 import { CloseOutlined, PlusCircleOutlined, SnippetsOutlined, YoutubeOutlined } from "@ant-design/icons";
@@ -26,36 +28,21 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
     const [lessions, setLessions] = useState([{ content: "", correct: false, empty: true }]); // Mảng câu trả lời
     const [videoUrl, setVideoUrl] = useState("");
     const [videoFile, setVideoFile] = useState(null);
-    const [videoUrls, setVideoUrls] = useState({});
-    const [videoFiles, setVideoFiles] = useState({});
     const router = useRouter()
     const [isSubmitted, setIsSubmitted] = useState(false);
+
     const [loading, setLoading] = useState(false);
     const [inputMarkdown, setInputMarkdown] = useState("");
     const [content, setContent] = useState<ErrorResponse>(initState);
     const [des, setDes] = useState<ErrorResponse>(initState);
+    const [videoDuration, setVideoDuration] = useState<number | null>(null);
 
-    const [checkUploadVideo, setCheckUploadVideo] = useState(false);
-    if (!selectedCourse) {
-        return null; // Nếu chưa có dữ liệu, không render gì cả
-    }
 
 
     const stripHtml = (html: string) => {
         let doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || "";
     }
-
-
-    // Xóa câu trả lời
-    const removeLessions = (index: number) => {
-        setLessions(lessions.filter((_, i) => i !== index));
-    };
-
-    // Thêm câu trả lời mới
-    const addLession = () => {
-        setLessions([...lessions, { content: "", correct: false, empty: true }]);
-    };
 
     const handleCancel = () => {
         form.resetFields();
@@ -71,51 +58,58 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
     };
     const handleGetData = async () => {
 
+        if (!selectedCourse) {
+            return;
+        }
         const formValues = form.getFieldsValue();
         const htmlText = marked(inputMarkdown);
 
-        const payload = formValues.lessons.map((chapter: any) => ({
-            title: chapter.lessonName,
-            description: chapter.descriptionChapter,
-            course: {
-                courseId: selectedCourse.courseId
-            },
-            videos: (chapter.videos || []).map((video: any) => ({
-                title: video.videoTitle,
-                //@ts-ignore
-                videoUrl: video.videoUrl || (videoFile ? videoFile.name : ""), // Lấy tên file nếu có
-            })),
-            documents: (chapter.documents || []).map((doc: any) => ({
-                title: doc.title,
-                content: htmlText.toString(),
-                plainContent: stripHtml(htmlText.toString())
-            }))
+        const payload = await Promise.all(formValues.lessons.map(async (chapter: any) => {
+            const videosWithDurations = await Promise.all((chapter.videos || []).map(async (video: any) => {
+                const duration = await getYouTubeDuration(extractVideoId(video.videoUrl));  // Chờ kết quả duration
+                console.log(duration);
+                return {
+                    title: video.videoTitle,
+                    //@ts-ignore
+                    videoUrl: video.videoUrl || (videoFile ? videoFile.name : ""),
+                    duration: duration
+                };
+            }));
+
+            return {
+                title: chapter.lessonName,
+                description: chapter.descriptionChapter,
+                course: {
+                    courseId: selectedCourse.courseId
+                },
+                videos: videosWithDurations,
+                documents: (chapter.documents || []).map((doc: any) => ({
+                    title: doc.title,
+                    content: htmlText.toString(),
+                    plainContent: stripHtml(htmlText.toString())
+                }))
+            };
         }));
 
-
-
-
+        console.log("Payload:", payload);  // Kiểm tra payload
         try {
-            const response = await fetch(`${apiUrl}/lessons`, {
-                method: "POST",
+            const response = await sendRequest<ApiResponse<ChapterResponse[]>>({
+                url: `${apiUrl}/lessons`,
+                method: 'POST',
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(payload)
+                body: payload
             });
 
-            const result = await response.json();
-            console.log(">>check res", result)
-            if (response.ok) {
+            if (response.status === 201) {
                 handleCancel();
                 router.refresh();
                 notification.success({
                     message: "Thành công",
                     description: "Tạo chương học thành công!",
                 });
-
-
 
                 setOpenUpdateLesson(false);
             } else {
@@ -129,6 +123,25 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
         }
     };
 
+    // useEffect(() => {
+    //     const handleInputChange = async () => {
+    //         const videoId = extractVideoId(videoUrl);
+    //         if (videoId) {
+    //             setLoading(true);
+    //             const duration = await getYouTubeDuration(videoId);
+    //             console.log(">>>", duration);
+    //             setVideoDuration(duration);
+    //             setLoading(false);
+
+    //         } else {
+    //             setVideoDuration(null);
+    //         }
+    //     };
+
+    //     if (videoUrl.trim() !== "") {
+    //         handleInputChange();
+    //     }
+    // }, [videoUrl]);
 
     return (
         <Modal
@@ -229,7 +242,11 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                                                                 <Input
                                                                                     placeholder="Video URL"
                                                                                     value={videoUrl}
+                                                                                    onChange={(e) => setVideoUrl(e.target.value)}
                                                                                 />
+                                                                            </Form.Item>
+                                                                            <Form.Item name={[videoField.name, 'duration']} hidden>
+                                                                                <Input type="hidden" />
                                                                             </Form.Item>
 
 
