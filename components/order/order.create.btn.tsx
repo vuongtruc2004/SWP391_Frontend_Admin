@@ -107,6 +107,7 @@ const OrderCreate = () => {
                         <>
                             <h1 className="text-center text-xl font-semibold mb-1">Hóa đơn</h1>
                             <p><span className="font-semibold">Khách hàng:</span> {orders?.gender === 'MALE' ? "Anh " : "Chị "}{orders?.fullname}</p>
+                            <p><span className="font-semibold">Email đăng kí:</span> {orders.email}</p>
                             <p><span className="font-semibold">Ngày tạo: </span>{dayjs().format("DD-MM-YYYY")}</p>
                         </>
                     )}

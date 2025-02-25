@@ -57,13 +57,14 @@ const UpdateSubjectForm = (props: {
             }
 
             const subjectRequest: SubjectRequest = {
-                subjectName: subjectName.value,
-                description: description.value,
+                subjectId: editingSubject?.subjectId,
+                subjectName: subjectName.value.trim(),
+                description: description.value.trim(),
                 thumbnail: urlThumbnail,
             };
 
             const updateResponse = await sendRequest<ApiResponse<SubjectResponse>>({
-                url: `${apiUrl}/subjects/update/${editingSubject?.subjectId}`,
+                url: `${apiUrl}/subjects/update`,
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
@@ -83,7 +84,7 @@ const UpdateSubjectForm = (props: {
             } else {
                 notification.error({
                     message: "Thất bại",
-                    description: "Thay đổi thông tin thất bại!",
+                    description: updateResponse.message.toString(),
                     showProgress: true
                 });
             }

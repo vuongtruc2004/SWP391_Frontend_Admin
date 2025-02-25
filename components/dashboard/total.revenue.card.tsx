@@ -84,7 +84,7 @@ const TotalRevenueCard = () => {
                                 <p className="text-[17px]">Tổng doanh số</p>
                                 <p className="text-xs mt-1 text-blue-500 cursor-pointer" >
                                     <span title={`Hôm nay thu được ${totalSalesToday ?? 0} ₫\nHôm qua thu được ${totalSalesYsterday} ₫`}>
-                                        {percentSale >= 0 ? "+" : ""}{percentSale ?? 0}% hôm qua
+                                        {percentSale >= 0 ? "+" : ""}{percentSale.toFixed(1) ?? 0}% hôm qua
                                     </span>
                                 </p>
                             </div>
@@ -107,7 +107,7 @@ const TotalRevenueCard = () => {
                                 <p className="text-[17px]">Tổng học viên</p>
                                 <p className="text-xs mt-1 text-blue-500 cursor-pointer" >
                                     <span title={`Hôm nay có ${totalStudentsToday ?? 0} học viên\nHôm qua có ${totalStudentsYesterday ?? 0} học viên`}>
-                                        {percentStudent >= 0 ? "+" : ""}{percentStudent ?? 0}% hôm qua
+                                        {percentStudent >= 0 ? "+" : ""}{percentStudent.toFixed(1) ?? 0}% hôm qua
                                     </span>
                                 </p>
                             </div>
@@ -132,7 +132,7 @@ const TotalRevenueCard = () => {
                                 <p className="text-[17px]">Khóa học đã bán</p>
                                 <p className="text-xs mt-1 text-blue-500 cursor-pointer" >
                                     <span title={`Hôm nay đã bán ${totalCoursesSellToday ?? 0} khóa học\nHôm qua đã bán ${totalCoursesSellYesterday ?? 0} khóa học`}>
-                                        {percentCoursesSell >= 0 ? "+" : ""}{percentCoursesSell ?? 0}% hôm qua
+                                        {percentCoursesSell >= 0 ? "+" : ""}{percentCoursesSell.toFixed(1) ?? 0}% hôm qua
                                     </span>
                                 </p>
                             </div>

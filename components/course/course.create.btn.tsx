@@ -70,7 +70,6 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
             const imageResponse = await sendRequest<ApiResponse<string>>({
                 url: `${apiUrl}/files/image`,
                 method: 'POST',
-                headers: {},
                 body: formData
             });
 

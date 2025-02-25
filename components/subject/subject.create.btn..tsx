@@ -54,10 +54,9 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                 return
             }
 
-
             const subjectRequest: SubjectRequest = {
-                subjectName: subjectName.value,
-                description: description.value,
+                subjectName: subjectName.value.trim(),
+                description: description.value.trim(),
                 thumbnail: urlThumbnail,
             }
             const createResponse = await sendRequest<ApiResponse<SubjectResponse>>({

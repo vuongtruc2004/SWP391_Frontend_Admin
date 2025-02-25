@@ -92,6 +92,7 @@ declare global {
 
     interface OrderRequest {
         userId: number;
+        email: string;
         fullname: string;
         gender: string;
         courses: CourseOrder[];
