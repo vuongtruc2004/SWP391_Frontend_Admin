@@ -34,7 +34,7 @@ const BlogUpdate = (props: IProps) => {
     const [content, setContent] = useState<ErrorResponse>(initState);
     const [plainContent, setPlainContent] = useState("");
     const [thumbnail, setThumbnail] = useState<File | null>(null);
-    const [author, setAuthor] = useState<UserResponse | null>(null);
+
 
     useEffect(() => {
         const md = turndownService.turndown(`${selectRecord?.content}`);
@@ -136,13 +136,12 @@ const BlogUpdate = (props: IProps) => {
 
     }
 
-    const handleOnChange = (value: any) => {
-        setValue(value);
-        console.log("check output: ", marked(value));
-    }
+
 
     const handleUploadFile = async (e: ChangeEvent<HTMLInputElement>) => {
         setErrThumbnail("")
+        console.log("vao")
+
         if (e.target.files && e.target.files[0]) {
             const formData = new FormData();
             formData.set('file', e.target.files[0]);
@@ -154,13 +153,14 @@ const BlogUpdate = (props: IProps) => {
                 headers: {},
                 body: formData
             });
-
+            console.log("check thumb", imageResponse.data)
             if (imageResponse.status === 200) {
                 setUrlThumbnail(imageResponse.data)
 
             } else {
-                setErrThumbnail(imageResponse.errorMessage)
+                setErrThumbnail("Không thể tải hình ảnh lên!")
             }
+            e.target.value = "";
         }
     }
 
@@ -170,7 +170,9 @@ const BlogUpdate = (props: IProps) => {
                 setTitle({
                     ...title,
                     value: selectRecord?.title ? selectRecord.title : ""
-                })
+                });
+                setInputMarkdown(turndownService.turndown(`${selectRecord?.content}`))
+                setUrlThumbnail(selectRecord?.thumbnail ? selectRecord.thumbnail : "");
                 setOpenUpdate(false)
             }}
                 width={1000} className='not-css'
