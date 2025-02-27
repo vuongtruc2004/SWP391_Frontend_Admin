@@ -7,6 +7,12 @@ export const extractVideoId = (url) => {
     return match ? match[1] : null;
 };
 
+export const calculateReadingTime = (content: string) => {
+    const wordsPerMinute = 200;
+    const wordCount = content.split(/\s+/).length;
+    const readingTime = Math.ceil(wordCount / wordsPerMinute);
+    return readingTime;
+}
 
 export const parseYouTubeDuration = (duration: string): number => {
     const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);

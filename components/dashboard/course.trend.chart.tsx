@@ -2,10 +2,10 @@
 
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
-import { Bar } from '@ant-design/plots'
-import { Divider, Select } from 'antd';
+import { Bar } from '@ant-design/plots';
+import { Select } from 'antd';
 import { useSession } from 'next-auth/react';
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 
 const CourseTrendingChart = () => {
 
@@ -13,39 +13,15 @@ const CourseTrendingChart = () => {
     const [courseNumber, setCourseNumber] = useState<number>(5);
     const { data: session, status } = useSession();
 
-    // Lưu session vào localStorage để không mất khi reload
     useEffect(() => {
-        if (session) {
-            localStorage.setItem("sessionData", JSON.stringify(session));
-        }
-    }, [session]);
-
-    // Lấy session từ localStorage nếu bị mất khi reload
-    const getSessionFromStorage = () => {
-        const storedSession = localStorage.getItem("sessionData");
-        return storedSession ? JSON.parse(storedSession) : null;
-    };
-
-    const [cachedSession, setCachedSession] = useState(getSessionFromStorage());
-
-    // Cập nhật cachedSession khi session thay đổi
-    useEffect(() => {
-        if (!cachedSession && session) {
-            setCachedSession(session);
-        }
-    }, [session]);
-
-    const accessToken = cachedSession?.accessToken || session?.accessToken;
-
-    useEffect(() => {
-        if (!accessToken) return;
+        if (status !== "authenticated") return;
 
         const fetchData = async () => {
             try {
                 const response = await sendRequest<ApiResponse<CourseSalesEntryResponse>>({
                     url: `${apiUrl}/orders/count`,
                     headers: {
-                        Authorization: `Bearer ${accessToken}`,
+                        Authorization: `Bearer ${session.accessToken}`,
                         "Content-Type": "application/json"
                     },
                 });
@@ -68,7 +44,7 @@ const CourseTrendingChart = () => {
         };
 
         fetchData();
-    }, [accessToken, courseNumber]);
+    }, [session]);
 
 
     const handleChange = (value: string) => {

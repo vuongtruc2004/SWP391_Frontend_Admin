@@ -1,14 +1,14 @@
 'use client'
-import '@ant-design/v5-patch-for-react-19';
-import { AlignLeftOutlined } from "@ant-design/icons";
-import { MdLogout } from "react-icons/md";
-import { Avatar, Button, Divider, Dropdown, theme } from "antd"
-import React from "react";
-import { dropdownItems } from "./app.header.properties";
-import { useCollapseContext } from "../../wrapper/collapse-sidebar/collapse.sidebar.wrapper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
+import { AlignLeftOutlined } from "@ant-design/icons";
+import '@ant-design/v5-patch-for-react-19';
+import { Avatar, Button, Divider, Dropdown, theme } from "antd";
 import { signOut, useSession } from "next-auth/react";
+import React from "react";
+import { MdLogout } from "react-icons/md";
+import { useCollapseContext } from "../../wrapper/collapse-sidebar/collapse.sidebar.wrapper";
+import { dropdownItems } from "./app.header.properties";
 
 const { useToken } = theme;
 const AppHeader = () => {
@@ -36,7 +36,14 @@ const AppHeader = () => {
     }
 
     return (
-        <div className="flex justify-between items-center px-5 py-3 bg-white" style={{ boxShadow: '3px 2px 5px rgba(0,0,0,0.2)' }}>
+        <div className="flex justify-between items-center px-5 py-3 bg-white"
+            style={{
+                boxShadow: '3px 2px 5px rgba(0,0,0,0.2)',
+                position: 'sticky',
+                top: 0,
+                left: 0,
+                zIndex: 15
+            }}>
             <Button type="text" onClick={() => setCollapsed(prev => !prev)} className={collapsed ? 'rotate-180' : ''}>
                 <AlignLeftOutlined style={{ fontSize: '20px' }} />
             </Button>

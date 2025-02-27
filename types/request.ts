@@ -22,8 +22,7 @@ declare global {
 
     interface CourseRequest {
         courseId?: number;
-        salePrice?: number;
-        originalPrice?: number;
+        price?: number;
         courseName?: string;
         description?: string;
         thumbnail?: string;
@@ -114,7 +113,6 @@ declare global {
         }[];
     }
     interface QuizRequest {
-
         quizId?: number;
         title?: string;
         maxAttempts?: number;
@@ -122,5 +120,20 @@ declare global {
         startedAt: string;
         endedAt: string;
         questions: string[];
+    }
+
+    interface ChapterRequest {
+        title: string;
+        description: string;
+        courseId: number;
+        lessons: LessonRequest[];
+    }
+
+    interface LessonRequest {
+        title: string;
+        lessonType: "VIDEO" | "DOCUMENT";
+        videoUrl?: string;
+        documentContent?: string;
+        duration?: number;
     }
 }

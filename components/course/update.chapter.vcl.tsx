@@ -18,14 +18,14 @@ const initState: ErrorResponse = {
     value: ''
 };
 
-const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCourse }: {
-    openUpdateLesson: boolean,
-    setOpenUpdateLesson: React.Dispatch<SetStateAction<boolean>>,
+const UpdateChapterModal = ({ openUpdateChapter, setOpenUpdateChapter, selectedCourse }: {
+    openUpdateChapter: boolean,
+    setOpenUpdateChapter: React.Dispatch<SetStateAction<boolean>>,
     selectedCourse: CourseResponse | null
 }) => {
     const { data: session, status } = useSession();
     const [form] = Form.useForm();
-    const [lessions, setLessions] = useState([{ content: "", correct: false, empty: true }]); // Mảng câu trả lời
+    const [chapters, setChapters] = useState([{ content: "", correct: false, empty: true }]);
     const [videoUrl, setVideoUrl] = useState("");
     const [videoFile, setVideoFile] = useState(null);
     const router = useRouter()
@@ -50,7 +50,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
         setVideoUrl(""); // Xóa URL video
         setIsSubmitted(false)
         // setIsModalOpen(false);
-        setOpenUpdateLesson(false)
+        setOpenUpdateChapter(false)
     };
 
     const onFinish = (values: object) => {
@@ -64,7 +64,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
         const formValues = form.getFieldsValue();
         const htmlText = marked(inputMarkdown);
 
-        const payload = await Promise.all(formValues.lessons.map(async (chapter: any) => {
+        const payload = await Promise.all(formValues.chapter.map(async (chapter: any) => {
             const videosWithDurations = await Promise.all((chapter.videos || []).map(async (video: any) => {
                 const duration = await getYouTubeDuration(extractVideoId(video.videoUrl));  // Chờ kết quả duration
                 console.log(duration);
@@ -94,7 +94,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
         console.log("Payload:", payload);  // Kiểm tra payload
         try {
             const response = await sendRequest<ApiResponse<ChapterResponse[]>>({
-                url: `${apiUrl}/lessons`,
+                url: `${apiUrl}/chapter`,
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
@@ -111,7 +111,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                     description: "Tạo chương học thành công!",
                 });
 
-                setOpenUpdateLesson(false);
+                setOpenUpdateChapter(false);
             } else {
                 notification.error({
                     message: "Thất bại",
@@ -123,30 +123,9 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
         }
     };
 
-    // useEffect(() => {
-    //     const handleInputChange = async () => {
-    //         const videoId = extractVideoId(videoUrl);
-    //         if (videoId) {
-    //             setLoading(true);
-    //             const duration = await getYouTubeDuration(videoId);
-    //             console.log(">>>", duration);
-    //             setVideoDuration(duration);
-    //             setLoading(false);
-
-    //         } else {
-    //             setVideoDuration(null);
-    //         }
-    //     };
-
-    //     if (videoUrl.trim() !== "") {
-    //         handleInputChange();
-    //     }
-    // }, [videoUrl]);
-
     return (
         <Modal
-
-            open={openUpdateLesson}
+            open={openUpdateChapter}
             onCancel={handleCancel}
             footer={null}
             width="50vw"
@@ -154,7 +133,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
             <h1 className="text-center text-2xl font-semibold">Tạo chương học  </h1>
             <div className="mt-4">
 
-                {lessions.map((answer, index) => (
+                {chapters.map((_, index) => (
                     <div key={index} className="w-full flex gap-2 mt-2 pl-5">
                         <div className="flex flex-col w-full gap-2">
                             <Form
@@ -164,18 +143,18 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                 name="dynamic_form_complex"
                                 style={{ maxWidth: 1000 }}
                                 autoComplete="off"
-                                initialValues={{ lessons: [{ videos: [], documents: [] }] }}
+                                initialValues={{ chapter: [{ videos: [], documents: [] }] }}
                                 onFinish={onFinish}
                             >
                                 {/* Form.List cho danh sách chương */}
-                                <Form.List name="lessons">
-                                    {(lessonFields, { add: addLesson, remove: removeLesson }) => (
+                                <Form.List name="chapter">
+                                    {(chapterField, { add: addChapter, remove: removeChapter }) => (
                                         <div>
-                                            {lessonFields.map((lessonField) => (
-                                                <div key={lessonField.key} style={{ padding: 16 }}>
+                                            {chapterField.map((chapterField) => (
+                                                <div key={chapterField.key} style={{ padding: 16 }}>
                                                     <Form.Item
                                                         label="Tên chương học"
-                                                        name={[lessonField.name, 'lessonName']}
+                                                        name={[chapterField.name, 'lessonName']}
                                                         rules={[{ required: true, message: 'Tên chương học không được để trống' }]}
                                                         labelCol={{ span: 24 }}
                                                     >
@@ -184,7 +163,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                                     </Form.Item>
                                                     <Form.Item
                                                         label="Mô tả chương học"
-                                                        name={[lessonField.name, 'descriptionChapter']}
+                                                        name={[chapterField.name, 'descriptionChapter']}
                                                         rules={[{ required: true, message: 'Mô tả chương học không được để trống' }]}
                                                         labelCol={{ span: 24 }}
                                                     >
@@ -201,7 +180,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
 
 
                                                     {/* Form.List cho danh sách video của chương */}
-                                                    <Form.List name={[lessonField.name, 'videos']}>
+                                                    <Form.List name={[chapterField.name, 'videos']}>
                                                         {(videoFields, { add: addVideo, remove: removeVideo }) => (
                                                             <div style={{ display: 'flex', flexDirection: 'column', rowGap: 16 }}>
                                                                 {videoFields.map((videoField, index) => (
@@ -264,7 +243,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
 
 
                                                     {/* Form.List cho danh sách tài liệu của chương */}
-                                                    <Form.List name={[lessonField.name, 'documents']}>
+                                                    <Form.List name={[chapterField.name, 'documents']}>
                                                         {(documentFields, { add: addDocument, remove: removeDocument }) => (
                                                             <div style={{ display: 'flex', flexDirection: 'column', rowGap: 16 }}>
                                                                 {documentFields.map((documentField, index) => (
@@ -322,13 +301,13 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                                             </div>
                                                         )}
                                                     </Form.List>
-                                                    {lessonFields.length > 1 && (
+                                                    {chapterField.length > 1 && (
                                                         <Divider className="border-t-4 !border-black">
                                                             <Button
                                                                 style={{ marginTop: "10px" }}
                                                                 type="dashed"
                                                                 danger
-                                                                onClick={() => removeLesson(lessonField.name)}
+                                                                onClick={() => removeChapter(chapterField.name)}
                                                             >
                                                                 Xóa chương học
                                                             </Button>
@@ -340,7 +319,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                             ))}
                                             <Button
                                                 type="dashed"
-                                                onClick={addLesson}
+                                                onClick={addChapter}
                                                 icon={<PlusCircleOutlined />}
                                                 className="mt-3 w-full"
                                             >
@@ -358,7 +337,7 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
                                         onClick={() => {
                                             form.validateFields()
                                                 .then(values => {
-                                                    const lessonsData: { videos?: any[]; documents?: any[] }[] = values.lessons || [];
+                                                    const lessonsData: { videos?: any[]; documents?: any[] }[] = values.chapter || [];
                                                     const hasValidLesson = lessonsData.some((chapter) =>
                                                         (chapter.videos && chapter.videos.length > 0) ||
                                                         (chapter.documents && chapter.documents.length > 0)
@@ -393,4 +372,4 @@ const UpdateLessonModal = ({ openUpdateLesson, setOpenUpdateLesson, selectedCour
         </Modal >
     );
 };
-export default UpdateLessonModal;
+export default UpdateChapterModal;

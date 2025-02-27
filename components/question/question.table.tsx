@@ -2,11 +2,11 @@
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
 import { Popconfirm, Space, Table, TableProps } from 'antd';
+import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import ViewQuestionDetail from './view.question.detail';
 import UpdateQuestionForm from './update.question.form';
-import { useSession } from 'next-auth/react';
+import ViewQuestionDetail from './view.question.detail';
 
 
 
@@ -35,13 +35,10 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
 
     const columns: TableProps<QuestionResponse>['columns'] = [
         {
-            title: 'STT',
-            dataIndex: 'questionId',
-            key: 'id',
+            title: "STT",
+            key: "index",
             width: '10%',
-            sorter: {
-                compare: (a, b) => a.questionId - b.questionId,
-            },
+            render: (text, record, index) => <>{(index + 1) + (page - 1) * questionPageResponse.pageSize}</>,
         },
         {
             title: 'Nội dung câu hỏi',

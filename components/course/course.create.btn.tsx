@@ -26,7 +26,7 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
     const [loading, setLoading] = useState(false);
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [introduction, setIntroduction] = useState<ErrorResponse>(initState);
-    const [originPrice, setOriginPrice] = useState<ErrorResponse>(initState);
+    const [price, setPrice] = useState<ErrorResponse>(initState);
     const [salePrice, setSalePrice] = useState<ErrorResponse>(initState);
     const [des, setDes] = useState<ErrorResponse>(initState);
     const [objects, setObjects] = useState([{ content: "", empty: true }]);
@@ -96,23 +96,13 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
         setLoading(true); // Bật trạng thái loading
         const isTitleValid = validTitle(title, setTitle);
         const isIntroduction = validIntroduction(introduction, setIntroduction);
-        const isOriginPrice = validOriginPrice(originPrice, setOriginPrice);
+        const isOriginPrice = validOriginPrice(price, setPrice);
         const isDes = validDes(des, setDes);
-
-        if (Number(salePrice.value) > Number(originPrice.value) && Number(salePrice.value)) {
-            setErrLessThan("Giá khuyến mãi không được lớn hơn giá gốc!");
-            setLoading(false)
-            return;
-
-        } else {
-            setErrLessThan("")
-        }
-
 
 
         if (!isTitleValid || !isIntroduction || !isOriginPrice || !isDes || !checkedList || checkedList.length === 0 || urlThumbnail === "") {
             setErrThumbnail("Ảnh không được để rỗng!")
-            setEmptySubject("Vui lòng chọn ít nhất một công nghệ sử dụng trong khóa học!")
+            setEmptySubject("Vui lòng chọn ít nhất một lĩnh vực sử dụng trong khóa học!")
             if (checkedList && checkedList.length > 0) {
                 console.log("lengh", checkedList?.length)
                 setEmptySubject("")
@@ -136,8 +126,7 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
             thumbnail: urlThumbnail,
             objectives: objects.map(obj => obj.content),
             subjects: checkedList,
-            originalPrice: Number(originPrice.value),
-            salePrice: Number(salePrice.value),
+            price: Number(price.value),
             introduction: introduction.value,
         }
 
@@ -181,11 +170,10 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
     const handleCancel = () => {
         setTitle(initState);
         setIntroduction(initState)
-        setOriginPrice(initState)
-        setSalePrice(initState)
+        setPrice(initState)
         setDes(initState)
         setIsSubmitted(false)
-        setObjects([{ content: "", empty: true }]); // Reset danh sách câu trả lời
+        setObjects([{ content: "", empty: true }]);
         setIsModalOpen(false);
         setUrlThumbnail("")
         setErrThumbnail("")
@@ -256,60 +244,46 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
                     )}
                 </div>
 
-                <div>
-                    <span className="text-red-500 mr-2">*</span>Link giới thiệu khóa học:
-                    <Input
-                        status={introduction.error ? 'error' : ''}
-                        className="mt-1"
-                        placeholder="Nhập link giới thiệu khóa học"
-                        allowClear
-                        value={introduction.value}
-                        onChange={(e) => setIntroduction({ ...introduction, value: e.target.value, error: false })}
-                    />
-                    {introduction.error && (
-                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                            <WarningOutlined />
-                            {introduction.message}
-                        </p>
-                    )}
-                </div>
+                <div className="flex items-center gap-x-4">
+                    {/* Link giới thiệu khóa học */}
+                    <div className="flex-1">
+                        <span className="text-red-500 mr-2">*</span>Link giới thiệu khóa học:
+                        <Input
+                            status={introduction.error ? 'error' : ''}
+                            className="mt-1 w-full"
+                            placeholder="Nhập link giới thiệu khóa học"
+                            allowClear
+                            value={introduction.value}
+                            onChange={(e) => setIntroduction({ ...introduction, value: e.target.value, error: false })}
+                        />
+                        {introduction.error && (
+                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                <WarningOutlined />
+                                {introduction.message}
+                            </p>
+                        )}
+                    </div>
 
-                <div className="flex justify-between">
-                    <div>
+                    {/* Giá gốc */}
+                    <div className="flex-1">
                         <span className="text-red-500 mr-2">*</span>Giá gốc:
                         <Input
-                            status={originPrice.error ? 'error' : ''}
-                            className="mt-1"
+                            status={price.error ? 'error' : ''}
+                            className="mt-1 w-full"
                             placeholder="Nhập giá gốc khóa học"
                             allowClear
-                            value={originPrice.value}
-                            onChange={(e) => setOriginPrice({ ...originPrice, value: e.target.value, error: false })}
+                            value={price.value}
+                            onChange={(e) => setPrice({ ...price, value: e.target.value, error: false })}
                         />
-                        {originPrice.error && (
+                        {price.error && (
                             <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                 <WarningOutlined />
-                                {originPrice.message}
-                            </p>
-                        )}
-                    </div>
-                    <div>
-                        Giá khuyến mãi:
-                        <Input
-                            status={salePrice.error ? 'error' : ''}
-                            className="mt-1"
-                            placeholder="Nhập giá khuyến mãi khóa học"
-                            allowClear
-                            value={salePrice.value}
-                            onChange={(e) => setSalePrice({ ...salePrice, value: e.target.value, error: false })}
-                        />
-                        {errLessThan !== "" && (
-                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                <WarningOutlined />
-                                {errLessThan}
+                                {price.message}
                             </p>
                         )}
                     </div>
                 </div>
+
 
                 <div>
                     <span className="text-red-500 mr-2">*</span>Mô tả:
@@ -362,7 +336,7 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
                 </div>
 
                 <div>
-                    <span className="text-red-500 mr-2">*</span>Công nghệ sử dụng trong khóa học:
+                    <span className="text-red-500 mr-2">*</span>Lĩnh vực sử dụng trong khóa học:
                     <CheckboxGroup
                         options={subjects.map((subject) => ({
                             label: subject,

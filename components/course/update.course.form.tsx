@@ -28,11 +28,9 @@ const UpdateCourseForm = (props: {
     const CheckboxGroup = Checkbox.Group;
     const [emptySubject, setEmptySubject] = useState("");
     const [subjects, setSubjects] = useState<string[]>([]);
-    const [checkedList, setCheckedList] = useState<string[]>();
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [introduction, setIntroduction] = useState<ErrorResponse>(initState);
-    const [originPrice, setOriginPrice] = useState<ErrorResponse>(initState);
-    const [salePrice, setSalePrice] = useState<ErrorResponse>(initState);
+    const [price, setPrice] = useState<ErrorResponse>(initState);
     const [des, setDes] = useState<ErrorResponse>(initState);
     const { data: session, status } = useSession();
     const fileInputRef = useRef<HTMLInputElement>(null)
@@ -40,7 +38,6 @@ const UpdateCourseForm = (props: {
     const [objects, setObjects] = useState<{ content: string; empty: boolean }[]>([
         { content: "", empty: true }
     ]);
-    const [errLessThan, setErrLessThan] = useState("")
     const [errorMessage, setErrorMessage] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -61,13 +58,9 @@ const UpdateCourseForm = (props: {
                 error: false,
                 value: editingCourse.introduction
             });
-            setOriginPrice({
+            setPrice({
                 error: false,
-                value: editingCourse.originalPrice.toString()
-            });
-            setSalePrice({
-                error: false,
-                value: editingCourse.salePrice.toString()
+                value: editingCourse?.price?.toString()
             });
             setDes({
                 error: false,
@@ -143,20 +136,10 @@ const UpdateCourseForm = (props: {
         setLoading(true);
         const isTitleValid = validTitle(title, setTitle);
         const isIntroduction = validIntroduction(introduction, setIntroduction);
-        const isOriginPrice = validOriginPrice(originPrice, setOriginPrice);
+        const isOriginPrice = validOriginPrice(price, setPrice);
         const isDes = validDes(des, setDes);
-
-        if (salePrice.value > originPrice.value) {
-            setErrLessThan("Giá khuyến mãi không được lớn hơn giá gốc!");
-            setLoading(false)
-            return;
-        } else {
-            setErrLessThan("")
-        }
-
-
         if (!isTitleValid || !isIntroduction || !isOriginPrice || !isDes || !subjectChecked || subjectChecked.length === 0) {
-            setEmptySubject("Vui lòng chọn ít nhất một công nghệ sử dụng trong khóa học!")
+            setEmptySubject("Vui lòng chọn ít nhất một lĩnh vực sử dụng trong khóa học!")
             if (subjectChecked.length !== 0) {
                 setEmptySubject("")
             }
@@ -169,7 +152,6 @@ const UpdateCourseForm = (props: {
             return;
         }
 
-        // Kiểm tra nếu có Mục tiêu rỗng
         if (objects.some(object => object.empty)) {
             if (subjectChecked.length !== 0) {
                 setEmptySubject("")
@@ -185,8 +167,7 @@ const UpdateCourseForm = (props: {
             thumbnail: urlThumbnail,
             objectives: objects.map(obj => obj.content),
             subjects: subjectChecked,
-            originalPrice: Number(originPrice.value),
-            salePrice: Number(salePrice.value),
+            price: Number(price.value),
             introduction: introduction.value,
         }
 
@@ -246,7 +227,6 @@ const UpdateCourseForm = (props: {
         setObjects(newObjects);
     };
 
-
     return (
         <Modal title="Cập nhật khóa học" open={openEditForm} footer={null} width={700} onCancel={handleCancel}>
             <div>
@@ -267,60 +247,46 @@ const UpdateCourseForm = (props: {
                 )}
             </div>
 
-            <div>
-                <span className="text-red-500 mr-2">*</span>Link giới thiệu khóa học:
-                <Input
-                    status={introduction.error ? 'error' : ''}
-                    className="mt-1"
-                    placeholder="Nhập link giới thiệu khóa học"
-                    allowClear
-                    value={introduction.value}
-                    onChange={(e) => setIntroduction({ ...introduction, value: e.target.value, error: false })}
-                />
-                {introduction.error && (
-                    <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                        <WarningOutlined />
-                        {introduction.message}
-                    </p>
-                )}
-            </div>
+            <div className="flex items-center gap-x-4">
+                {/* Link giới thiệu khóa học */}
+                <div className="flex-1">
+                    <span className="text-red-500 mr-2">*</span>Link giới thiệu khóa học:
+                    <Input
+                        status={introduction.error ? 'error' : ''}
+                        className="mt-1 w-full"
+                        placeholder="Nhập link giới thiệu khóa học"
+                        allowClear
+                        value={introduction.value}
+                        onChange={(e) => setIntroduction({ ...introduction, value: e.target.value, error: false })}
+                    />
+                    {introduction.error && (
+                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                            <WarningOutlined />
+                            {introduction.message}
+                        </p>
+                    )}
+                </div>
 
-            <div className="flex justify-between">
-                <div>
+                {/* Giá gốc */}
+                <div className="flex-1">
                     <span className="text-red-500 mr-2">*</span>Giá gốc:
                     <Input
-                        status={originPrice.error ? 'error' : ''}
-                        className="mt-1"
+                        status={price.error ? 'error' : ''}
+                        className="mt-1 w-full"
                         placeholder="Nhập giá gốc khóa học"
                         allowClear
-                        value={originPrice.value}
-                        onChange={(e) => setOriginPrice({ ...originPrice, value: e.target.value, error: false })}
+                        value={price.value}
+                        onChange={(e) => setPrice({ ...price, value: e.target.value, error: false })}
                     />
-                    {originPrice.error && (
+                    {price.error && (
                         <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                             <WarningOutlined />
-                            {originPrice.message}
-                        </p>
-                    )}
-                </div>
-                <div>
-                    Giá khuyến mãi:
-                    <Input
-                        status={salePrice.error ? 'error' : ''}
-                        className="mt-1"
-                        placeholder="Nhập giá khuyến mãi khóa học"
-                        allowClear
-                        value={salePrice.value}
-                        onChange={(e) => setSalePrice({ ...salePrice, value: e.target.value, error: false })}
-                    />
-                    {errLessThan !== "" && (
-                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                            <WarningOutlined />
-                            {errLessThan}
+                            {price.message}
                         </p>
                     )}
                 </div>
             </div>
+
 
             <div>
                 <span className="text-red-500 mr-2">*</span>Mô tả:
@@ -369,7 +335,7 @@ const UpdateCourseForm = (props: {
                 </Button>
             </div>
             <div>
-                <span className="text-red-500 mr-2">*</span>Công nghệ sử dụng trong khóa học:
+                <span className="text-red-500 mr-2">*</span>Lĩnh vực sử dụng trong khóa học:
                 <CheckboxGroup
                     options={subjects.map((subject) => ({
                         label: subject,

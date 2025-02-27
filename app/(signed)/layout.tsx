@@ -1,14 +1,13 @@
-import AppHeader from "@/components/header/app.header"
-import AppSidebar from "@/components/sidebar/app.sidebar"
-import { Content } from "antd/es/layout/layout";
+import AppHeader from "@/components/header/app.header";
+import AppSidebar from "@/components/sidebar/app.sidebar";
 
 const SignedLayout = ({ children }: { children: React.ReactNode }) => {
     return (
         <div className="flex h-screen">
             <AppSidebar />
-            <div className="w-full bg-[#ebf2fa]">
+            <div className="w-full bg-[#ebf2fa] overflow-y-auto min-h-screen relative">
                 <AppHeader />
-                <Content style={{ padding: '20px' }}>{children}</Content>
+                <div className="p-5">{children}</div>
             </div>
         </div>
     )

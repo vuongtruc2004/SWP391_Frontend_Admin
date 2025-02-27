@@ -32,7 +32,7 @@ export const validIntroduction = (introduction: ErrorResponse, setIntroduction: 
         setIntroduction({
             ...introduction,
             error: true,
-            message: 'Link giới thiệu không được để rỗng hoặc định dạng không hợp lệ!'
+            message: 'Link giới thiệu có định dạng không hợp lệ!'
         })
         return false;
     }

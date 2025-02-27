@@ -99,8 +99,7 @@ declare global {
         courseName: string,
         description: string,
         thumbnail: string,
-        originalPrice: number,
-        salePrice: number,
+        price: number,
         expert: ExpertResponse,
         totalPurchased: number,
         createdAt: string,
@@ -145,11 +144,19 @@ declare global {
         updatedAt: string;
     }
     interface ChapterResponse {
-        lessonId: number;
+        chapterId: number;
         title: string;
         description: string;
-        videos: VideoResponse[];
-        documents: DocumentResponse[];
+        lessons: LessonResponse[];
+    }
+
+    interface LessonResponse {
+        lessonId: number;
+        title: string;
+        duration: number;
+        lessonType: string;
+        videoUrl?: string;
+        documentContent?: string;
     }
 
     interface SubjectResponse {

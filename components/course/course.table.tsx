@@ -11,10 +11,7 @@ import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { GrChapterAdd } from 'react-icons/gr';
 import UpdateCourseForm from './update.course.form';
-import UpdateLessonModal from './update.lesson.modal';
 import ViewCourseDetail from './view.course.detail';
-
-
 
 export const init = {
     courseName: {
@@ -37,7 +34,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
     const [editingCourse, setEditingCourse] = useState<CourseResponse | null>(null)
     const [openEditForm, setOpenEditForm] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState<CourseDetailsResponse | null>(null);
-    const [openUpdateLesson, setOpenUpdateLesson] = useState(false);
+    const [openCreateChapterModal, setOpenCreateChapterModal] = useState(false);
     const [course, setCourse] = useState<CourseDetailsResponse | null>(null);
     const [render, setRender] = useState(false);
 
@@ -127,23 +124,13 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             sorter: (a, b) => a.description.localeCompare(b.description),
         },
         {
-            title: 'Giá gốc',
-            dataIndex: 'originalPrice',
-            key: 'originalPrice',
+            title: 'Giá',
+            dataIndex: 'price',
+            key: 'price',
             width: '10%',
-            render: (originalPrice: number) => originalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
+            // render: (salePrice: number) => salePrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
             sorter: {
-                compare: (a, b) => a.originalPrice - b.originalPrice,
-            },
-        },
-        {
-            title: 'Giá giảm',
-            dataIndex: 'salePrice',
-            key: 'salePrice',
-            width: '10%',
-            render: (salePrice: number) => salePrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
-            sorter: {
-                compare: (a, b) => a.salePrice - b.salePrice,
+                compare: (a, b) => a.price - b.price,
             },
         },
         {
@@ -176,15 +163,11 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                                 />
                             </Tooltip>
                             <Tooltip title="Thêm chương học" color="blue">
-                                <span>
+                                <Link href={`/chapter/create/${record.courseId}`}>
                                     <GrChapterAdd
-                                        style={{ color: "black", cursor: "pointer" }}
-                                        onClick={() => {
-                                            setSelectedCourse(record);
-                                            setOpenUpdateLesson(true);
-                                        }}
+                                        style={{ color: "black" }}
                                     />
-                                </span>
+                                </Link>
                             </Tooltip>
 
                         </>
@@ -274,9 +257,6 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                 editingCourse={editingCourse}
                 setEditingCourse={setEditingCourse}
             />
-
-            <UpdateLessonModal selectedCourse={selectedCourse} openUpdateLesson={openUpdateLesson} setOpenUpdateLesson={setOpenUpdateLesson} />
-
         </>
     );
 };

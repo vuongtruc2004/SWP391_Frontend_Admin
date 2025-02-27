@@ -1,12 +1,12 @@
 'use client'
 import { Avatar, Menu } from 'antd';
-import { sidebarItems, sidebarItemsExpert } from './app.sidebar.properties'
 import Sider from 'antd/es/layout/Sider';
-import { useCollapseContext } from '../../wrapper/collapse-sidebar/collapse.sidebar.wrapper';
-import './overwrite.style.scss';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useCollapseContext } from '../../wrapper/collapse-sidebar/collapse.sidebar.wrapper';
+import { sidebarItems, sidebarItemsExpert } from './app.sidebar.properties';
+import './overwrite.style.scss';
 
 const AppSidebar = () => {
     const { collapsed } = useCollapseContext();
@@ -16,7 +16,7 @@ const AppSidebar = () => {
     return (
         <Sider
             width={280}
-            style={{ boxShadow: '2px 0 5px rgba(0,0,0,0.2)', zIndex: 10, transition: 'all 0.3s' }}
+            style={{ boxShadow: '2px 0 5px rgba(0,0,0,0.2)', zIndex: 20, transition: 'all 0.3s' }}
             theme="light"
             collapsed={collapsed}
             collapsedWidth={80}
