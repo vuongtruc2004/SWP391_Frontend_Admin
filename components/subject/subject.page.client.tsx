@@ -26,7 +26,7 @@ const SubjectPageClient = ({ keyword, subjectPageResponse, allSubjects }: {
             const data = sheetData.map((d, index) => {
                 return {
                     STT: index + 1,
-                    "Tên công nghệ": d.subjectName,
+                    "Tên lĩnh vực": d.subjectName,
                     "Mô tả": d.description,
                     "Số lượng khóa học": d.totalCourses,
                     "Danh sách khóa học": d.listCourses.join("\n")

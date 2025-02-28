@@ -36,7 +36,7 @@ export const sidebarItems: MenuItem[] = [
             },
             {
                 key: 'subject',
-                label: <Link href="/subject">Quản lí công nghệ</Link>,
+                label: <Link href="/subject">Quản lí lĩnh vực</Link>,
                 icon: <CodeOutlined />
 
             },
@@ -93,7 +93,7 @@ export const sidebarItemsExpert: MenuItem[] = [
             },
             {
                 key: 'subject',
-                label: <Link href="/subject">Quản lí công nghệ</Link>,
+                label: <Link href="/subject">Quản lí lĩnh vực</Link>,
                 icon: <CodeOutlined />
 
             },

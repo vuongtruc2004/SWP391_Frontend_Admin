@@ -34,7 +34,7 @@ const SubjectSearch = (props: {
             <Form className='w-[40%]' onFinish={onFinish} form={form} initialValues={{ keyword: keyword }}>
                 <Form.Item name="keyword" className="mb-0">
                     <Input
-                        placeholder="Tìm kiếm tên công nghệ, mô tả"
+                        placeholder="Tìm kiếm tên lĩnh vực, mô tả"
                         prefix={<SearchOutlined />}
                         className='!p-[10px]'
                         onChange={() => { form.submit() }}

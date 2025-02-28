@@ -160,7 +160,7 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
 
         </div>
             <Modal
-                title="Tạo công nghệ"
+                title="Tạo lĩnh vực"
                 open={isModalOpen}
                 footer={null}
                 onCancel={handleCancel}
@@ -169,7 +169,7 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                     <Row gutter={24} className="mb-7">
                         <Col span={17} className="flex flex-col space-y-6 ">
                             <div>
-                                <span className="text-red-500 mr-2">*</span>Tên công nghệ:
+                                <span className="text-red-500 mr-2">*</span>Tên lĩnh vực:
                                 <Input
                                     status={subjectName.error ? 'error' : ''}
                                     className="mt-1"
@@ -199,7 +199,7 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                                 <Input
                                     status={description.error ? 'error' : ''}
                                     className="mt-1"
-                                    placeholder="Nhập mô tả công nghệ"
+                                    placeholder="Nhập mô tả lĩnh vực"
                                     allowClear
                                     value={description.value}
                                     onChange={(e) => {

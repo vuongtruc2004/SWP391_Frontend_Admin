@@ -50,9 +50,9 @@ declare global {
     }
 
     interface DashboardResponse {
-        totalRevenue: number;
-        totalStudents: number;
-        totalOrders: number;
+        revenue: number;
+        students: number;
+        orders: number;
         todayRevenue: number;
         todayStudents: number;
         todayOrders: number;

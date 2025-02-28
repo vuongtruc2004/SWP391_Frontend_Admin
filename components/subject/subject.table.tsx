@@ -45,14 +45,14 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
         if (deleteResponse.status === 200) {
             notification.success({
                 message: String(deleteResponse.message),
-                description: "Bạn đã xóa thành công công nghệ này!",
+                description: "Bạn đã xóa thành công lĩnh vực này!",
                 showProgress: true
             });
             router.refresh()
         } else {
             notification.error({
                 message: String(deleteResponse.message),
-                description: "Không thể xóa công nghệ này do đang có khóa học!",
+                description: "Không thể xóa lĩnh vực này do đang có khóa học!",
                 showProgress: true
             })
         }
@@ -67,7 +67,7 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             render: (text, record, index) => <>{(index + 1) + (page - 1) * subjectPageResponse.pageSize}</>,
         },
         {
-            title: 'Tên công nghệ',
+            title: 'Tên lĩnh vực',
             dataIndex: 'subjectName',
             key: 'name',
             width: '20%',
@@ -176,8 +176,8 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
                     <Tooltip title='Xóa'>
                         <Popconfirm
                             placement="left"
-                            title="Xóa công nghệ"
-                            description="Bạn có chắc chắn muốn xóa công nghệ này không?"
+                            title="Xóa lĩnh vực"
+                            description="Bạn có chắc chắn muốn xóa lĩnh vực này không?"
                             onConfirm={() => deleteSubject(record.subjectId)}
                             okText="Có"
                             cancelText="Không"

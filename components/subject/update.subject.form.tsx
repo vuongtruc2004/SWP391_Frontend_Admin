@@ -129,16 +129,16 @@ const UpdateSubjectForm = (props: {
     }
 
     return (
-        <Modal title="Cập nhật công nghệ"
+        <Modal title="Cập nhật lĩnh vực"
             open={openEditForm}
             footer={null}
             onCancel={handleCancel}
         >
             <Spin spinning={loading}>
                 <div className="mb-3">
-                    <span className="text-red-500 mr-2">*</span>Tên công nghệ:
+                    <span className="text-red-500 mr-2">*</span>Tên lĩnh vực:
                     <Input
-                        placeholder="Nhập tên công nghệ"
+                        placeholder="Nhập tên lĩnh vực"
                         status={subjectName.error ? 'error' : ''}
                         allowClear
                         value={subjectName.value}
