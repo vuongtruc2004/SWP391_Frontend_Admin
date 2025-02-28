@@ -1,6 +1,6 @@
 'use client'
-import { CheckOutlined, CloseOutlined, DeleteOutlined, InfoCircleOutlined, LikeOutlined, MessageOutlined, StarOutlined, ToTopOutlined } from "@ant-design/icons"
-import { Avatar, Button, Descriptions, DescriptionsProps, Empty, Flex, List, Modal, notification, Pagination, Popconfirm, Space, Table, TableProps, Tree, TreeDataNode, TreeProps, Typography } from "antd"
+import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, LikeOutlined, MessageOutlined, StarOutlined, ToTopOutlined } from "@ant-design/icons"
+import { Avatar, Button, Descriptions, DescriptionsProps, Empty, Flex, List, Modal, notification, Pagination, Popconfirm, Space, Table, TableProps, Tooltip, Tree, TreeDataNode, TreeProps, Typography } from "antd"
 import dayjs from "dayjs"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useState } from "react"
@@ -95,12 +95,21 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             sorter: (a, b) => a.title.localeCompare(b.title),
         },
         {
-            title: 'Người tạo',
+            title: 'Tác giả',
             dataIndex: 'user',
             key: 'user',
             width: '20%',
             sorter: (a, b) => a.user.fullname.localeCompare(b.user.fullname),
             render: (user) => user?.fullname || "No author!"
+        },
+        {
+            title: 'Ngày tạo',
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            width: '20%',
+            // sorter: (a, b) => a.user.fullname.localeCompare(b.user.fullname),
+            render: (createdAt: string) => (dayjs(createdAt).format("DD/MM/YYYY")),
+            align: "center"
         },
         {
             title: 'Trạng thái',
@@ -117,44 +126,61 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             width: '20%',
             render: (_, record: any) => (
                 <Space size="middle">
-                    <InfoCircleOutlined style={{ color: "blue" }} onClick={() => {
-                        setIsModalOpen(true)
-                        setSelectRecord(record);
+                    <Tooltip placement="bottom" title={"Xem chi tiết"}>
+                        <InfoCircleOutlined style={{ color: "blue" }} onClick={() => {
+                            setIsModalOpen(true)
+                            setSelectRecord(record);
 
-                    }} />
+                        }} />
+                    </Tooltip>
                     {(session?.user.userId === record.user.userId || session?.user.roleName === "ADMIN") && (
                         <>
-                            <Popconfirm
-                                placement="left"
-                                title="Xóa môn học"
-                                description="Bạn có chắc chắn muốn xóa bài viết này không?"
-                                okText="Có"
-                                cancelText="Không"
-                                onConfirm={() => { handleDeleteBlog(record.blogId) }}
-                            >
-                                <DeleteOutlined style={{ color: "red" }} />
-                            </Popconfirm>
-                            <CheckOutlined
-                                style={{
-                                    color: record.published ? "gray" : "#16db65",
-                                    cursor: record.published === true ? "not-allowed" : "pointer",
-                                    pointerEvents: record.published ? "none" : "auto"
-                                }}
-                                onClick={() => { changeStatus(record.blogId) }}
+                            <Tooltip placement="bottom" title={"Xóa bài viết"}>
+                                <Popconfirm
+                                    placement="left"
+                                    title="Xóa môn học"
+                                    description="Bạn có chắc chắn muốn xóa bài viết này không?"
+                                    okText="Có"
+                                    cancelText="Không"
+                                    onConfirm={() => { handleDeleteBlog(record.blogId) }}
+                                >
+                                    <DeleteOutlined style={{ color: "red" }} />
+                                </Popconfirm>
+                            </Tooltip>
 
-                            />
-                            <CloseOutlined
-                                style={{
-                                    color: record.published ? "red" : "gray",
-                                    cursor: record.published === false ? "not-allowed" : "pointer",
-                                    pointerEvents: record.published ? "auto" : "none"
-                                }}
-                                onClick={() => { changeStatus(record.blogId) }}
-                            />
-                            <ToTopOutlined onClick={() => {
-                                setOpenUpdate(true);
-                                setSelectRecord(record)
-                            }} />
+                            {!record.published ? (
+                                <Tooltip placement="bottom" title={"Chuyển sang trạng thái công khai"}>
+                                    <CheckOutlined
+                                        style={{
+                                            color: record.published ? "gray" : "#16db65",
+                                            cursor: record.published === true ? "not-allowed" : "pointer",
+                                            pointerEvents: record.published ? "none" : "auto"
+                                        }}
+                                        onClick={() => { changeStatus(record.blogId) }}
+
+                                    />
+                                </Tooltip>
+                            ) : (
+                                <Tooltip placement="bottom" title={"Chuyển sang trạng thái chỉ mình tôi"}>
+                                    <CloseOutlined
+                                        style={{
+                                            color: record.published ? "red" : "gray",
+                                            cursor: record.published === false ? "not-allowed" : "pointer",
+                                            pointerEvents: record.published ? "auto" : "none"
+                                        }}
+                                        onClick={() => { changeStatus(record.blogId) }}
+                                    />
+                                </Tooltip>
+                            )}
+                            <Tooltip placement="bottom" title={"Cập nhật"}>
+                                <EditOutlined
+                                    style={{ color: "blue" }}
+                                    onClick={() => {
+                                        setOpenUpdate(true);
+                                        setSelectRecord(record)
+                                    }}
+                                />
+                            </Tooltip>
                         </>
                     )}
 

@@ -75,7 +75,7 @@ declare global {
         createdAt: string;
         updatedAt: string;
         published: boolean;
-        accepted: boolean;
+        pinned: boolean;
         totalLikes: number;
         totalComments: number;
         user: UserResponse;

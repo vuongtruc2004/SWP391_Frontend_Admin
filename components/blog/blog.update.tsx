@@ -4,7 +4,7 @@ import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
 import MDEditor from "@uiw/react-md-editor";
-import { Avatar, Form, Image, Input, Modal, notification } from "antd";
+import { Avatar, Checkbox, Form, Image, Input, Modal, notification, Tooltip } from "antd";
 import { marked } from "marked";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -24,6 +24,7 @@ const initState: ErrorResponse = {
 }
 const BlogUpdate = (props: IProps) => {
     const { openUpdate, setOpenUpdate, selectRecord, setSelectRecord } = props;
+    const CheckboxGroup = Checkbox.Group;
     const router = useRouter();
     const [value, setValue] = useState("");
     const [inputMarkdown, setInputMarkdown] = useState("");
@@ -32,6 +33,8 @@ const BlogUpdate = (props: IProps) => {
     const [urlThumbnail, setUrlThumbnail] = useState("");
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [content, setContent] = useState<ErrorResponse>(initState);
+    const [checkList, setCheckList] = useState<string[]>(selectRecord?.hashtags.map((tag) => tag.tagName) || []);
+    const [listTag, setListTag] = useState<string[]>();
     const [plainContent, setPlainContent] = useState("");
     const [thumbnail, setThumbnail] = useState<File | null>(null);
 
@@ -50,6 +53,9 @@ const BlogUpdate = (props: IProps) => {
     }, [selectRecord])
 
     useEffect(() => {
+        if (selectRecord?.hashtags) {
+            setCheckList(selectRecord.hashtags.map((tag) => tag.tagName));
+        }
         if (selectRecord) {
             setTitle({
                 error: false,
@@ -65,7 +71,27 @@ const BlogUpdate = (props: IProps) => {
             }
 
         }
-    }, [selectRecord])
+    }, [selectRecord]);
+
+    useEffect(() => {
+
+        const getAllSubjects = async () => {
+            try {
+                const getAllSub = await sendRequest<ApiResponse<SubjectResponse>>({
+                    url: `${apiUrl}/hashtags/all`,
+                    method: 'GET',
+                });
+                console.log(getAllSub.data);
+                if (getAllSub.data && Array.isArray(getAllSub.data)) {
+                    setListTag(getAllSub.data.map((hashTag: { tagName: string }) => hashTag.tagName));
+                }
+            } catch {
+                console.error("Error fetching subjects");
+            }
+        };
+        getAllSubjects()
+
+    }, []);
 
     const stripHtml = (html: string) => {
         let doc = new DOMParser().parseFromString(html, 'text/html');
@@ -78,6 +104,9 @@ const BlogUpdate = (props: IProps) => {
         setErrThumbnail("");
         setSelectRecord(null);
         setOpenUpdate(false);
+    }
+    const handlOnChange = (list: string[]) => {
+        setCheckList(list);
     }
 
     const handleOnOk = async () => {
@@ -98,7 +127,8 @@ const BlogUpdate = (props: IProps) => {
             title: title.value,
             content: htmlTextContent.toString(),
             plainContent: stripHtml(htmlTextContent.toString()),
-            thumbnail: urlThumbnail
+            thumbnail: urlThumbnail,
+            hashtag: checkList,
         }
 
 
@@ -183,7 +213,7 @@ const BlogUpdate = (props: IProps) => {
             >
                 <Form>
                     <div>
-                        <h4>Tiêu đề bài viết:</h4>
+                        <h4><span className="text-red-600">*</span>Tiêu đề bài viết:</h4>
                         <Form.Item
 
                         >
@@ -272,7 +302,7 @@ const BlogUpdate = (props: IProps) => {
                             /> */}
 
                             {/* Ở dưới: Copy url của ảnh trên mạng gắn vào */}
-
+                            <h4><span className="text-red-600">*</span>Nội dung bài viết</h4>
                             <MDEditor
                                 value={inputMarkdown}
                                 onChange={(event) => {
@@ -299,6 +329,22 @@ const BlogUpdate = (props: IProps) => {
                                 </p>
                             )}
                         </Form.Item>
+                    </div>
+                    <div className="mb-5">
+                        <h4><span className="text-red-600">*</span> Lĩnh vực:</h4>
+                        <CheckboxGroup
+                            options={listTag?.map((tag) => ({
+                                label: tag,
+                                value: tag,
+                            }))}
+                            value={checkList}
+                            onChange={handlOnChange}
+                            style={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                gap: '8px',
+                            }}
+                        />
                     </div>
                     <div>
                         <span className="text-red-500 mr-2">*</span>Ảnh:
@@ -336,7 +382,9 @@ const BlogUpdate = (props: IProps) => {
                                         />
                                     </div>
 
-                                    <SyncOutlined className="text-blue-500 text-lg ml-6" onClick={() => document.getElementById("chooseFile")?.click()} />
+                                    <Tooltip placement="bottom" title={"Tải lên ảnh khác"}>
+                                        <SyncOutlined className="text-blue-500 text-lg ml-6" onClick={() => document.getElementById("chooseFile")?.click()} />
+                                    </Tooltip>
 
                                     <input
                                         type="file"

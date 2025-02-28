@@ -2,9 +2,9 @@
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import { DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { Modal, notification, Pagination, Popconfirm, Space, Table, TableProps } from 'antd';
+import { Modal, notification, Pagination, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 const NotificationDetail = (props: {
     openModal: boolean,
@@ -12,11 +12,22 @@ const NotificationDetail = (props: {
     recordNotification: NotificationResponse | null,
 }) => {
     const { openModal, setOpenModal, recordNotification } = props;
+    const [usersReceiver, setUsersReceiver] = useState<UserNotificationResponse[]>([]);
     const router = useRouter()
     console.log(recordNotification)
 
+    useEffect(() => {
+        if (openModal) {
+            setUsersReceiver(recordNotification?.userNotifications ? recordNotification.userNotifications : []);
+        }
+    }, [openModal, recordNotification]);
+    // tại sao thêm notification ? để báo useEffect rằng khi mở modal và recordNotification khác thì nó sẽ chạy câu lệnh phía trong
+    // Khi dữ liệu trong state (usersReceiver) phụ thuộc vào một prop (recordNotification) và prop này có thể thay đổi.
+    // Khi muốn cập nhật state mỗi khi một giá trị bên ngoài thay đổi (thường là dữ liệu từ API hoặc Redux).
+
+    console.log("check user receiver: ", usersReceiver);
     const handleDeleteNotification = async (userNotificationId: number) => {
-        const deleteNotification = await sendRequest<ApiResponse<String>>({
+        const deleteNotification = await sendRequest<ApiResponse<UserNotificationResponse>>({
             url: `${apiUrl}/notifications/delete-user/${userNotificationId}`,
             method: 'DELETE',
             headers: {
@@ -28,7 +39,11 @@ const NotificationDetail = (props: {
                 message: "Thành công!",
                 description: "Bạn đã xóa người nhận thông báo thành công!",
             })
-            router.refresh()
+            // const newUsersReciver = recordNotification?.userNotifications.filter(user => user.userNotificationId !== deleteNotification.data.userNotificationId);
+            // setUsersReceiver(newUsersReciver ? newUsersReciver : []);
+            // code trên sai vì khi xóa thì cập nhật database nhưng recordNotification lại không cập nhật, dẫn tới việc in ra lỗi danh sách
+
+            setUsersReceiver(prev => prev.filter(user => user.userNotificationId !== deleteNotification.data.userNotificationId));
         } else {
             notification.error({
                 message: "Thất bại!",
@@ -55,16 +70,18 @@ const NotificationDetail = (props: {
             width: '20%',
             render: (_, record: UserNotificationResponse) => (
                 <Space size="middle">
-                    <Popconfirm
-                        placement="left"
-                        title="Xóa môn học"
-                        description="Bạn có chắc chắn muốn xóa người nhận này không?"
-                        okText="Có"
-                        cancelText="Không"
-                        onConfirm={() => { handleDeleteNotification(record.userNotificationId) }}
-                    >
-                        <DeleteOutlined style={{ color: "red" }} />
-                    </Popconfirm>
+                    <Tooltip placement="bottom" title={"Xóa người nhận thông báo này"}>
+                        <Popconfirm
+                            placement="left"
+                            title="Xóa môn học"
+                            description="Bạn có chắc chắn muốn xóa người nhận này không?"
+                            okText="Có"
+                            cancelText="Không"
+                            onConfirm={() => { handleDeleteNotification(record.userNotificationId) }}
+                        >
+                            <DeleteOutlined style={{ color: "red" }} />
+                        </Popconfirm>
+                    </Tooltip>
 
 
                 </Space>
@@ -86,7 +103,7 @@ const NotificationDetail = (props: {
                             <Table
                                 className="overflow-y-auto max-h-[calc(100vh-100px)] mb-8 pl-6 pr-6"
                                 columns={columns}
-                                dataSource={recordNotification.userNotifications}
+                                dataSource={usersReceiver}
                                 rowKey={"userNotificationId"}
 
                             />

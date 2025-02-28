@@ -4,7 +4,7 @@ import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
 import MDEditor from "@uiw/react-md-editor";
-import { Avatar, Form, Image, Input, Modal, notification } from "antd";
+import { Avatar, Checkbox, Form, Image, Input, Modal, notification } from "antd";
 import { marked } from "marked";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -22,6 +22,7 @@ const initState: ErrorResponse = {
 }
 const BlogCreate = (props: IProps) => {
     const { openFormCreate, setOpenFormCreate } = props;
+    const CheckboxGroup = Checkbox.Group;
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [content, setContent] = useState<ErrorResponse>(initState);
     const [urlThumbnail, setUrlThumbnail] = useState("");
@@ -29,6 +30,8 @@ const BlogCreate = (props: IProps) => {
     const [inputMarkdown, setInputMarkdown] = useState("");
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
     const [plainContent, setPlainContent] = useState("");
+    const [getSubjects, setGetSubjects] = useState<string[]>();
+    const [checkList, setCheckList] = useState<string[]>();
     const { data: session, status } = useSession();
     const router = useRouter();
 
@@ -39,6 +42,9 @@ const BlogCreate = (props: IProps) => {
     }
 
     //function handle
+    const handlOnChange = (list: string[]) => {
+        setCheckList(list);
+    }
     const handleOnOk = async () => {
 
         const isValidTitle = validTitle(title, setTitle);
@@ -60,6 +66,7 @@ const BlogCreate = (props: IProps) => {
             content: htmlText.toString(),
             plainContent: stripHtml(htmlText.toString()),
             thumbnail: urlThumbnail,
+            hashtag: checkList ? checkList : [],
         }
 
         const createBlog = await sendRequest<ApiResponse<BlogResponse>>({
@@ -91,17 +98,7 @@ const BlogCreate = (props: IProps) => {
         }
     }
 
-    //useEffect
-    useEffect(() => {
-        if (openFormCreate) {
-            setTitle(initState);
-            setContent(initState);
-            setPlainContent("");
-            setInputMarkdown("");
-            setUrlThumbnail("");
-            setErrThumbnail("");
-        }
-    }, [openFormCreate]);
+
 
     const handleOnCancel = () => {
         setUrlThumbnail("");
@@ -135,6 +132,38 @@ const BlogCreate = (props: IProps) => {
             }
         }
     }
+
+    //useEffect
+    useEffect(() => {
+        if (openFormCreate) {
+            setTitle(initState);
+            setContent(initState);
+            setPlainContent("");
+            setInputMarkdown("");
+            setUrlThumbnail("");
+            setErrThumbnail("");
+        }
+    }, [openFormCreate]);
+
+    useEffect(() => {
+
+        const getAllSubjects = async () => {
+            try {
+                const getAllSub = await sendRequest<ApiResponse<SubjectResponse>>({
+                    url: `${apiUrl}/hashtags/all`,
+                    method: 'GET',
+                });
+                console.log(getAllSub.data);
+                if (getAllSub.data && Array.isArray(getAllSub.data)) {
+                    setGetSubjects(getAllSub.data.map((hashTag: { tagName: string }) => hashTag.tagName));
+                }
+            } catch {
+                console.error("Error fetching subjects");
+            }
+        };
+        getAllSubjects()
+
+    }, []);
 
     return (
         <>
@@ -195,6 +224,22 @@ const BlogCreate = (props: IProps) => {
                                 </p>
                             )}
                         </Form.Item>
+                    </div>
+                    <div className="mb-5">
+                        <h4><span className="text-red-600">*</span> Lĩnh vực:</h4>
+                        <CheckboxGroup
+                            options={getSubjects?.map((subject) => ({
+                                label: subject,
+                                value: subject,
+                            }))}
+                            value={checkList}
+                            onChange={handlOnChange}
+                            style={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                gap: '8px',
+                            }}
+                        />
                     </div>
                     <div>
                         <span className="text-red-500 mr-2 mb-3">*</span>Ảnh:

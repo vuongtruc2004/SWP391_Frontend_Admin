@@ -61,7 +61,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
     }
     const acceptCourse = async (courseId: number) => {
         const acceptRes = await sendRequest<ApiResponse<CourseDetailsResponse>>({
-            url: `${apiUrl}/courses/accept/${courseId}`,
+            url: `${apiUrl}/courses/accept-status/${courseId}`,
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -81,27 +81,27 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
         }
     }
 
-    const unacceptCourse = async (courseId: number) => {
-        const unacceptRes = await sendRequest<ApiResponse<CourseDetailsResponse>>({
-            url: `${apiUrl}/courses/unaccept/${courseId}`,
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        if (unacceptRes.status === 200) {
-            notification.success({
-                message: String(unacceptRes.message),
-                description: unacceptRes.errorMessage,
-            });
-            router.refresh()
-        } else {
-            notification.error({
-                message: String(unacceptRes.message),
-                description: unacceptRes.errorMessage,
-            })
-        }
-    }
+    // const unacceptCourse = async (courseId: number) => {
+    //     const unacceptRes = await sendRequest<ApiResponse<CourseDetailsResponse>>({
+    //         url: `${apiUrl}/courses/unaccept/${courseId}`,
+    //         method: 'PUT',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         }
+    //     });
+    //     if (unacceptRes.status === 200) {
+    //         notification.success({
+    //             message: String(unacceptRes.message),
+    //             description: unacceptRes.errorMessage,
+    //         });
+    //         router.refresh()
+    //     } else {
+    //         notification.error({
+    //             message: String(unacceptRes.message),
+    //             description: unacceptRes.errorMessage,
+    //         })
+    //     }
+    // }
     const columns: TableProps<CourseDetailsResponse>['columns'] = [
         {
             title: "STT",
@@ -148,10 +148,13 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             width: '20%',
             render: (_, record: CourseDetailsResponse) => (
                 <Space size="middle">
-                    <InfoCircleOutlined style={{ color: "blue" }} onClick={() => {
-                        setOpenDraw(true);
-                        setCourse(record);
-                    }} />
+                    <Tooltip placement="bottom" title="Xem chi tiết">
+                        <InfoCircleOutlined style={{ color: "blue" }} onClick={() => {
+                            setOpenDraw(true);
+                            setCourse(record);
+                        }} />
+                    </Tooltip>
+
                     {session?.user.roleName && session.user.roleName === "EXPERT" && (
                         <>
                             <Tooltip title='Cập nhật khoá học' color='blue'>
@@ -172,41 +175,52 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
 
                         </>
                     )}
-                    <Popconfirm
-                        placement="left"
-                        title="Xóa môn học"
-                        description="Bạn có chắc chắn muốn xóa khóa học này không?"
-                        onConfirm={() => deleteCourse(record.courseId)}
-                        okText="Có"
-                        cancelText="Không"
-                    >
-                        <DeleteOutlined style={{ color: "red" }} />
-                    </Popconfirm>
-                    {
-                        session?.user.roleName && session?.user.roleName === "ADMIN" && (
-                            <CheckOutlined
-                                style={{
-                                    color: record.accepted ? "gray" : "#16db65",
-                                    cursor: record.accepted ? "not-allowed" : "pointer",
-                                    pointerEvents: record.accepted ? "none" : "auto"
-                                }}
-                                onClick={() => acceptCourse(record.courseId)}
-                            />
-                        )
-                    }
+                    <Tooltip placement="bottom" title='Xóa khóa học'>
+                        <Popconfirm
+                            placement="left"
+                            title="Xóa môn học"
+                            description="Bạn có chắc chắn muốn xóa khóa học này không?"
+                            onConfirm={() => deleteCourse(record.courseId)}
+                            okText="Có"
+                            cancelText="Không"
+                        >
+                            <DeleteOutlined style={{ color: "red" }} />
+                        </Popconfirm>
+                    </Tooltip>
 
                     {
                         session?.user.roleName && session?.user.roleName === "ADMIN" && (
-                            <CloseOutlined
-                                style={{
-                                    color: record.accepted ? "red" : "gray",
-                                    cursor: record.accepted ? "pointer" : "not-allowed",
-                                    pointerEvents: record.accepted ? "auto" : "none"
-                                }}
-                                onClick={() => unacceptCourse(record.courseId)}
-                            />
+                            <>
+                                {!record.accepted ? (
+                                    <Tooltip placement="bottom" title='Chấp nhận khóa học'>
+                                        <CheckOutlined
+                                            style={{
+                                                color: record.accepted ? "gray" : "#16db65",
+                                                cursor: record.accepted ? "not-allowed" : "pointer",
+                                                pointerEvents: record.accepted ? "none" : "auto"
+                                            }}
+                                            onClick={() => acceptCourse(record.courseId)}
+                                        />
+                                    </Tooltip>
+
+                                ) : (
+                                    <Tooltip placement="bottom" title='Ẩn khóa học'>
+                                        <CloseOutlined
+                                            style={{
+                                                color: record.accepted ? "red" : "gray",
+                                                cursor: record.accepted ? "pointer" : "not-allowed",
+                                                pointerEvents: record.accepted ? "auto" : "none"
+                                            }}
+                                            onClick={() => acceptCourse(record.courseId)}
+                                        />
+                                    </Tooltip>
+
+                                )}
+                            </>
+
                         )
                     }
+
                     <Tooltip title='Xem danh sách người mua' color='blue'>
                         <Link href={`/course/purchaser/${record.courseId}`}>
                             <UserOutlined />

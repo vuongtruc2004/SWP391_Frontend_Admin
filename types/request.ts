@@ -80,13 +80,14 @@ declare global {
         content: string;
         plainContent: string;
         thumbnail: string;
+        hashtag: string[];
     }
 
     interface NotificationRequest {
         title: string;
         content: string;
         global: boolean;
-        fullname: string[];
+        emails: string[];
     }
 
     interface OrderRequest {

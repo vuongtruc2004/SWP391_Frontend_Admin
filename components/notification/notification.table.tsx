@@ -1,6 +1,6 @@
 'use client'
 import { CheckOutlined, CloseOutlined, DeleteOutlined, InfoCircleOutlined, PlusOutlined, SearchOutlined, ToTopOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Modal, notification, Popconfirm, Select, Space, Table, TableProps } from 'antd';
+import { Button, Form, Input, Modal, notification, Popconfirm, Select, Space, Table, TableProps, Tooltip } from 'antd';
 import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react'
@@ -10,6 +10,7 @@ import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import NotificationCreate from './notification.create';
 
+//@ts-ignore
 const initState: ErrorResponse = {
     error: false,
     value: ''
@@ -17,6 +18,7 @@ const initState: ErrorResponse = {
 const NotificationTable = (props: {
     notificationPageResponse: PageDetailsResponse<NotificationResponse[]>,
 }) => {
+
     const { notificationPageResponse } = props
     const searchParam = useSearchParams();
     const page = Number(searchParam.get("page")) || 1;
@@ -39,7 +41,7 @@ const NotificationTable = (props: {
                 message: 'Thành công!',
                 description: 'Bạn đã xóa thông báo thành công!',
             })
-            router.refresh
+            router.refresh();
         } else {
             notification.error({
                 message: "Thất bại!",
@@ -75,22 +77,26 @@ const NotificationTable = (props: {
             width: '20%',
             render: (_, record: NotificationResponse) => (
                 <Space size="middle">
-                    <InfoCircleOutlined style={{ color: "blue" }} onClick={() => {
-                        setRecordNotification(record);
-                        setOpenModal(true);
-                    }} />
+                    <Tooltip key={`detail-${record.notificationId}`} placement="bottom" title={"Chi tiết thông báo"}>
+                        <InfoCircleOutlined style={{ color: "blue" }} onClick={() => {
+                            setRecordNotification(record);
+                            setOpenModal(true);
+                        }} />
+                    </Tooltip>
                     {session?.user.roleName === "ADMIN" && (
                         <>
-                            <Popconfirm
-                                placement="left"
-                                title="Xóa môn học"
-                                description="Bạn có chắc chắn muốn xóa thông báo này không?"
-                                okText="Có"
-                                cancelText="Không"
-                                onConfirm={() => { handleDelete(record.notificationId) }}
-                            >
-                                <DeleteOutlined style={{ color: "red" }} />
-                            </Popconfirm>
+                            <Tooltip key={`delete-${record.notificationId}`} placement="bottom" title={"Xóa thông báo"}>
+                                <Popconfirm
+                                    placement="left"
+                                    title="Xóa môn học"
+                                    description="Bạn có chắc chắn muốn xóa thông báo này không?"
+                                    okText="Có"
+                                    cancelText="Không"
+                                    onConfirm={() => { handleDelete(record.notificationId) }}
+                                >
+                                    <DeleteOutlined style={{ color: "red" }} />
+                                </Popconfirm>
+                            </Tooltip>
 
                         </>
                     )}
@@ -109,7 +115,10 @@ const NotificationTable = (props: {
             <Table
                 className="overflow-y-auto max-h-[calc(100vh-100px)] mb-8 pl-6 pr-6"
                 columns={columns}
-                dataSource={notificationPageResponse.content}
+                dataSource={notificationPageResponse.content.map((item) => ({
+                    ...item,
+                    key: item.notificationId,
+                }))}
                 rowKey={"notificationId"}
                 pagination={{
                     current: page,

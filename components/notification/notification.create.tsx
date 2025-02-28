@@ -19,7 +19,7 @@ const NotificationCreate = (props: {
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [content, setContent] = useState<ErrorResponse>(initState);
     const [global, setGlobal] = useState(true);
-    const [receiver, setReceiver] = useState<string[]>([]);
+    const [receiver, setReceiver] = useState<{ error: boolean, tags: string[] }>({ error: false, tags: [] });
     const [userOption, setUserOption] = useState<{ value: string, label: string }[]>([])
     const router = useRouter()
 
@@ -40,8 +40,9 @@ const NotificationCreate = (props: {
 
             console.log("Dữ liệu API nhận được:", dataRes);
             const users = Array.isArray(dataRes?.data) ? dataRes.data.map((user: UserResponse) => ({
-                value: user.fullname,
-                label: user.fullname,
+                key: user.userId,
+                value: user.email,
+                label: user.email,
             })) : [];
 
             setUserOption(users);
@@ -54,7 +55,7 @@ const NotificationCreate = (props: {
         title: title.value,
         content: content.value,
         global: global,
-        fullname: receiver
+        emails: receiver?.tags,
     }
     const handleOnOk = async () => {
         const isValidTitle = validTitle(title, setTitle);
@@ -64,7 +65,8 @@ const NotificationCreate = (props: {
             return;
         }
 
-        if (!global && receiver === null) {
+        if (!global && receiver.tags.length === 0) {
+            setReceiver(prev => ({ ...prev, error: true }))
             return;
         }
 
@@ -97,7 +99,7 @@ const NotificationCreate = (props: {
         setContent(initState);
         setTitle(initState);
         setGlobal(true);
-        setReceiver([]);
+        setReceiver({ error: false, tags: [] });
         setOpenCreate(false);
     }
 
@@ -106,6 +108,7 @@ const NotificationCreate = (props: {
             setTitle(initState);
             setContent(initState);
             setGlobal(true);
+            setReceiver({ error: false, tags: [] });
         }
     }, [openCreate]);
 
@@ -178,17 +181,20 @@ const NotificationCreate = (props: {
                             <p><span className='text-red-600'>*</span>Người nhận:</p>
                             <Form.Item>
                                 <Select
-                                    value={receiver}
+                                    value={receiver.tags}
                                     mode="tags"  // Cho phép nhập danh sách
                                     style={{ width: "100%" }}
                                     placeholder="Nhập tên người nhận"
-                                    onChange={(value) => setReceiver(value)} // Lưu danh sách vào state
+                                    onChange={(value) => setReceiver({
+                                        ...receiver,
+                                        tags: value,
+                                    })} // Lưu danh sách vào state
                                     filterOption={(input, option) =>
                                         (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
                                     }
                                     options={userOption} // Sử dụng danh sách từ API
                                 />
-                                {receiver.length === 0 && (
+                                {receiver.error === true && (
                                     <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
                                         <WarningOutlined />
                                         Vui lòng thêm người nhận thông báo
