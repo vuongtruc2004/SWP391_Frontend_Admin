@@ -152,6 +152,7 @@ declare global {
 
     interface LessonResponse {
         lessonId: number;
+        description: string;
         title: string;
         duration: number;
         lessonType: string;
