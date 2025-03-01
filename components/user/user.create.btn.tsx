@@ -383,7 +383,7 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
                             <span className="text-red-500 mr-2">*</span>Số năm kinh nghiệm:
                             <Input
                                 status={yearOfExperience.error ? 'error' : ''}
-                                placeholder="Nhập lượt kiểm tra"
+                                placeholder="Nhập số năm kinh nghiệm"
                                 allowClear={false}
                                 value={yearOfExperience.value}
                                 onChange={(e) => {

@@ -88,7 +88,7 @@ const OrderPage = async (props: {
                     keyword={keyword} orderStatus={orderStatus} createdFrom={createdFrom}
                     createdTo={createdTo} updatedFrom={updatedFrom} updatedTo={updatedTo}
                     minPrice={priceResponse.data.minPrice} maxPrice={priceResponse.data.maxPrice} />
-                <OrderCreate />
+
                 <OrderTable orderPageResponse={orderResponse.data} />
             </div>
         </>

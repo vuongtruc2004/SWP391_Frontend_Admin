@@ -1,6 +1,6 @@
 'use client'
 import { SearchOutlined, UndoOutlined } from '@ant-design/icons'
-import { Button, Form, Input, Select } from 'antd'
+import { Button, Form, Input, Select, Tooltip } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import Search from 'antd/es/input/Search'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -99,7 +99,7 @@ const UserSearch = (props: {
                                 { value: "ALL", label: "Tất cả" },
                                 { value: "MALE", label: 'Nam' },
                                 { value: "FEMALE", label: 'Nữ' },
-                                { value: 'UNKNOWN', label: 'Chưa thiết lập' }
+                                { value: 'null', label: 'Chưa thiết lập' }
                             ]}
                         />
                     </Form.Item>
@@ -107,7 +107,7 @@ const UserSearch = (props: {
 
             </Form >
 
-            <Button icon={<UndoOutlined style={{ fontSize: '20px' }} />} type='primary' onClick={handleReset} className='!p-[20px]'></Button>
+            <Tooltip color='blue' title='Làm mới'> <Button icon={<UndoOutlined style={{ fontSize: '20px' }} />} type='primary' onClick={handleReset} className='!p-[20px]'></Button></Tooltip>
         </div >
 
 

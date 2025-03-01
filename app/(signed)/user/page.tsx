@@ -44,7 +44,12 @@ const UserPage = async (props: {
         filter += `and locked : ${locked === 'active' ? false : true}`;
     }
     if (gender !== 'ALL') {
-        filter += ` and gender : '${gender}'`;
+        if (gender == 'null') {
+            filter += ` and gender is null`;
+        } else {
+            filter += ` and gender : '${gender}'`;
+        }
+
     }
 
     const userResponse = await sendRequest<ApiResponse<PageDetailsResponse<UserResponse[]>>>({

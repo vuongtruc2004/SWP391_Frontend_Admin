@@ -1,7 +1,7 @@
 'use client'
 
 import { SearchOutlined, UndoOutlined } from "@ant-design/icons";
-import { Button, DatePicker, DatePickerProps, Form, Input, InputNumber, Select } from "antd";
+import { Button, DatePicker, DatePickerProps, Form, Input, InputNumber, Select, Tooltip } from "antd";
 import { useForm } from "antd/es/form/Form";
 import dayjs from "dayjs";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
@@ -183,7 +183,7 @@ const OrderSearch = (props: {
 
                 </Form >
 
-                <Button icon={<UndoOutlined style={{ fontSize: '20px' }} />} type='primary' onClick={handleReset} className='!p-[20px]'></Button>
+                <Tooltip color="blue" title='Làm mới'>  <Button icon={<UndoOutlined style={{ fontSize: '20px' }} />} type='primary' onClick={handleReset} className='!p-[20px]'></Button></Tooltip>
             </div >
 
         </>
