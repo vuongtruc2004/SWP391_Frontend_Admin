@@ -2,15 +2,15 @@
 import { isValidYouTubeUrl } from '@/helper/create.course.helper';
 import { calculateReadingTime, extractVideoId, getYouTubeDuration } from '@/helper/get.youtube.duration.helper';
 import { sendRequest } from '@/utils/fetch.api';
-import { apiUrl } from '@/utils/url';
+import { apiUrl, storageUrl } from '@/utils/url';
 import { CloseOutlined } from '@ant-design/icons';
-import MDEditor from '@uiw/react-md-editor';
+import MDEditor, { getCommands, ICommand } from '@uiw/react-md-editor';
 import { Button, Card, Form, Input, notification, Tabs } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 
 interface FormValues {
     items: [
@@ -33,6 +33,53 @@ const CreateChapter = ({ course }: {
 }) => {
     const { data: session, status } = useSession();
     const { push } = useRouter();
+    const [inputMarkdown, setInputMarkdown] = useState("");
+    const [form] = Form.useForm();
+
+    const uploadDocument: ICommand = {
+        name: "upload-document",
+        keyCommand: "upload-document",
+        buttonProps: { "aria-label": "Upload Document" },
+        icon: <span className="text-blue-500">Upload Document</span>, // Icon hiển thị
+        execute: () => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = "application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            input.onchange = async (event) => {
+                const file = (event.target as HTMLInputElement);
+                if (file.files && file.files[0]) {
+                    const formData = new FormData();
+                    formData.set("file", file.files[0]);
+                    formData.set("folder", "document");
+
+
+                    const docRes = await sendRequest<ApiResponse<string>>({
+                        url: `${apiUrl}/files/document`,
+                        method: "POST",
+                        body: formData,
+                    });
+                    const docMarkdown = `[📄 ${file.files[0].name}](${storageUrl}/document/${docRes.data})`;
+
+                    const currentValues = form.getFieldsValue(true);
+                    const fieldIndex = 0;
+                    const lessonIndex = 0;
+                    if (currentValues.items[fieldIndex]?.lessons[lessonIndex]) {
+                        currentValues.items[fieldIndex].lessons[lessonIndex].documentContent =
+                            (currentValues.items[fieldIndex].lessons[lessonIndex].documentContent || "") + `\n${docMarkdown}\n`;
+
+                        form.setFieldsValue(currentValues);
+                        setInputMarkdown(currentValues.items[fieldIndex].lessons[lessonIndex].documentContent);
+                    }
+
+                }
+            };
+            input.click();
+        },
+    };
+
+
+    console.log("check mark", inputMarkdown)
+    const customCommands = [...getCommands(), uploadDocument];
 
     const onFinish = async (values: FormValues) => {
         if (status !== "authenticated") {
@@ -127,6 +174,7 @@ const CreateChapter = ({ course }: {
 
     return (
         <Form
+            form={form}
             labelCol={{ span: 12 }}
             wrapperCol={{ span: 24 }}
             layout='vertical'
@@ -226,15 +274,16 @@ const CreateChapter = ({ course }: {
                                                                                         <Form.Item
                                                                                             label="Nội dung tài liệu"
                                                                                             name={[subField.name, 'documentContent']}
-                                                                                        // rules={[{ required: true, message: 'Nội dung tài liệu không được để rỗng!' }]}
                                                                                         >
                                                                                             <MDEditor
+                                                                                                value={inputMarkdown}
                                                                                                 preview="edit"
                                                                                                 commandsFilter={(cmd) => (cmd.name && ["preview", "live", "fullscreen"].includes(cmd.name)) ? false : cmd}
                                                                                                 style={{
                                                                                                     background: '#e9ecef',
                                                                                                     color: 'black'
                                                                                                 }}
+                                                                                                commands={customCommands}
                                                                                             />
                                                                                         </Form.Item>
                                                                                     </>
