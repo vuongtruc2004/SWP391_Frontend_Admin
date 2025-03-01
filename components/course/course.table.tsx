@@ -33,8 +33,6 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
     const { data: session, status } = useSession();
     const [editingCourse, setEditingCourse] = useState<CourseResponse | null>(null)
     const [openEditForm, setOpenEditForm] = useState(false);
-    const [selectedCourse, setSelectedCourse] = useState<CourseDetailsResponse | null>(null);
-    const [openCreateChapterModal, setOpenCreateChapterModal] = useState(false);
     const [course, setCourse] = useState<CourseDetailsResponse | null>(null);
     const [render, setRender] = useState(false);
 
@@ -81,27 +79,6 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
         }
     }
 
-    // const unacceptCourse = async (courseId: number) => {
-    //     const unacceptRes = await sendRequest<ApiResponse<CourseDetailsResponse>>({
-    //         url: `${apiUrl}/courses/unaccept/${courseId}`,
-    //         method: 'PUT',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         }
-    //     });
-    //     if (unacceptRes.status === 200) {
-    //         notification.success({
-    //             message: String(unacceptRes.message),
-    //             description: unacceptRes.errorMessage,
-    //         });
-    //         router.refresh()
-    //     } else {
-    //         notification.error({
-    //             message: String(unacceptRes.message),
-    //             description: unacceptRes.errorMessage,
-    //         })
-    //     }
-    // }
     const columns: TableProps<CourseDetailsResponse>['columns'] = [
         {
             title: "STT",
@@ -128,7 +105,6 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             dataIndex: 'price',
             key: 'price',
             width: '10%',
-            // render: (salePrice: number) => salePrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }),
             sorter: {
                 compare: (a, b) => a.price - b.price,
             },
