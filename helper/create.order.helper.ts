@@ -1,6 +1,6 @@
 export const getOrderStatus = (value: string | null | undefined) => {
 
-    if (!value || (value !== 'PENDING' && value !== 'COMPLETED')) {
+    if (!value || (value !== 'PENDING' && value !== 'COMPLETED' && value != 'CANCELLED' && value != 'EXPIRED')) {
         return 'ALL';
     } else {
         return value;

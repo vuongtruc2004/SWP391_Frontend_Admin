@@ -131,6 +131,10 @@ const OrderSearch = (props: {
                                     { value: "ALL", label: "Tất cả" },
                                     { value: "PENDING", label: 'Chưa thanh toán' },
                                     { value: "COMPLETED", label: 'Đã thanh toán' },
+                                    { value: "EXPIRED", label: 'Đã hết hạn' },
+                                    { value: "CANCELLED", label: 'Đã hủy' },
+
+
 
                                 ]}
                             />

@@ -6,8 +6,9 @@ import dayjs from "dayjs";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { sendRequest } from "@/utils/fetch.api";
 import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
-import { validDob, validEmail, validFullName, validGender, validPassword, validRole } from "@/helper/create.user.helper";
+import { validAchievement, validDescription, validDob, validEmail, validFullName, validGender, validJob, validPassword, validRole, validYearOfExperience } from "@/helper/create.user.helper";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const initState: ErrorResponse = {
     error: false,
@@ -33,11 +34,15 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
     const [password, setPassword] = useState<ErrorResponse>(initState);
 
     const [avatar, setAvatar] = useState<File | null>(null);
-
+    const [job, setJob] = useState<ErrorResponse>(initState);
+    const [yearOfExperience, setYearOfExperience] = useState<ErrorResponse>(initState);
+    const [achievement, setAchievement] = useState<ErrorResponse>(initState);
+    const [description, setDescription] = useState<ErrorResponse>(initState);
     const [errorMessage, setErrorMessage] = useState("");
     const [isPreviewVisible, setPreviewVisible] = useState<boolean>(false);
     const [urlAvatar, setUrlAvatar] = useState<ErrorResponse>(initState);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const { data: session, status } = useSession();
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -50,8 +55,14 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
         const isGenderValid = validGender(gender, setGender);
         const isRoleValid = validRole(role, setRole);
         const isDobValid = validDob(dob, setDob);
-
+        const isJobValid = validJob(job, setJob);
+        const isYearOfExperienceValid = validYearOfExperience(yearOfExperience, setYearOfExperience);
+        const isAchievementValid = validAchievement(achievement, setAchievement);
+        const isDescriptipnValid = validDescription(description, setDescription);
         if (!isEmailValid || !isFullNameValid || !isPasswordValid || !isGenderValid || !isRoleValid || !isDobValid) {
+            return;
+        }
+        if (role.value == 'EXPERT' && (!isJobValid || !isYearOfExperienceValid || !isAchievementValid || !isDescriptipnValid)) {
             return;
         }
 
@@ -76,7 +87,6 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
             }
         }
 
-        // Gửi request tạo người dùng
         const userRequest: UserRequest = {
             email: email.value,
             password: password.value,
@@ -84,14 +94,21 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
             roleName: role.value,
             gender: gender.value,
             dob: dayjs(dob.value).format("YYYY-MM-DD"),
-            avatar: urlAvatar.value
+            avatar: urlAvatar.value,
+            job: job.value ? job.value : '',
+            yearOfExperience: yearOfExperience.value ? Number(yearOfExperience.value) : undefined,
+            achievement: achievement.value ? achievement.value : '',
+            description: description.value ? description.value : ''
+
+
         };
 
         const createResponse = await sendRequest<ApiResponse<UserResponse>>({
             url: `${apiUrl}/users`,
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.accessToken}`
             },
             body: userRequest
         });
@@ -127,10 +144,15 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
             value: 'MALE'
         });
         setDob(initState);
+        setJob(initState);
+        setYearOfExperience(initState);
+        setAchievement(initState);
+        setDescription(initState);
         setUrlAvatar(initState);
         setIsModalOpen(false);
         setErrorMessage("");
         setAvatar(null);
+
     };
 
     const handleDateChange: DatePickerProps["onChange"] = (date) => {
@@ -331,6 +353,110 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
                         </p>
                     )}
                 </div>
+                {role.value == 'EXPERT' && (
+                    <>
+                        <div className="mb-3">
+                            <span className="text-red-500 mr-2">*</span>Công việc:
+                            <Input
+                                status={job.error ? 'error' : ''}
+                                placeholder="Nhập công việc"
+                                allowClear={false}
+                                value={job.value}
+                                onChange={(e) => {
+                                    setJob({
+                                        ...job,
+                                        value: e.target.value,
+                                        error: false
+                                    })
+
+                                }}
+                                className="mt-1" />
+                            {job.error && (
+                                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                    <WarningOutlined />
+                                    {job.message}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="mb-3">
+                            <span className="text-red-500 mr-2">*</span>Số năm kinh nghiệm:
+                            <Input
+                                status={yearOfExperience.error ? 'error' : ''}
+                                placeholder="Nhập lượt kiểm tra"
+                                allowClear={false}
+                                value={yearOfExperience.value}
+                                onChange={(e) => {
+                                    setYearOfExperience({
+                                        ...yearOfExperience,
+                                        value: e.target.value,
+                                        error: false
+                                    })
+
+                                }}
+                                className="mt-1" />
+                            {yearOfExperience.error && (
+                                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                    <WarningOutlined />
+                                    {yearOfExperience.message}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="mb-3">
+                            <span className="text-red-500 mr-2">*</span>Thành tựu:
+                            <Input.TextArea
+                                status={achievement.error ? 'error' : ''}
+                                placeholder="Nhập thành tựu"
+                                allowClear={false}
+                                value={achievement.value}
+                                onChange={(e) => {
+                                    setAchievement({
+                                        ...achievement,
+                                        value: e.target.value,
+                                        error: false
+                                    })
+
+                                }}
+                                autoSize={{ minRows: 3, maxRows: 6 }}
+                                className="mt-1" />
+
+                            {achievement.error && (
+                                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                    <WarningOutlined />
+                                    {achievement.message}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="mb-3">
+                            <span className="text-red-500 mr-2">*</span>Miêu tả:
+                            <Input.TextArea
+                                status={description.error ? 'error' : ''}
+                                placeholder="Nhập miêu tả"
+                                allowClear={false}
+                                value={description.value}
+                                onChange={(e) => {
+                                    setDescription({
+                                        ...description,
+                                        value: e.target.value,
+                                        error: false
+                                    })
+
+                                }}
+                                autoSize={{ minRows: 3, maxRows: 6 }}
+                                className="mt-1" />
+
+                            {description.error && (
+                                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                    <WarningOutlined />
+                                    {description.message}
+                                </p>
+                            )}
+                        </div>
+                    </>
+
+                )}
                 <div className=" mb-3">
                     <span className="text-red-500 mr-2 ">*</span>Ngày sinh:
                     <Space direction="vertical" className="ml-3">

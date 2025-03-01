@@ -240,13 +240,13 @@ declare global {
         createdAt: string;
         updatedAt: string;
         user: UserResponse;
+        totalAmount: number;
         orderDetails: OrderDetailsResponse[];
     }
 
     interface OrderDetailsResponse {
         orderDetailsId: number;
-        price: number;
-        course: CourseResponse;
+        courseId: number;
     }
 
     interface NotificationResponse {

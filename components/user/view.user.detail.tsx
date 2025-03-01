@@ -50,6 +50,7 @@ const ViewUserDetail = (props: IProps) => {
                         <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Thành tựu: </span>{expertDetailsResponse?.achievement}</div>
                         <div className={`mb-2 ${!showDescription && 'line-clamp-3 cursor-pointer '}`} onClick={() => setShowDescription(prev => !prev)}> <span className=' text-blue-500 text-base mr-2 font-bold' >Mô tả: </span>{expertDetailsResponse?.description}</div>
                         <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Công việc: </span>{expertDetailsResponse?.job}</div>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Số năm kinh nghiệm: </span>{expertDetailsResponse?.yearOfExperience}</div>
                         <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Số lượng học viên: </span>{expertDetailsResponse?.totalStudents}</div>
                         <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Số lượng khóa học: </span>{expertDetailsResponse?.totalCourses}</div>
                     </> : ''

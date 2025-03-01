@@ -3,7 +3,7 @@
 import { validDate, validMaxAttempts, validTitle } from "@/helper/create.quiz.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
-import { DeleteFilled, EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, WarningOutlined } from "@ant-design/icons";
+import { DeleteFilled, DeleteOutlined, EyeOutlined, MinusCircleOutlined, PlusCircleFilled, PlusCircleOutlined, WarningOutlined } from "@ant-design/icons";
 import { Button, Checkbox, DatePicker, DatePickerProps, Image, Input, Modal, notification, Select, Space, Tooltip } from "antd";
 import dayjs from "dayjs";
 import { url } from "inspector";
@@ -39,6 +39,7 @@ const QuizCreateBtn = (props: {
     const CheckboxGroup = Checkbox.Group;
     const [checkedList, setCheckedList] = useState<string[]>([]);
     const [questionList, setQuestionList] = useState<string[]>([]);
+    const [searchText, setSearchText] = useState("");
 
 
     useEffect(() => {
@@ -53,7 +54,7 @@ const QuizCreateBtn = (props: {
             const questionResponse = await sendRequest<ApiResponse<QuestionResponse[]>>({
                 url: `${apiUrl}/questions/all-inpagination`,
             });
-
+            console.log("questionResponse>>>", questionResponse)
             if (questionResponse && questionResponse.data) {
                 // Kiểm tra xem có dữ liệu không
                 const questionTitles = questionResponse.data.map((question) => question.title);
@@ -65,6 +66,10 @@ const QuizCreateBtn = (props: {
             console.error("Lỗi khi lấy danh sách câu hỏi:", error);
         }
     };
+
+    const filteredQuestions = questionList.filter((question) =>
+        question.toLowerCase().includes(searchText.toLowerCase())
+    );
 
     const handleOk = async () => {
         setIsSubmitted(true);
@@ -273,6 +278,7 @@ const QuizCreateBtn = (props: {
         setCreateQuestions([{ value: "", answers: [{ content: "", correct: false, empty: true }], errorMessage: "" }]);
         setIsModalOpen(false);
         setCheckedList([]);
+        setSearchText('');
     };
     const handleStartedAtChange: DatePickerProps["onChange"] = (date) => {
         setStartedAt({ ...startedAt, value: date ? dayjs(date).format("YYYY-MM-DD") : "", error: false });
@@ -455,17 +461,12 @@ const QuizCreateBtn = (props: {
                 {createQuestions.map((question, qIndex) => (
                     <div key={qIndex} className="mb-4 border-gray-400 border-2 p-4 rounded">
                         <Input
-                            status={question.errorMessage !== '' ? 'error' : ''}
+                            status={(question.errorMessage !== '' && !(checkedList.length > 0)) ? 'error' : ''}
                             placeholder="Nhập câu hỏi"
                             value={question.value}
                             onChange={(e) => updateQuestion(qIndex, e.target.value)} />
-                        {/* {isSubmitted && (question.value == '') && (
-                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                <WarningOutlined />
-                                Vui lòng không để trống câu hỏi
-                            </p>
-                        )} */}
-                        {question.errorMessage && (
+
+                        {question.errorMessage && !(checkedList.length > 0) && (
                             <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                 <WarningOutlined />
                                 {question.errorMessage}
@@ -479,15 +480,19 @@ const QuizCreateBtn = (props: {
                                         onChange={() => toggleCorrect(qIndex, aIndex)} />
 
                                     <Input
-                                        status={(isSubmitted && answer.content == '') ? 'error' : ''}
+                                        status={(isSubmitted && answer.content == '' && !(checkedList.length > 0)) ? 'error' : ''}
                                         placeholder={`Câu trả lời ${aIndex + 1}`}
                                         value={answer.content}
                                         onChange={(e) => updateAnswer(qIndex, aIndex, e.target.value)} />
-                                    {question.answers.length > 1 && <MinusCircleOutlined onClick={() => removeAnswer(qIndex, aIndex)} style={{ color: 'red', cursor: 'pointer' }} />}
+                                    <div className="flex gap-1">
+                                        {question.answers.length > 1 && <Tooltip title='Xóa câu trả lời' color="blue"><MinusCircleOutlined onClick={() => removeAnswer(qIndex, aIndex)} style={{ color: 'red', cursor: 'pointer' }} /></Tooltip>}
+                                        <Tooltip color="blue" title="Thêm câu trả lời"> <PlusCircleOutlined style={{ color: 'blue', cursor: 'pointer', marginTop: '8px' }} onClick={() => addAnswer(qIndex)} /> </Tooltip>
+
+                                    </div>
 
                                 </div>
 
-                                {isSubmitted && answer.content == '' && (
+                                {isSubmitted && answer.content == '' && !(checkedList.length > 0) && (
                                     <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                         <WarningOutlined />
                                         Vui lòng không để trống câu trả lời
@@ -495,27 +500,31 @@ const QuizCreateBtn = (props: {
                                 )}
                             </div>
                         ))}
-                        <Button
-                            type="dashed"
-                            style={{ width: '100%', marginTop: '10px' }}
-                            onClick={() => addAnswer(qIndex)}
-                            icon={<PlusCircleOutlined />}>
-                            Thêm câu trả lời
-                        </Button>
-                        {!question.answers.some(answer => answer.correct === true) && isSubmitted && (
+
+
+
+
+                        {createQuestions.length > 1 && <Tooltip title='Xóa câu hỏi' color="blue"> <Button type="primary" style={{ width: '5%', height: '5%', marginTop: '8px' }} icon={<DeleteOutlined />} danger onClick={() => removeQuestion(qIndex)}></Button></Tooltip>}
+                        {!question.answers.some(answer => answer.correct === true) && isSubmitted && !(checkedList.length > 0) && (
                             <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                 <WarningOutlined />
                                 Bạn chưa chọn đáp án đúng!
                             </p>
                         )}
-                        {createQuestions.length > 1 && <Tooltip title='Xóa câu hỏi' color="blue"> <Button type="link" icon={<DeleteFilled />} danger onClick={() => removeQuestion(qIndex)}></Button></Tooltip>}
                     </div>
                 ))}
-
-                <Button type="dashed" style={{ width: '100%', marginBottom: '5px' }} onClick={addQuestion} icon={<PlusCircleOutlined />}>Thêm câu hỏi</Button>
+                <Button type="primary" style={{ width: '23%', marginBottom: '5px' }} onClick={addQuestion} >Thêm câu hỏi</Button>
 
                 <div>
                     <span className="text-red-500 mr-2 mb">*</span>Danh sách câu hỏi:
+                    {/* Thanh tìm kiếm */}
+                    <Input.Search
+                        placeholder="Tìm kiếm câu hỏi..."
+                        allowClear
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                        style={{ marginBottom: '8px' }}
+                    />
                     <div
                         style={{
                             maxHeight: "200px", // Điều chỉnh chiều cao tối đa tùy ý
@@ -527,9 +536,9 @@ const QuizCreateBtn = (props: {
                         }}
                     >
                         <CheckboxGroup
-                            options={questionList.map((question, index) => ({
+                            options={filteredQuestions.map((question, index) => ({
                                 label: question,
-                                value: question, // Dùng index làm value để đảm bảo duy nhất
+                                value: question,
                             }))}
                             value={checkedList}
                             onChange={onChange}

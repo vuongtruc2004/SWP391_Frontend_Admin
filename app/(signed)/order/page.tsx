@@ -54,31 +54,30 @@ const OrderPage = async (props: {
         filters.push(`updatedAt > '${updatedFrom}' and updatedAt < '${updatedTo}'`);
     }
 
+    if (minPrice != '') {
+        filters.push(` totalAmount >: ${minPrice}`)
+    }
+    if (maxPrice != '') {
+        filters.push(` totalAmount <: ${maxPrice} `)
+    }
+
+
     const filter = filters.length > 0 ? filters.join(" and ") : '';
 
     const priceResponse = await sendRequest<ApiResponse<MinMaxPriceResponse>>({
         url: `${apiUrl}/orders/price-range`,
 
     })
-    const queryParams: Record<string, any> = {
-        page: page,
-        size: 10,
-        filter: filter
-    };
+    console.log("minPrice>>>>>>...", priceResponse);
 
-    if (minPrice != '' && maxPrice == '') {
-        queryParams.minPrice = minPrice;
-
-    } else if (minPrice == '' && maxPrice != '') {
-        queryParams.maxPrice = maxPrice;
-    } else if (minPrice != '' && maxPrice != '') {
-        queryParams.minPrice = minPrice;
-        queryParams.maxPrice = maxPrice;
-    }
 
     const orderResponse = await sendRequest<ApiResponse<PageDetailsResponse<OrderResponse[]>>>({
         url: `${apiUrl}/orders`,
-        queryParams: queryParams
+        queryParams: {
+            page: page,
+            size: 10,
+            filter: filter
+        }
     })
 
     return (

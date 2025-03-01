@@ -37,7 +37,73 @@ export const validFullName = (fullName: ErrorResponse, setFullName: React.Dispat
     return true;
 
 }
+export const validJob = (job: ErrorResponse, setJob: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
+    if (job.value.trim() === '') {
+        setJob({
+            ...job,
+            error: true,
+            message: 'Công việc không được để rỗng'
+        })
+        return false;
+    }
 
+
+    return true;
+
+}
+export const validYearOfExperience = (yearOfExperience: ErrorResponse, setYearOfExperience: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
+    if (yearOfExperience.value.trim() === '') {
+        setYearOfExperience({
+            ...yearOfExperience,
+            error: true,
+            message: 'Vui lòng không để trống số năm kinh nghiệm'
+        })
+        return false;
+    }
+    const regex = /^\d+$/;
+
+    if (!regex.test(yearOfExperience.value)) {
+        setYearOfExperience({
+            ...yearOfExperience,
+            error: true,
+            message: 'Số năm kinh nghiệm phải là số nguyên dương'
+        });
+        return false;
+    }
+
+
+    return true;
+
+}
+export const validAchievement = (achievement: ErrorResponse, setAchievement: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
+    if (achievement.value.trim() === '') {
+        setAchievement({
+            ...achievement,
+            error: true,
+            message: 'Thành tựu không được để rỗng'
+        })
+        return false;
+    }
+
+
+    return true;
+
+}
+
+export const validDescription = (description: ErrorResponse, setDescription: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
+    if (description.value.trim() === '') {
+        setDescription({
+            ...description,
+            error: true,
+            message: 'Miêu tả không được để rỗng'
+        })
+        return false;
+    }
+
+
+    return true;
+
+}
 export const validPassword = (password: ErrorResponse, setPassword: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
     if (password.value.trim() === '') {
         setPassword({

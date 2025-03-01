@@ -65,11 +65,10 @@ const OrderTable = (props: {
         },
         {
             title: 'Họ và tên khách hàng',
-            key: 'fullname',
+            key: 'userId',
             width: '30%',
             align: 'center',
             render: (_, record) => record.user.fullname,
-            sorter: (a, b) => a.user.fullname.localeCompare(b.user.fullname),
         },
 
         {
@@ -77,28 +76,39 @@ const OrderTable = (props: {
             key: 'price',
             width: '30%',
             align: 'center',
-            render: (_, record) => {
-                const totalPrice = record.orderDetails.reduce((total, detail) => total + detail.price, 0);
-                return `${totalPrice.toLocaleString()}₫`
-            },
-            sorter: (a, b) => {
-                const total1 = a.orderDetails.reduce((total, detail) => total + detail.price, 0);
-                const total2 = a.orderDetails.reduce((total, detail) => total + detail.price, 0);
-                return total1 - total2;
-            },
+            render: (_, record) => `${record.totalAmount}₫`
+
+
         },
         {
             title: 'Trạng thái',
             dataIndex: 'orderStatus',
             key: 'orderStatus',
             align: 'center',
-            render: (_, record) => (
-                <span className="text-nowrap" style={{ color: record.orderStatus == 'PENDING' ? 'red' : 'green' }} >
-                    {record.orderStatus == 'PENDING' ? 'Chưa thanh toán' : 'Đã thanh toán'}
-                </span>
-            ),
+            render: (_, record) => {
+                const statusColors: Record<string, string> = {
+                    PENDING: 'red',
+                    COMPLETED: 'green',
+                    EXPIRED: 'gray',
+                    CANCELLED: 'orange',
+                };
+
+                const statusLabels: Record<string, string> = {
+                    PENDING: 'Chưa thanh toán',
+                    COMPLETED: 'Đã thanh toán',
+                    EXPIRED: 'Đã hết hạn',
+                    CANCELLED: 'Đã hủy',
+                };
+
+                return (
+                    <span className="text-nowrap" style={{ color: statusColors[record.orderStatus] }}>
+                        {statusLabels[record.orderStatus] || 'Không xác định'}
+                    </span>
+                );
+            },
             sorter: (a, b) => a.orderStatus.localeCompare(b.orderStatus),
-        },
+        }
+        ,
         {
             title: 'Hành động',
             key: 'action',

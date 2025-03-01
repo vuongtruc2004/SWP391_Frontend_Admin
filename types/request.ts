@@ -11,6 +11,10 @@ declare global {
         email?: string;
         gender?: string;
         dob?: string;
+        job?: string;
+        achievement?: string;
+        description?: string;
+        yearOfExperience?: number;
     }
 
     interface SubjectRequest {
