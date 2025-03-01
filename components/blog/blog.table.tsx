@@ -1,6 +1,6 @@
 'use client'
 import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, LikeOutlined, MessageOutlined, StarOutlined, ToTopOutlined } from "@ant-design/icons"
-import { Avatar, Button, Descriptions, DescriptionsProps, Empty, Flex, List, Modal, notification, Pagination, Popconfirm, Space, Table, TableProps, Tooltip, Tree, TreeDataNode, TreeProps, Typography } from "antd"
+import { Avatar, Button, Descriptions, DescriptionsProps, Empty, Flex, List, Modal, notification, Pagination, Popconfirm, Space, Table, TableProps, Tag, Tooltip, Tree, TreeDataNode, TreeProps, Typography } from "antd"
 import dayjs from "dayjs"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useState } from "react"
@@ -91,24 +91,33 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             title: 'Tiêu đề',
             dataIndex: 'title',
             key: 'title',
-            width: '40%',
-            sorter: (a, b) => a.title.localeCompare(b.title),
+            width: '30%',
+            // sorter: (a, b) => a.title.localeCompare(b.title),
         },
         {
             title: 'Tác giả',
             dataIndex: 'user',
             key: 'user',
-            width: '20%',
-            sorter: (a, b) => a.user.fullname.localeCompare(b.user.fullname),
+            width: '15%',
+            // sorter: (a, b) => a.user.fullname.localeCompare(b.user.fullname),
             render: (user) => user?.fullname || "No author!"
         },
         {
             title: 'Ngày tạo',
             dataIndex: 'createdAt',
             key: 'createdAt',
-            width: '20%',
+            width: '15%',
             // sorter: (a, b) => a.user.fullname.localeCompare(b.user.fullname),
             render: (createdAt: string) => (dayjs(createdAt).format("DD/MM/YYYY")),
+            align: "center"
+        },
+        {
+            title: 'Ngày cập nhật',
+            dataIndex: 'updatedAt',
+            key: 'updatedAt',
+            width: '20%',
+            // sorter: (a, b) => a.user.fullname.localeCompare(b.user.fullname),
+            render: (updatedAt: string) => (updatedAt ? dayjs(updatedAt).format("DD/MM/YYYY") : "Chưa cập nhật"),
             align: "center"
         },
         {
@@ -116,7 +125,7 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             dataIndex: 'published',
             key: 'published',
             width: '10%',
-            sorter: (a, b) => a.user.fullname.localeCompare(b.user.fullname),
+            // sorter: (a, b) => a.user.fullname.localeCompare(b.user.fullname),
             render: (published: boolean) => (published ? "Công khai" : "Chỉ mình tôi"),
             align: "center"
         },
@@ -193,7 +202,7 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
     const items: DescriptionsProps['items'] = [
         {
             key: '1',
-            label: 'Tác giả:',
+            label: 'Tác giả',
             children: `${selectRecord?.user.fullname}`,
             style: {
                 width: '60%'
@@ -202,7 +211,7 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
         },
         {
             key: '2',
-            label: 'Ngày tạo:',
+            label: 'Ngày tạo',
             children: `${dayjs(selectRecord?.createdAt).format("DD/MM/YYYY")}`,
             style: {
                 width: '40%'
@@ -309,7 +318,15 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
                         <Descriptions items={items} />
                         <img src={selectRecord?.thumbnail ? `${storageUrl}/blog/${selectRecord.thumbnail}` : undefined} alt="" className="mt-5" />
                         <div dangerouslySetInnerHTML={{ __html: selectRecord.content }} className="my-10"></div>
-                        <hr className="mb-9" />
+                        <div>
+                            <h1 className="mb-2 font-semibold">Tags:</h1>
+                            <Flex gap="4px 0" wrap>
+                                {selectRecord.hashtags.map((tag) => (
+                                    <Tag color="blue" key={tag.tagId}>{tag.tagName}</Tag>
+                                ))}
+                            </Flex>
+                        </div>
+                        <hr className="my-9" />
                         <h1 className="font-[600] text-[20px]">
                             <strong>Bình luận:<Avatar size={30} style={{ marginLeft: "10px" }}>{selectRecord.totalComments}</Avatar></strong>
                         </h1>

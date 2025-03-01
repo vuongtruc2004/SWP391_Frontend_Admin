@@ -84,7 +84,7 @@ declare global {
         content: string;
         plainContent: string;
         thumbnail: string;
-        hashtag: string[];
+        hashtags: string[];
     }
 
     interface NotificationRequest {

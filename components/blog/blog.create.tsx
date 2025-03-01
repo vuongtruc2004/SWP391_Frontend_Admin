@@ -66,7 +66,7 @@ const BlogCreate = (props: IProps) => {
             content: htmlText.toString(),
             plainContent: stripHtml(htmlText.toString()),
             thumbnail: urlThumbnail,
-            hashtag: checkList ? checkList : [],
+            hashtags: checkList ? checkList : [],
         }
 
         const createBlog = await sendRequest<ApiResponse<BlogResponse>>({
@@ -142,6 +142,7 @@ const BlogCreate = (props: IProps) => {
             setInputMarkdown("");
             setUrlThumbnail("");
             setErrThumbnail("");
+            setCheckList([]);
         }
     }, [openFormCreate]);
 

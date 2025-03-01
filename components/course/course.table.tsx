@@ -125,10 +125,9 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             render: (_, record: CourseDetailsResponse) => (
                 <Space size="middle">
                     <Tooltip placement="bottom" title="Xem chi tiết">
-                        <InfoCircleOutlined style={{ color: "blue" }} onClick={() => {
-                            setOpenDraw(true);
-                            setCourse(record);
-                        }} />
+                        <Link href={`/course/details/${record.courseId}`}>
+                            <InfoCircleOutlined />
+                        </Link>
                     </Tooltip>
 
                     {session?.user.roleName && session.user.roleName === "EXPERT" && (

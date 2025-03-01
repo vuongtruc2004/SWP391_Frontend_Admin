@@ -128,7 +128,7 @@ const BlogUpdate = (props: IProps) => {
             content: htmlTextContent.toString(),
             plainContent: stripHtml(htmlTextContent.toString()),
             thumbnail: urlThumbnail,
-            hashtag: checkList,
+            hashtags: checkList,
         }
 
 
