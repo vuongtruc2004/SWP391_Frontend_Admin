@@ -57,7 +57,8 @@ const UserPage = async (props: {
         queryParams: {
             page: page,
             size: 10,
-            filter: filter
+            filter: filter,
+            sort: "updatedAt,desc"
         }
     });
 

@@ -54,6 +54,9 @@ const ViewOrderDetail = (props: {
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ngày tạo: </span>
                         {viewOrderDetail.createdAt ? dayjs(viewOrderDetail.createdAt).format("DD/MM/YYYY HH:mm:ss") : 'Không có dữ liệu'}
                     </div>
+                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ngày cập nhật: </span>
+                        {viewOrderDetail.updatedAt ? dayjs(viewOrderDetail.updatedAt).format("DD/MM/YYYY HH:mm:ss") : 'Không có dữ liệu'}
+                    </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Họ và tên: </span>
                         {viewOrderDetail.user?.fullname || 'Không có dữ liệu'}
                     </div>
@@ -80,7 +83,7 @@ const ViewOrderDetail = (props: {
                                                 {activeOrder === index && (
                                                     courseDetails[orderDetail.courseId] ? (
                                                         <ul className="ml-6 mt-2 list-disc">
-                                                            <li><span className="font-medium text-blue-500">Số tiền:</span> {courseDetails[orderDetail.courseId]?.price}₫ </li>
+                                                            {/* <li><span className="font-medium text-blue-500">Số tiền:</span> {courseDetails[orderDetail.courseId]?.price}₫ </li> */}
                                                             <li><span className="font-medium text-blue-500">Khóa học:</span> {courseDetails[orderDetail.courseId]?.courseName}</li>
                                                             <li><span className="font-medium text-blue-500">Mô tả:</span> {courseDetails[orderDetail.courseId]?.description}</li>
                                                             <li><span className="font-medium text-blue-500">Giảng viên:</span> {courseDetails[orderDetail.courseId]?.expert?.user.fullname}</li>

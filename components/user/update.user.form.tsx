@@ -45,9 +45,21 @@ const UpdateUserForm = (props: IProps) => {
         setDob({ ...dob, value: date ? dayjs(date).format("YYYY-MM-DD") : "", error: false });
     };
     const fileInputRef = useRef<HTMLInputElement>(null);
-
+    const [initialUser, setInitialUser] = useState<UserRequest | null>(null);
     useEffect(() => {
         if (editingUser) {
+            setInitialUser({
+                userId: editingUser.userId,
+                email: editingUser.email,
+                fullname: editingUser.fullname,
+                roleName: editingUser.roleName,
+                gender: editingUser.gender,
+                dob: editingUser.dob ? editingUser.dob : '',
+                avatar: editingUser.avatar || ''
+            });
+
+
+
             setEmail({
                 error: false,
                 value: editingUser.email
@@ -117,6 +129,17 @@ const UpdateUserForm = (props: IProps) => {
             gender: gender.value,
             dob: dob.value ? dayjs(dob.value).format("YYYY-MM-DD") : editingUser?.dob || '',
             avatar: urlAvatar.value
+        }
+
+
+
+        if (JSON.stringify(userRequest) === JSON.stringify(initialUser)) {
+            notification.info({
+                message: "Không có thay đổi",
+                description: "Không có thông tin nào được cập nhật.",
+            });
+            handleCancel();
+            return;
         }
         const updateResponse = await sendRequest<ApiResponse<UserResponse>>({
             url: `${apiUrl}/users`,

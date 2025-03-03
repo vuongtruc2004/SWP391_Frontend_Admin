@@ -24,8 +24,6 @@ const ViewPurchaserDetail = (props: {
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Vai trò: </span>{userDetail.roleName}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ngày sinh: </span>{userDetail.dob == null ? 'Chưa cung cấp ngày sinh' : userDetail.dob}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Loại tài khoản: </span>{userDetail.accountType}</div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ngày tạo: </span>{userDetail.createdAt == null ? 'Không có dữ liệu' : userDetail.createdAt}</div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ngày cập nhật: </span>{userDetail.updatedAt == null ? 'Không có dữ liệu' : userDetail.updatedAt}</div>
 
 
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ảnh:</span> </div><br />

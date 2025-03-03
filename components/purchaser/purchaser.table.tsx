@@ -100,8 +100,8 @@ const PurchaserTable = (props: {
             width: '10%',
             align: 'center',
             render: (locked: boolean) => (
-                <span style={{ color: locked ? 'red' : 'green' }}>
-                    {locked ? "Bị khóa" : "Không khóa"}
+                <span style={{ color: locked ? 'red' : 'green', whiteSpace: 'nowrap' }}>
+                    {locked ? "Bị khóa" : "Đang hoạt động"}
                 </span>
             ),
             sorter: {

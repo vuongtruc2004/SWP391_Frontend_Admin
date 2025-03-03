@@ -64,11 +64,21 @@ const OrderTable = (props: {
             },
         },
         {
+            title: 'Email',
+            key: 'email',
+            width: '20%',
+            align: 'center',
+            render: (_, record) => record.user.email,
+        },
+        {
             title: 'Họ và tên khách hàng',
             key: 'userId',
-            width: '30%',
+            width: '20%',
             align: 'center',
-            render: (_, record) => record.user.fullname,
+            render: (_, record) =>
+                <span className="text-nowrap">
+                    {record.user.fullname}
+                </span>,
         },
 
         {
@@ -76,7 +86,7 @@ const OrderTable = (props: {
             key: 'price',
             width: '30%',
             align: 'center',
-            render: (_, record) => `${record.totalAmount}₫`
+            render: (_, record) => `${record.totalAmount.toLocaleString()}₫`
 
 
         },

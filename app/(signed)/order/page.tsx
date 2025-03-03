@@ -39,7 +39,7 @@ const OrderPage = async (props: {
     let filters: string[] = [];
 
     if (keyword !== '') {
-        filters.push(`user.fullname ~ '${keyword}'`);
+        filters.push(`(user.fullname ~ '${keyword}' or user.email ~ '${keyword}')`);
     }
 
     if (orderStatus !== 'ALL') {

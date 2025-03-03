@@ -57,7 +57,7 @@ const QuizPageClient = (props: {
         }
     };
     return (
-        <div className="borde w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
+        <div className="borde w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col">
             <QuizSearch keyword={keyword} published={published} maxAttempts={maxAttempts} startedFrom={startedFrom} startedTo={startedTo} endedFrom={endedFrom} endedTo={endedTo} haveTime={haveTime} />
             <QuizCreateBtn handelOnExportExcel={handelOnExportExcel} />
             <QuizTable quizPageResponse={quizPageResponse} />

@@ -164,12 +164,13 @@ export const validDob = (dob: ErrorResponse, setDob: React.Dispatch<SetStateActi
     }
 
     const birthDate = dayjs(dob.value);
-    const age = dayjs().diff(birthDate, 'year');
-    if (age < 6) {
+    const validDate = birthDate.add(18, 'year');
+
+    if (dayjs().isBefore(validDate)) {
         setDob({
             ...dob,
             error: true,
-            message: 'Tuổi phải lớn hơn hoặc bằng 6'
+            message: 'Tuổi phải lớn hơn hoặc bằng 18'
         });
         return false;
     }

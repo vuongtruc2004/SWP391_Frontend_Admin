@@ -23,6 +23,7 @@ const UpdateQuizForm = (props: {
     const router = useRouter();
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [maxAttempts, setMaxAttempts] = useState<ErrorResponse>(initState);
+    const [searchText, setSearchText] = useState("");
 
     const [published, setPublished] = useState<ErrorResponse>({
         ...initState,
@@ -33,12 +34,12 @@ const UpdateQuizForm = (props: {
 
     const [startedAt, setStartedAt] = useState<ErrorResponse>(initState);
     const [endedAt, setEndedAt] = useState<ErrorResponse>(initState);
-    // const [answers, setAnswers] = useState([{ content: "", correct: false, empty: true }]);
     const [isSubmitted, setIsSubmitted] = useState(false); // Theo dõi trạng thái đã nhấn "Tạo"
     const [createQuestions, setCreateQuestions] = useState([{ value: "", answers: [{ content: "", correct: false, empty: true }], errorMessage: "" }]);
     const CheckboxGroup = Checkbox.Group;
     const [checkedList, setCheckedList] = useState<string[]>([]);
     const [questionList, setQuestionList] = useState<string[]>([]);
+    const [initialQuiz, setInitialQuiz] = useState<QuizRequest | null>(null);
     useEffect(() => {
         fetchQuestions();
     }, []);
@@ -67,6 +68,15 @@ const UpdateQuizForm = (props: {
 
     useEffect(() => {
         if (editingQuiz) {
+            setInitialQuiz({
+                quizId: editingQuiz.quizId,
+                title: editingQuiz.title,
+                maxAttempts: editingQuiz.maxAttempts,
+                published: editingQuiz.published,
+                startedAt: editingQuiz.startedAt ? editingQuiz.startedAt : '',
+                endedAt: editingQuiz.endedAt ? editingQuiz.endedAt : '',
+                questions: editingQuiz.questions.map(q => q.title), // Lưu danh sách câu hỏi
+            });
             setTitle({
                 error: false,
                 value: editingQuiz.title
@@ -83,6 +93,10 @@ const UpdateQuizForm = (props: {
                 error: false,
                 value: editingQuiz.endedAt
             })
+            setPublished({
+                error: false,
+                value: editingQuiz.published ? 'active' : 'unactive'
+            })
 
         }
         if (editingQuiz?.questions) {
@@ -93,6 +107,11 @@ const UpdateQuizForm = (props: {
             );
         }
     }, [editingQuiz]);
+
+    const filteredQuestions = questionList.filter((question) =>
+        question.toLowerCase().includes(searchText.toLowerCase())
+    );
+
     const handleOk = async () => {
         setIsSubmitted(true);
         const isValidTitle = validTitle(title, setTitle);
@@ -147,7 +166,6 @@ const UpdateQuizForm = (props: {
         if (hasError || !isValidTitle || !isValidMaxAttempts || !isValidDate) {
             return;
         }
-        console.log("co loi>>>>>>", hasError);
 
         try {
             // Gửi từng câu trả lời lên API
@@ -168,7 +186,6 @@ const UpdateQuizForm = (props: {
                 )
             );
 
-            console.log("Danh sách answerId:", createAnswerResponses);
 
             let hasDuplicateError = false;
 
@@ -222,7 +239,6 @@ const UpdateQuizForm = (props: {
                     return;
                 }
 
-                console.log("createQuestionResponses>>>>>>>", createQuestionResponses);
             }
 
 
@@ -237,7 +253,17 @@ const UpdateQuizForm = (props: {
                 questions: [...checkedList, ...createQuestionResponses.filter(q => q !== null) as string[]]
             }
 
-            console.log("quizRequest>>>>", quizRequest);
+            console.log("quizRequest>>", quizRequest)
+            console.log("initQuiz>>", initialQuiz)
+            console.log("so sanh", JSON.stringify(quizRequest) === JSON.stringify(initialQuiz))
+            if (JSON.stringify(quizRequest) === JSON.stringify(initialQuiz)) {
+                notification.info({
+                    message: "Không có thay đổi",
+                    description: "Không có thông tin nào được cập nhật.",
+                });
+                handleCancel();
+                return;
+            }
 
             const createQuizResponse = await sendRequest<ApiResponse<QuizResponse>>({
                 url: `${apiUrl}/quiz`,
@@ -286,6 +312,7 @@ const UpdateQuizForm = (props: {
         setOpenEditForm(false);
         setCheckedList([]);
         setEditingQuiz(null);
+        setSearchText('');
     };
     const handleStartedAtChange: DatePickerProps["onChange"] = (date) => {
         setStartedAt({ ...startedAt, value: date ? dayjs(date).format("YYYY-MM-DD") : "", error: false });
@@ -474,8 +501,11 @@ const UpdateQuizForm = (props: {
                                         placeholder={`Câu trả lời ${aIndex + 1}`}
                                         value={answer.content}
                                         onChange={(e) => updateAnswer(qIndex, aIndex, e.target.value)} />
-                                    {question.answers.length > 1 && <MinusCircleOutlined onClick={() => removeAnswer(qIndex, aIndex)} style={{ color: 'red', cursor: 'pointer' }} />}
+                                    <div className="flex gap-1">
+                                        {question.answers.length > 1 && <Tooltip title='Xóa câu trả lời' color="blue"><MinusCircleOutlined onClick={() => removeAnswer(qIndex, aIndex)} style={{ color: 'red', cursor: 'pointer' }} /></Tooltip>}
+                                        <Tooltip color="blue" title="Thêm câu trả lời"> <PlusCircleOutlined style={{ color: 'blue', cursor: 'pointer', marginTop: '8px' }} onClick={() => addAnswer(qIndex)} /> </Tooltip>
 
+                                    </div>
                                 </div>
 
                                 {isSubmitted && answer.content == '' && question.value !== '' && (
@@ -486,13 +516,7 @@ const UpdateQuizForm = (props: {
                                 )}
                             </div>
                         ))}
-                        <Button
-                            type="dashed"
-                            style={{ width: '100%', marginTop: '10px' }}
-                            onClick={() => addAnswer(qIndex)}
-                            icon={<PlusCircleOutlined />}>
-                            Thêm câu trả lời
-                        </Button>
+
                         {!question.answers.some(answer => answer.correct === true) && question.value !== '' && isSubmitted && (
                             <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                 <WarningOutlined />
@@ -503,10 +527,16 @@ const UpdateQuizForm = (props: {
                     </div>
                 ))}
 
-                <Button type="dashed" style={{ width: '100%', marginBottom: '5px' }} onClick={addQuestion} icon={<PlusCircleOutlined />}>Thêm câu hỏi</Button>
-
+                <Button type="primary" style={{ width: '23%', marginBottom: '5px' }} onClick={addQuestion} >Thêm câu hỏi</Button>
                 <div>
                     <span className="text-red-500 mr-2 mb">*</span>Danh sách câu hỏi:
+                    <Input.Search
+                        placeholder="Tìm kiếm câu hỏi..."
+                        allowClear
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                        style={{ marginBottom: '8px' }}
+                    />
                     <div
                         style={{
                             maxHeight: "200px", // Điều chỉnh chiều cao tối đa tùy ý
@@ -518,9 +548,9 @@ const UpdateQuizForm = (props: {
                         }}
                     >
                         <CheckboxGroup
-                            options={questionList.map((question, index) => ({
+                            options={filteredQuestions.map((question, index) => ({
                                 label: question,
-                                value: question, // Dùng index làm value để đảm bảo duy nhất
+                                value: question,
                             }))}
                             value={checkedList}
                             onChange={onChange}

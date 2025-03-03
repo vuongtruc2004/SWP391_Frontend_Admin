@@ -64,7 +64,8 @@ const QuizPage = async (props: {
         queryParams: {
             page: page,
             size: 10,
-            filter: filter
+            filter: filter,
+            sort: "updatedAt,desc"
         }
     })
 
@@ -80,7 +81,8 @@ const QuizPage = async (props: {
                 queryParams: {
                     page: currentPage,
                     size: 10,
-                    filter: filter
+                    filter: filter,
+
                 },
             });
 

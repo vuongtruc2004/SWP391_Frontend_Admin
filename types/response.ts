@@ -229,7 +229,7 @@ declare global {
         updatedAt: string;
         startedAt: string;
         endedAt: string;
-        lesson: ChapterResponse;
+        chapter: ChapterResponse;
         expert: ExpertResponse;
         questions: QuestionResponse[];
     }

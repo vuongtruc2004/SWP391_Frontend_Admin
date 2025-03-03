@@ -65,7 +65,7 @@ const UserSearch = (props: {
                             }}
                             options={[
                                 { value: "ALL", label: "Tất cả" },
-                                { value: "active", label: 'Không bị khóa' },
+                                { value: "active", label: 'Đang hoạt động' },
                                 { value: "unactive", label: 'Bị khóa' },
 
                             ]}

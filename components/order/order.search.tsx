@@ -100,7 +100,7 @@ const OrderSearch = (props: {
                 <Form className='w-[50%]' onFinish={onFinish} form={form} initialValues={{ keyword: keyword, orderStatus: orderStatus }}>
                     <Form.Item name="keyword" className="mb-0">
                         <Input
-                            placeholder="Tìm kiếm bằng họ tên khách hàng"
+                            placeholder="Tìm kiếm bằng họ tên khách hàng, email ..."
                             prefix={<SearchOutlined />}
                             className='!p-[10px]'
                             onPressEnter={() => form.submit()}

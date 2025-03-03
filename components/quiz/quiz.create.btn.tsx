@@ -222,8 +222,8 @@ const QuizCreateBtn = (props: {
                 title: title.value,
                 maxAttempts: Number(maxAttempts.value),
                 published: published.value == 'active' ? true : false,
-                startedAt: startedAt.value !== '' ? dayjs(startedAt.value).format("YYYY-MM-DD") : '',
-                endedAt: endedAt.value !== '' ? dayjs(endedAt.value).format("YYYY-MM-DD") : '',
+                startedAt: startedAt.value !== '' ? dayjs(startedAt.value).format("YYYY-MM-DD HH:mm:ss") : '',
+                endedAt: endedAt.value !== '' ? dayjs(endedAt.value).format("YYYY-MM-DD HH:mm:ss") : '',
                 questions: [...checkedList, ...createQuestionResponses.filter(q => q !== null) as string[]]
             }
 
@@ -266,7 +266,27 @@ const QuizCreateBtn = (props: {
 
 
     const onChange = (list: string[]) => {
-        setCheckedList(list);
+        // Đảm bảo giữ lại các giá trị đã chọn trước đó
+        setCheckedList((prevCheckedList) => {
+            const newCheckedList = [...prevCheckedList];
+
+            // Kiểm tra nếu bỏ chọn thì loại bỏ khỏi danh sách
+            filteredQuestions.forEach((q) => {
+                if (!list.includes(q)) {
+                    const index = newCheckedList.indexOf(q);
+                    if (index > -1) newCheckedList.splice(index, 1);
+                }
+            });
+
+            // Thêm các giá trị mới được chọn vào danh sách
+            list.forEach((q) => {
+                if (!newCheckedList.includes(q)) {
+                    newCheckedList.push(q);
+                }
+            });
+
+            return newCheckedList;
+        });
     };
 
     const handleCancel = () => {
@@ -281,10 +301,10 @@ const QuizCreateBtn = (props: {
         setSearchText('');
     };
     const handleStartedAtChange: DatePickerProps["onChange"] = (date) => {
-        setStartedAt({ ...startedAt, value: date ? dayjs(date).format("YYYY-MM-DD") : "", error: false });
+        setStartedAt({ ...startedAt, value: date ? dayjs(date).format("YYYY-MM-DD HH:mm:ss") : "", error: false });
     };
     const handleEndedAtChange: DatePickerProps["onChange"] = (date) => {
-        setEndedAt({ ...endedAt, value: date ? dayjs(date).format("YYYY-MM-DD") : "", error: false });
+        setEndedAt({ ...endedAt, value: date ? dayjs(date).format("YYYY-MM-DD HH:mm:ss") : "", error: false });
     };
 
 
@@ -428,6 +448,7 @@ const QuizCreateBtn = (props: {
                     <span className="text-red-500 mr-2 ">*</span>Bắt đầu:
                     <Space direction="vertical" className="ml-4">
                         <DatePicker
+                            showTime
                             status={startedAt.error ? 'error' : ''}
                             value={startedAt.value ? dayjs(startedAt.value) : null}
                             onChange={handleStartedAtChange}
@@ -444,6 +465,7 @@ const QuizCreateBtn = (props: {
                     <span className="text-red-500 mr-2 ">*</span>Kết thúc:
                     <Space direction="vertical" className="ml-3">
                         <DatePicker
+                            showTime
                             status={endedAt.error ? 'error' : ''}
                             value={endedAt.value ? dayjs(endedAt.value) : null}
                             onChange={handleEndedAtChange}
@@ -546,6 +568,7 @@ const QuizCreateBtn = (props: {
                                 display: 'flex',
                                 flexDirection: 'column',
                                 gap: '8px',
+
                             }}
                         />
 

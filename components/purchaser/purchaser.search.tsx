@@ -1,6 +1,6 @@
 'use client'
 import { BackwardFilled, SearchOutlined, UndoOutlined } from "@ant-design/icons"
-import { Button, Form, Input, Select } from "antd"
+import { Button, Form, Input, Select, Tooltip } from "antd"
 import { useForm } from "antd/es/form/Form"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
@@ -50,7 +50,7 @@ const PurchaserSearch = (props: {
     }, []);
 
     return (
-        <div className="flex gap-4 ml-10 mt-10">
+        <div className="flex gap-1 ml-10 mt-10">
             <Form className='w-[40%]' onFinish={onFinish} form={form} initialValues={{ keyword: keyword, locked: locked, gender: gender, accountType: accountType }}>
                 <Form.Item name="keyword" className="mb-0">
                     <Input
@@ -71,7 +71,7 @@ const PurchaserSearch = (props: {
                                 }}
                                 options={[
                                     { value: "ALL", label: "Tất cả" },
-                                    { value: "active", label: 'Không khóa' },
+                                    { value: "active", label: 'Đang hoạt động' },
                                     { value: "unactive", label: 'Bị khóa' },
 
                                 ]}
@@ -114,7 +114,7 @@ const PurchaserSearch = (props: {
 
             </Form >
 
-            <Button icon={<UndoOutlined style={{ fontSize: '20px' }} />} type='primary' onClick={handleReset} className='!p-[20px]'></Button>
+            <Tooltip color="blue" title="Làm mới"> <Button icon={<UndoOutlined style={{ fontSize: '20px' }} />} type='primary' onClick={handleReset} className='!p-[20px]'></Button></Tooltip>
         </div >
 
 

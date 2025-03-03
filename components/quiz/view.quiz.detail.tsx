@@ -19,6 +19,7 @@ const ViewQuizDetail = (props: {
     const handleToggle = (index: number) => {
         setActiveQuestion(activeQuestion === index ? null : index);
     };
+
     return (
         <>
             <Drawer title="THÔNG TIN CHI TIẾT" onClose={onClose} open={openDraw}>
@@ -26,10 +27,11 @@ const ViewQuizDetail = (props: {
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tiêu đề bài kiểm tra: </span>{quizDetail.title}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Số lượt kiểm tra: </span>{quizDetail.maxAttempts}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Trạng thái: </span>{quizDetail.published ? 'Đang mở' : 'Bị đóng'}</div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Bắt đầu: </span>{quizDetail.startedAt == null ? 'Vô thời hạn' : dayjs(quizDetail.createdAt).format("DD/MM/YYYY HH:mm:ss")}</div>
+                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Bắt đầu: </span>{quizDetail.startedAt == null ? 'Vô thời hạn' : dayjs(quizDetail.startedAt).format("DD/MM/YYYY HH:mm:ss")}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Kết thúc: </span>{quizDetail.endedAt == null ? 'Vô thời hạn' : dayjs(quizDetail.endedAt).format("DD/MM/YYYY HH:mm:ss")}</div>
+                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Cập nhật lần cuối: </span>{quizDetail.updatedAt == null ? 'Chưa có dữ liệu' : dayjs(quizDetail.updatedAt).format("DD/MM/YYYY HH:mm:ss")}</div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tác giả: </span>{quizDetail.expert != null ? quizDetail.expert.user.fullname : ''}</div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Bài học: </span>{quizDetail.lesson != null ? quizDetail.lesson.title : ''}</div>
+                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Chương học: </span>{quizDetail.chapter != null ? quizDetail.chapter.title : ''}</div>
 
 
                     <div className='mb-2'>
