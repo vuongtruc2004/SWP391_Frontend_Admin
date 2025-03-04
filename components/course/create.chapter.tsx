@@ -96,10 +96,24 @@ const CreateChapter = ({ course }: {
                 });
                 return;
             }
+            if (value.title.split(/\s+/).length > 20) {
+                notification.error({
+                    message: "Lỗi",
+                    description: `Chương "${value.title}" có tiêu đề vượt quá 20 từ`,
+                });
+                return;
+            }
+            if (value.description.split(/\s+/).length > 1000) {
+                notification.error({
+                    message: "Lỗi",
+                    description: `Chương "${value.title}" có mô tả vượt quá 1000 từ`,
+                });
+                return;
+            }
 
             const lessons: LessonRequest[] = [];
 
-            for (let lesson of value.lessons) {
+            for (let [index, lesson] of value.lessons.entries()) {
                 if ((!lesson.videoUrl || lesson.videoUrl.trim() === "") && (!lesson.documentContent || lesson.documentContent.trim() === "")) {
                     notification.error({
                         message: "Lỗi",
@@ -107,6 +121,21 @@ const CreateChapter = ({ course }: {
                     });
                     return;
                 }
+                if (lesson.lessonTitle.trim().split(/\s+/).length > 20) {
+                    notification.error({
+                        message: "Lỗi",
+                        description: `Chương "${value.title}" - Bài ${index + 1}  có tiêu đề vượt quá 20 từ`,
+                    });
+                    return;
+                }
+                if (lesson.lessonDescription.trim().split(/\s+/).length > 20) {
+                    notification.error({
+                        message: "Lỗi",
+                        description: `Chương "${value.title}" - Bài "${lesson.lessonTitle}" có mô tả vượt quá 1000 từ`,
+                    });
+                    return;
+                }
+
                 if (!isValidYouTubeUrl(lesson.videoUrl) && lesson.videoUrl) {
                     notification.error({
                         message: "Lỗi",
@@ -121,6 +150,7 @@ const CreateChapter = ({ course }: {
                     });
                     return;
                 }
+
 
                 const lessonReq: LessonRequest = {
                     title: lesson.lessonTitle,

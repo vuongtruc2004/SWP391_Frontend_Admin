@@ -24,8 +24,23 @@ export const validTitle = (title: ErrorResponse, setTitle: React.Dispatch<SetSta
         })
         return false;
     }
+
     return true;
 }
+
+export const validWordCountTile = (title: ErrorResponse, setTitleWordCount: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
+    const wordCount = title.value.trim().split(/\s+/).length;
+    if (wordCount > 20) {
+        setTitleWordCount({
+            ...title,
+            error: true,
+            message: 'Độ dài tên khoá hoc không vượt quá 20 từ!'
+        });
+        return false;
+    }
+    return true;
+};
+
 
 export const validIntroduction = (introduction: ErrorResponse, setIntroduction: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
     if (introduction.value.trim() === '' || !(isValidYouTubeUrl(introduction.value.trim()))) {

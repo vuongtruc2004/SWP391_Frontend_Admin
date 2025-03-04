@@ -27,7 +27,6 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [introduction, setIntroduction] = useState<ErrorResponse>(initState);
     const [price, setPrice] = useState<ErrorResponse>(initState);
-    const [salePrice, setSalePrice] = useState<ErrorResponse>(initState);
     const [des, setDes] = useState<ErrorResponse>(initState);
     const [objects, setObjects] = useState([{ content: "", empty: true }]);
     const CheckboxGroup = Checkbox.Group;
@@ -38,7 +37,7 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
     const [thumbnail, setThumbnail] = useState("");
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
     const { data: session, status } = useSession();
-    const [errLessThan, setErrLessThan] = useState("")
+    const [titleWordCount, setTitleWordCount] = useState("");
     const fileInputRef = useRef<HTMLInputElement>(null)
 
 
@@ -92,19 +91,16 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
     };
 
     const handleOk = async () => {
-        setIsSubmitted(true); // Đánh dấu đã submit
-        setLoading(true); // Bật trạng thái loading
+        setIsSubmitted(true);
+        setLoading(true);
         const isTitleValid = validTitle(title, setTitle);
         const isIntroduction = validIntroduction(introduction, setIntroduction);
         const isOriginPrice = validOriginPrice(price, setPrice);
         const isDes = validDes(des, setDes);
-
-
         if (!isTitleValid || !isIntroduction || !isOriginPrice || !isDes || !checkedList || checkedList.length === 0 || urlThumbnail === "") {
             setErrThumbnail("Ảnh không được để rỗng!")
             setEmptySubject("Vui lòng chọn ít nhất một lĩnh vực sử dụng trong khóa học!")
             if (checkedList && checkedList.length > 0) {
-                console.log("lengh", checkedList?.length)
                 setEmptySubject("")
             }
             if (urlThumbnail !== "") {
@@ -113,7 +109,7 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
             setLoading(false);
             return
         }
-        // Kiểm tra nếu có câu trả lời rỗng
+
         if (objects.some(answer => answer.empty)) {
             setLoading(false);
             return;
@@ -199,10 +195,7 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
         setObjects(newObjects);
     };
 
-    // console.log(">> check object", objects)
-    // console.log(">> check subject", checkedList)
     console.log(">> check thumbnail", thumbnail)
-
     return (
         <>
             <div>
@@ -242,6 +235,7 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
                             {title.message}
                         </p>
                     )}
+
                 </div>
 
                 <div className="flex items-center gap-x-4">
@@ -319,7 +313,6 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
                                 <Tooltip title='Thêm mục tiêu' color="blue">
                                     <PlusCircleOutlined onClick={addAnswer} className="text-lg cursor-pointer" style={{ color: 'blue' }} />
                                 </Tooltip>
-
                                 {objects.length > 1 && (
                                     <Tooltip title='Xóa mục tiêu' color="red">
                                         <MinusCircleOutlined style={{ color: 'red' }} className="text-lg cursor-pointer" onClick={() => removeAnswer(index)} />
