@@ -3,7 +3,7 @@ import { validTitle } from "@/helper/create.question.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
-import MDEditor from "@uiw/react-md-editor";
+import MDEditor, { getCommands, ICommand } from "@uiw/react-md-editor";
 import { Avatar, Checkbox, Form, Image, Input, Modal, notification } from "antd";
 import { marked } from "marked";
 import { useSession } from "next-auth/react";
@@ -31,10 +31,45 @@ const BlogCreate = (props: IProps) => {
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
     const [plainContent, setPlainContent] = useState("");
     const [getSubjects, setGetSubjects] = useState<string[]>();
-    const [checkList, setCheckList] = useState<string[]>();
+    // const [checkList, setCheckList] = useState<string[]>();
+    const [checkList, setCheckList] = useState<{ error: boolean, value: string[] }>({ error: false, value: [] });
     const { data: session, status } = useSession();
     const router = useRouter();
 
+    const uploadImageCommand: ICommand = {
+        name: "upload-file",
+        keyCommand: "upload-file",
+        buttonProps: { "aria-label": "Upload File Image" },
+        icon: <span>Upload File Image</span>, // Icon hiển thị
+        execute: () => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = "image/jpg, image/jpeg, image/png";
+            input.onchange = async (event) => {
+                const file = (event.target as HTMLInputElement);
+                if (file.files && file.files[0]) {
+                    const formData = new FormData();
+                    formData.set("file", file.files[0]);
+                    formData.set("folder", "blog");
+
+                    // Gửi request upload ảnh
+                    const imageRes = await sendRequest<ApiResponse<string>>({
+                        url: `${apiUrl}/blogs/up-thumbnail`,
+                        method: "POST",
+                        body: formData,
+                    });
+
+                    // Chèn Markdown vào editor
+                    const imageMarkdown = `![image](${storageUrl}/blog/${imageRes.data})`;
+                    setInputMarkdown((prev) => prev + `\n ${imageMarkdown} \n`);
+                }
+            };
+            input.click();
+        },
+    };
+
+    // Thêm command vào danh sách
+    const customCommands = [...getCommands(), uploadImageCommand];
     //another function
     const stripHtml = (html: string) => {
         let doc = new DOMParser().parseFromString(html, 'text/html');
@@ -43,7 +78,10 @@ const BlogCreate = (props: IProps) => {
 
     //function handle
     const handlOnChange = (list: string[]) => {
-        setCheckList(list);
+        setCheckList(prev => ({
+            ...prev,
+            value: list
+        }));
     }
     const handleOnOk = async () => {
 
@@ -59,6 +97,10 @@ const BlogCreate = (props: IProps) => {
             return
         }
 
+        if (checkList && checkList.value.length === 0) {
+            setCheckList(prev => ({ ...prev, error: true }));
+            return;
+        }
         const htmlText = marked(inputMarkdown);
 
         const blogRequest: BlogRequest = {
@@ -66,7 +108,7 @@ const BlogCreate = (props: IProps) => {
             content: htmlText.toString(),
             plainContent: stripHtml(htmlText.toString()),
             thumbnail: urlThumbnail,
-            hashtags: checkList ? checkList : [],
+            hashtags: checkList.value ? checkList.value : [],
         }
 
         const createBlog = await sendRequest<ApiResponse<BlogResponse>>({
@@ -142,7 +184,7 @@ const BlogCreate = (props: IProps) => {
             setInputMarkdown("");
             setUrlThumbnail("");
             setErrThumbnail("");
-            setCheckList([]);
+            setCheckList({ error: false, value: [] });
         }
     }, [openFormCreate]);
 
@@ -217,6 +259,7 @@ const BlogCreate = (props: IProps) => {
                                     background: '#e9ecef',
                                     color: 'black'
                                 }}
+                                commands={customCommands}
                             />
                             {content.error && content.value === '' && (
                                 <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
@@ -227,13 +270,13 @@ const BlogCreate = (props: IProps) => {
                         </Form.Item>
                     </div>
                     <div className="mb-5">
-                        <h4><span className="text-red-600">*</span> Lĩnh vực:</h4>
+                        <h4><span className="text-red-600">*</span> Chủ đề:</h4>
                         <CheckboxGroup
                             options={getSubjects?.map((subject) => ({
                                 label: subject,
                                 value: subject,
                             }))}
-                            value={checkList}
+                            value={checkList.value}
                             onChange={handlOnChange}
                             style={{
                                 display: 'flex',
@@ -241,6 +284,12 @@ const BlogCreate = (props: IProps) => {
                                 gap: '8px',
                             }}
                         />
+                        {checkList.error && checkList.value.length === 0 && (
+                            <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
+                                <WarningOutlined />
+                                Vui lòng thêm chủ đề bài viết
+                            </p>
+                        )}
                     </div>
                     <div>
                         <span className="text-red-500 mr-2 mb-3">*</span>Ảnh:

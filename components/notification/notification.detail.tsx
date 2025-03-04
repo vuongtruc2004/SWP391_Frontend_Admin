@@ -44,6 +44,7 @@ const NotificationDetail = (props: {
             // code trên sai vì khi xóa thì cập nhật database nhưng recordNotification lại không cập nhật, dẫn tới việc in ra lỗi danh sách
 
             setUsersReceiver(prev => prev.filter(user => user.userNotificationId !== deleteNotification.data.userNotificationId));
+            router.refresh()
         } else {
             notification.error({
                 message: "Thất bại!",

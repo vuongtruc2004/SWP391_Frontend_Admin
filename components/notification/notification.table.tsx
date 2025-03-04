@@ -89,7 +89,7 @@ const NotificationTable = (props: {
                                 <Popconfirm
                                     placement="left"
                                     title="Xóa môn học"
-                                    description="Bạn có chắc chắn muốn xóa thông báo này không?"
+                                    description="Thông báo này đang có người nhận, bạn có chắc chắn muốn xóa thông báo này không?"
                                     okText="Có"
                                     cancelText="Không"
                                     onConfirm={() => { handleDelete(record.notificationId) }}

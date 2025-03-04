@@ -47,6 +47,7 @@ const BlogPage = async (props: {
             page: page,
             size: 10,
             filter: filter,
+            sort: "updatedAt,desc"
         }
     })
     return (

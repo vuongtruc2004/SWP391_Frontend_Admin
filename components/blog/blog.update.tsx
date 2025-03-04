@@ -3,7 +3,7 @@ import { validContent, validTitle } from "@/helper/create.blog.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
-import MDEditor from "@uiw/react-md-editor";
+import MDEditor, { getCommands, ICommand } from "@uiw/react-md-editor";
 import { Avatar, Checkbox, Form, Image, Input, Modal, notification, Tooltip } from "antd";
 import { marked } from "marked";
 import { useRouter } from "next/navigation";
@@ -33,10 +33,46 @@ const BlogUpdate = (props: IProps) => {
     const [urlThumbnail, setUrlThumbnail] = useState("");
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [content, setContent] = useState<ErrorResponse>(initState);
-    const [checkList, setCheckList] = useState<string[]>(selectRecord?.hashtags.map((tag) => tag.tagName) || []);
+    // const [checkList, setCheckList] = useState<string[]>(selectRecord?.hashtags.map((tag) => tag.tagName) || []);
+    const [checkList, setCheckList] = useState<{ error: boolean, value: string[] }>({ error: false, value: selectRecord ? selectRecord?.hashtags.map((tag) => tag.tagName) : [] });
     const [listTag, setListTag] = useState<string[]>();
     const [plainContent, setPlainContent] = useState("");
     const [thumbnail, setThumbnail] = useState<File | null>(null);
+
+    const uploadImageCommand: ICommand = {
+        name: "upload-file",
+        keyCommand: "upload-file",
+        buttonProps: { "aria-label": "Upload File Image" },
+        icon: <span>Upload File Image</span>, // Icon hiển thị
+        execute: () => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = "image/jpg, image/jpeg, image/png";
+            input.onchange = async (event) => {
+                const file = (event.target as HTMLInputElement);
+                if (file.files && file.files[0]) {
+                    const formData = new FormData();
+                    formData.set("file", file.files[0]);
+                    formData.set("folder", "blog");
+
+                    // Gửi request upload ảnh
+                    const imageRes = await sendRequest<ApiResponse<string>>({
+                        url: `${apiUrl}/blogs/up-thumbnail`,
+                        method: "POST",
+                        body: formData,
+                    });
+
+                    // Chèn Markdown vào editor
+                    const imageMarkdown = `![image](${storageUrl}/blog/${imageRes.data})`;
+                    setInputMarkdown((prev) => prev + `\n ${imageMarkdown} \n`);
+                }
+            };
+            input.click();
+        },
+    };
+
+    // Thêm command vào danh sách
+    const customCommands = [...getCommands(), uploadImageCommand];
 
 
     useEffect(() => {
@@ -54,7 +90,10 @@ const BlogUpdate = (props: IProps) => {
 
     useEffect(() => {
         if (selectRecord?.hashtags) {
-            setCheckList(selectRecord.hashtags.map((tag) => tag.tagName));
+            setCheckList((prev) => ({
+                ...prev,
+                value: selectRecord.hashtags.map((tag) => tag.tagName)
+            }))
         }
         if (selectRecord) {
             setTitle({
@@ -71,7 +110,7 @@ const BlogUpdate = (props: IProps) => {
             }
 
         }
-    }, [selectRecord]);
+    }, [selectRecord, openUpdate]);
 
     useEffect(() => {
 
@@ -104,9 +143,16 @@ const BlogUpdate = (props: IProps) => {
         setErrThumbnail("");
         setSelectRecord(null);
         setOpenUpdate(false);
+        setCheckList((prev) => ({
+            error: false,
+            value: selectRecord ? selectRecord.hashtags.map((tag) => tag.tagName) : []
+        }))
     }
     const handlOnChange = (list: string[]) => {
-        setCheckList(list);
+        setCheckList(prev => ({
+            ...prev,
+            value: list
+        }));
     }
 
     const handleOnOk = async () => {
@@ -115,6 +161,11 @@ const BlogUpdate = (props: IProps) => {
         console.log({ title, content })
 
         if (!isValidTitle || !isValidContent) {
+            return;
+        }
+
+        if (checkList && checkList.value.length === 0) {
+            setCheckList(prev => ({ ...prev, error: true }));
             return;
         }
 
@@ -128,7 +179,7 @@ const BlogUpdate = (props: IProps) => {
             content: htmlTextContent.toString(),
             plainContent: stripHtml(htmlTextContent.toString()),
             thumbnail: urlThumbnail,
-            hashtags: checkList,
+            hashtags: checkList.value,
         }
 
 
@@ -218,7 +269,7 @@ const BlogUpdate = (props: IProps) => {
 
                         >
                             <Input placeholder="Tiêu đề" value={title.value}
-                                status={title.error ? "error" : ""}
+                                status={title.error && title.value === "" ? "error" : ""}
                                 type="text"
                                 onChange={(e) => {
                                     setTitle({
@@ -228,7 +279,7 @@ const BlogUpdate = (props: IProps) => {
                                     console.log(title.value)
                                 }}
                             />
-                            {title.error && (
+                            {title.error && title.value === "" && (
                                 <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
                                     <WarningOutlined />
                                     {title.message}
@@ -319,10 +370,11 @@ const BlogUpdate = (props: IProps) => {
                                     background: '#e9ecef',
                                     color: 'black'
                                 }}
+                                commands={customCommands}
                             />
 
 
-                            {content.error && (
+                            {content.error && inputMarkdown === "" && (
                                 <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
                                     <WarningOutlined />
                                     {content.message}
@@ -337,7 +389,7 @@ const BlogUpdate = (props: IProps) => {
                                 label: tag,
                                 value: tag,
                             }))}
-                            value={checkList}
+                            value={checkList.value}
                             onChange={handlOnChange}
                             style={{
                                 display: 'flex',
@@ -345,6 +397,12 @@ const BlogUpdate = (props: IProps) => {
                                 gap: '8px',
                             }}
                         />
+                        {checkList.error && checkList.value.length === 0 && (
+                            <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
+                                <WarningOutlined />
+                                Vui lòng thêm chủ đề bài viết
+                            </p>
+                        )}
                     </div>
                     <div>
                         <span className="text-red-500 mr-2">*</span>Ảnh:

@@ -46,7 +46,7 @@ const CoursePage = async (props: {
     }
 
     if (priceFrom !== "" && priceTo !== "") {
-        filter += ` and originalPrice >: ${priceFrom} and originalPrice <: ${priceTo}`
+        filter += ` and price >: ${priceFrom} and price <: ${priceTo}`
     }
 
     const courseResponse = await sendRequest<ApiResponse<PageDetailsResponse<CourseDetailsResponse[]>>>({
@@ -55,6 +55,7 @@ const CoursePage = async (props: {
             page: page,
             size: 10,
             filter: filter,
+            sort: "updatedAt,desc"
         }
     })
 
