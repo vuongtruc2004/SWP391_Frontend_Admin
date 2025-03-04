@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react';
-import { Button, Checkbox, Input, Modal, notification } from 'antd';
+import { Button, Checkbox, Input, Modal, notification, Tooltip } from 'antd';
 import { MinusCircleOutlined, PlusCircleOutlined, WarningOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import '@ant-design/v5-patch-for-react-19';
@@ -29,6 +29,7 @@ const UpdateQuestionForm = (props: {
     >([]);
     const [isSubmitted, setIsSubmitted] = useState(false); // Theo dõi trạng thái đã nhấn "Tạo"
     const [loading, setLoading] = useState(false);
+    const [isDuplicateAnswer, setIsDuplicateAnswer] = useState(false)
     const router = useRouter();
     useEffect(() => {
         if (editingQuestion) {
@@ -45,9 +46,23 @@ const UpdateQuestionForm = (props: {
             }));
 
             setAnswers(mappedAnswers);
-            setInitialAnswers(JSON.parse(JSON.stringify(mappedAnswers))); // Tạo bản sao độc lập
+            setInitialAnswers(JSON.parse(JSON.stringify(mappedAnswers)));
         }
     }, [editingQuestion]);
+
+    useEffect(() => {
+        const answerCounts = answers
+            .map(a => a.content.trim().toLowerCase())
+            .filter(content => content !== "")
+            .reduce((acc: any, content: string) => {
+                acc[content] = (acc[content] || 0) + 1;
+                return acc;
+            }, {});
+
+        const duplicates = new Set(Object.keys(answerCounts).filter(content => answerCounts[content] > 1));
+
+        setIsDuplicateAnswer(duplicates.size > 0);
+    }, [answers]);
 
     const handleOk = async () => {
 
@@ -70,6 +85,11 @@ const UpdateQuestionForm = (props: {
 
         // Kiểm tra nếu không có đáp án nào đúng
         if (!answers.some(answer => answer.correct)) {
+            setLoading(false);
+            return;
+        }
+
+        if (isDuplicateAnswer) {
             setLoading(false);
             return;
         }
@@ -215,33 +235,51 @@ const UpdateQuestionForm = (props: {
             </div>
             <div className="mt-4">
                 <span className="text-red-500 mr-2">*</span>Câu trả lời:
-                {answers.map((answer, index) => (
-                    <div key={index} className="w-full flex flex-col gap-1 mt-2">
-                        <div className="flex items-center gap-2">
-                            <Checkbox checked={answer.correct} onChange={() => toggleCorrect(index)} />
-                            <Input
-                                className={`w-full ${isSubmitted && answer.empty ? "border-red-500" : ""}`}
-                                placeholder={`Câu trả lời ${index + 1}`}
-                                value={answer.content}
-                                onChange={(e) => updateAnswer(index, e.target.value)}
-                                allowClear
-                            />
-                            {answers.length > 1 && (
-                                <MinusCircleOutlined style={{ color: 'red' }} className="text-lg cursor-pointer" onClick={() => removeAnswer(index)} />
+                {answers.map((answer, index) => {
+                    const isDuplicate = answers
+                        .filter(a => {
+                            if (a.content && answer.content) {
+                                return a.content.trim().toLowerCase() === answer.content.trim().toLowerCase();
+                            }
+                            return false;
+                        }).length > 1;
+                    return (
+                        <div key={index} className="w-full flex flex-col gap-1 mt-2">
+                            <div className="flex items-center gap-2">
+                                <Tooltip title='Xác nhận đáp án đúng' color="green">
+                                    <Checkbox checked={answer.correct} onChange={() => toggleCorrect(index)} />
+                                </Tooltip>                                <Input
+                                    className={`w-full ${isSubmitted && answer.empty ? "border-red-500" : ""}`}
+                                    placeholder={`Câu trả lời ${index + 1}`}
+                                    value={answer.content}
+                                    onChange={(e) => updateAnswer(index, e.target.value)}
+                                    allowClear
+                                />
+                                <Tooltip title='Thêm đáp án' color="blue">
+                                    <PlusCircleOutlined onClick={addAnswer} className="text-lg cursor-pointer" style={{ color: 'blue' }} />
+                                </Tooltip>
+                                {answers.length > 1 && (
+                                    <Tooltip title='Xóa đáp án' color="red">
+                                        <MinusCircleOutlined style={{ color: 'red' }} className="text-lg cursor-pointer" onClick={() => removeAnswer(index)} />
+                                    </Tooltip>
+                                )}
+                            </div>
+                            {isSubmitted && answer.empty && (
+                                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                    <WarningOutlined />
+                                    Vui lòng không để trống câu trả lời
+                                </p>
+                            )}
+                            {isDuplicate && isSubmitted && (
+                                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                    <WarningOutlined />
+                                    Vui lòng không thêm đáp án giống nhau
+                                </p>
                             )}
                         </div>
-                        {isSubmitted && answer.empty && (
-                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                <WarningOutlined />
-                                Vui lòng không để trống câu trả lời
-                            </p>
-                        )}
-                    </div>
-                ))
-                }
-                <Button type="dashed" onClick={addAnswer} icon={<PlusCircleOutlined />} className="mt-3 w-full">
-                    Thêm câu trả lời
-                </Button>
+                    );
+                })}
+
                 {!answers.some(answer => answer.correct) && isSubmitted && (
                     <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                         <WarningOutlined />
