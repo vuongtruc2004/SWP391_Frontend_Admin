@@ -188,7 +188,6 @@ const QuizCreateBtn = (props: {
             let createQuestionResponses: (string | null)[] = [];
 
             if (questionRequests.length > 0) {
-                console.log("questionRequest>>>>>>>>", questionRequests);
                 createQuestionResponses = await Promise.all(
                     questionRequests.map(async (questionRequest, index) => {
                         const response = await sendRequest<ApiResponse<QuestionResponse>>({
@@ -213,7 +212,6 @@ const QuizCreateBtn = (props: {
                     return;
                 }
 
-                console.log("createQuestionResponses>>>>>>>", createQuestionResponses);
             }
 
 
