@@ -1,7 +1,6 @@
 'use client'
-
-import { CheckCircleFilled, EditOutlined, InfoCircleOutlined, LockOutlined } from "@ant-design/icons";
-import { message, Popconfirm, Space, Table, TableProps } from "antd";
+import { CheckCircleFilled, DeleteOutlined, InfoCircleOutlined, LineOutlined } from "@ant-design/icons";
+import { message, Popconfirm, Space, Table, TableProps, Tooltip } from "antd";
 import dayjs from "dayjs";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -21,6 +20,7 @@ const OrderTable = (props: {
     const [openDraw, setOpenDraw] = useState<boolean>(false);
     const [messageApi, contextHolder] = message.useMessage();
 
+
     const columns: TableProps<OrderResponse>['columns'] = [
         {
             title: 'STT',
@@ -30,6 +30,7 @@ const OrderTable = (props: {
             align: 'center',
             render: (text, record, index) => <>{(index + 1) + (page - 1) * orderPageResponse.pageSize}</>,
         },
+
 
         {
             title: 'Ngày tạo',
@@ -81,12 +82,15 @@ const OrderTable = (props: {
                 </span>,
         },
 
+
         {
             title: 'Tổng số tiền',
             key: 'price',
             width: '30%',
             align: 'center',
             render: (_, record) => `${record.totalAmount.toLocaleString()}₫`
+
+
 
 
         },
@@ -103,12 +107,14 @@ const OrderTable = (props: {
                     CANCELLED: 'orange',
                 };
 
+
                 const statusLabels: Record<string, string> = {
                     PENDING: 'Chưa thanh toán',
                     COMPLETED: 'Đã thanh toán',
                     EXPIRED: 'Đã hết hạn',
                     CANCELLED: 'Đã hủy',
                 };
+
 
                 return (
                     <span className="text-nowrap" style={{ color: statusColors[record.orderStatus] }}>
@@ -125,22 +131,39 @@ const OrderTable = (props: {
             width: '40%',
             render: (_, record: OrderResponse) => (
                 <Space size="middle">
-                    <InfoCircleOutlined style={{ color: "green" }} onClick={() => {
-                        setOpenDraw(true);
-                        setOrderDetail(record);
-                    }} />
+                    <Tooltip title="Xem chi tiết hóa đơn" arrow color="#6c757d">
+                        <InfoCircleOutlined style={{ color: "green" }} onClick={() => {
+                            setOpenDraw(true);
+                            setOrderDetail(record);
+                        }} />
+                    </Tooltip>
 
-                    <EditOutlined className="text-blue-500" style={{ color: "blue" }}
-                        onClick={() => {
-                            // setEditingUser(record)
-                            // setOpenEditForm(true)
-                        }}
-                    />
-                    <CheckCircleFilled style={{ color: 'green' }} onClick={() => handleChangeStatus(record.orderId)} />
+
+                    <Tooltip title="Đã thanh toán" arrow color="#6c757d">
+                        <CheckCircleFilled style={{ color: 'green' }} onClick={() => handleChangeStatus(record.orderId)} />
+                    </Tooltip>
+
+                    {record.orderStatus !== "COMPLETED" ? (
+                        <Tooltip title="Xóa hóa đơn" arrow color="#6c757d">
+                            <Popconfirm
+                                placement="left"
+                                title="Xóa hóa đơn"
+                                description="Bạn có chắc chắn mua xóa hóa đơn này không này không?"
+                                okText="Có"
+                                cancelText="Không"
+                                onConfirm={() => handleDeleteOrder(record.orderId)}
+                            >
+                                <DeleteOutlined style={{ color: "red" }} />
+                            </Popconfirm>
+                        </Tooltip>
+                    ) : (
+                        <LineOutlined />
+                    )}
                 </Space>
             ),
         },
     ];
+
 
     const handleChangeStatus = async (orderId: number) => {
         const orderResponse = await sendRequest<ApiResponse<OrderResponse>>({
@@ -159,11 +182,33 @@ const OrderTable = (props: {
             });
         }
     }
+
+
+    const handleDeleteOrder = async (orderId: number) => {
+        const response = await sendRequest<ApiResponse<void>>({
+            url: `${apiUrl}/purchase/${orderId}`,
+            method: 'DELETE'
+        });
+        if (response.status === 200) {
+            messageApi.open({
+                type: 'success',
+                content: response.message.toString(),
+            });
+            router.refresh();
+        } else {
+            messageApi.open({
+                type: 'error',
+                content: response.message.toString(),
+            });
+        }
+    }
+
+
     return (
         <>
             {contextHolder}
             <Table
-                className="overflow-y-auto max-h-[calc(100vh-100px)] mb-8 pl-6 pr-6"
+                className="overflow-y-auto max-h-[calc(100vh-100px)] mb-8 pl-6 pr-6 text-nowrap text-center"
                 columns={columns}
                 dataSource={orderPageResponse.content}
                 rowKey={"orderId"}
@@ -184,9 +229,14 @@ const OrderTable = (props: {
                 setOpenDraw={setOpenDraw}
                 viewOrderDetail={orderDetail}
 
+
             />
         </>
     )
 }
 
+
 export default OrderTable;
+
+
+
