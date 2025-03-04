@@ -4,7 +4,7 @@ import { validTitle } from "@/helper/create.question.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import { PlusCircleOutlined, PlusOutlined, WarningOutlined, MinusCircleOutlined } from "@ant-design/icons";
-import { Alert, Button, Checkbox, Input, message, Modal, notification, Space } from "antd";
+import { Alert, Button, Checkbox, Input, message, Modal, notification, Space, Tooltip } from "antd";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -128,7 +128,7 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
     const handleCancel = () => {
         setTitle(initState);
         setIsSubmitted(false)
-        setAnswers([{ content: "", correct: false, empty: true }]); // Reset danh sách câu trả lời
+        setAnswers([{ content: "", correct: false, empty: true }]);
         setIsModalOpen(false);
     };
 
@@ -213,12 +213,19 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
                     <span className="text-red-500 mr-2">*</span>Câu trả lời:
                     {answers.map((answer, index) => {
                         const isDuplicate = answers
-                            .filter(a => a.content.trim().toLowerCase() === answer.content.trim().toLowerCase()).length > 1;
-
+                            .filter(a => {
+                                if (a.content && answer.content) {
+                                    return a.content.trim().toLowerCase() === answer.content.trim().toLowerCase();
+                                }
+                                return false;
+                            }).length > 1;
                         return (
                             <div key={index} className="w-full flex flex-col gap-1 mt-2">
                                 <div className="flex items-center gap-2">
-                                    <Checkbox checked={answer.correct} onChange={() => toggleCorrect(index)} />
+                                    <Tooltip title='Xác nhận đáp án đúng' color="green">
+                                        <Checkbox checked={answer.correct} onChange={() => toggleCorrect(index)} />
+                                    </Tooltip>
+
                                     <Input
                                         className={`w-full ${isSubmitted && answer.empty ? "border-red-500" : ""}`}
                                         placeholder={`Câu trả lời ${index + 1}`}
@@ -226,8 +233,13 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
                                         onChange={(e) => updateAnswer(index, e.target.value)}
                                         allowClear
                                     />
+                                    <Tooltip title='Thêm đáp án' color="blue">
+                                        <PlusCircleOutlined onClick={addAnswer} className="text-lg cursor-pointer" style={{ color: 'blue' }} />
+                                    </Tooltip>
                                     {answers.length > 1 && (
-                                        <MinusCircleOutlined style={{ color: 'red' }} className="text-lg cursor-pointer" onClick={() => removeAnswer(index)} />
+                                        <Tooltip title='Xóa đáp án' color="red">
+                                            <MinusCircleOutlined style={{ color: 'red' }} className="text-lg cursor-pointer" onClick={() => removeAnswer(index)} />
+                                        </Tooltip>
                                     )}
                                 </div>
                                 {isSubmitted && answer.empty && (
@@ -245,9 +257,6 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
                             </div>
                         );
                     })}
-                    <Button type="dashed" onClick={addAnswer} icon={<PlusCircleOutlined />} className="mt-3 w-full">
-                        Thêm câu trả lời
-                    </Button>
                     {!answers.some(answer => answer.correct) && isSubmitted && (
                         <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                             <WarningOutlined />

@@ -5,7 +5,7 @@ import { validTitle } from "@/helper/create.question.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
-import { Avatar, Button, Checkbox, Image, Input, Modal, notification } from "antd";
+import { Avatar, Button, Checkbox, Image, Input, Modal, notification, Tooltip } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -316,8 +316,14 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
                                     onChange={(e) => updateObject(index, e.target.value)}
                                     allowClear
                                 />
+                                <Tooltip title='Thêm mục tiêu' color="blue">
+                                    <PlusCircleOutlined onClick={addAnswer} className="text-lg cursor-pointer" style={{ color: 'blue' }} />
+                                </Tooltip>
+
                                 {objects.length > 1 && (
-                                    <MinusCircleOutlined style={{ color: 'red' }} className="text-lg cursor-pointer" onClick={() => removeAnswer(index)} />
+                                    <Tooltip title='Xóa mục tiêu' color="red">
+                                        <MinusCircleOutlined style={{ color: 'red' }} className="text-lg cursor-pointer" onClick={() => removeAnswer(index)} />
+                                    </Tooltip>
                                 )}
                             </div>
                             {isSubmitted && object.empty && (
@@ -329,9 +335,6 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
                         </div>
                     ))
                     }
-                    <Button type="dashed" onClick={addAnswer} icon={<PlusCircleOutlined />} className="mt-3 w-full">
-                        Thêm mục tiêu
-                    </Button>
 
                 </div>
 

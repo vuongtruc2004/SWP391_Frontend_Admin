@@ -2,7 +2,7 @@
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import { DollarCircleFilled, DoubleRightOutlined, ReconciliationFilled, SmileFilled } from '@ant-design/icons';
-import { Card, Col, Row, Select } from 'antd';
+import { Card, Col, Row, Select, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react';
 import CountUp from 'react-countup';
 
@@ -10,20 +10,20 @@ const TotalRevenueCard = () => {
 
     const getStartOfWeek = (): string => {
         const today = new Date();
-        const dayOfWeek = today.getDay(); // 0: Chủ Nhật, 1: Thứ Hai, ..., 6: Thứ Bảy
-        const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Nếu Chủ Nhật thì quay về Thứ Hai trước đó
+        const dayOfWeek = today.getDay();
+        const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
         const monday = new Date(today);
-        monday.setDate(today.getDate() + diff); // Lùi về Thứ Hai đầu tuần
-        return monday.toISOString().split("T")[0]; // YYYY-MM-DD
+        monday.setDate(today.getDate() + diff);
+        return monday.toISOString().split("T")[0];
     }
 
     const getEndOfWeek = (): string => {
         const today = new Date();
         const dayOfWeek = today.getDay();
-        const diff = dayOfWeek === 0 ? 0 : 7 - dayOfWeek; // Nếu Chủ Nhật thì giữ nguyên, nếu không thì nhảy đến Chủ Nhật
+        const diff = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
         const sunday = new Date(today);
-        sunday.setDate(today.getDate() + diff); // Tiến tới Chủ Nhật cuối tuần
-        return sunday.toISOString().split("T")[0]; // YYYY-MM-DD
+        sunday.setDate(today.getDate() + diff);
+        return sunday.toISOString().split("T")[0];
     }
 
     const [type, setType] = useState<string>("week");
@@ -62,21 +62,21 @@ const TotalRevenueCard = () => {
                 setCourseSold(response.data.orders)
 
                 const percentSale = response.data.yesterdayRevenue > 0
-                    ? ((response.data.todayRevenue - response.data.yesterdayRevenue) / response.data.yesterdayRevenue) * response.data.todayRevenue === 0 ? 0 : 100
+                    ? ((response.data.todayRevenue - response.data.yesterdayRevenue) / response.data.yesterdayRevenue) * 100
                     : response.data.todayRevenue === 0 ? 0 : 100;
                 setTotalSalesToday(response.data.todayRevenue);
                 setPercentSale(percentSale);
                 setTotalSalesYesterday(response.data.yesterdayRevenue);
 
                 const percentStudent = response.data.yesterdayStudents > 0
-                    ? ((response.data.todayStudents - response.data.yesterdayStudents) / response.data.yesterdayStudents) * response.data.todayRevenue === 0 ? 0 : 100
+                    ? ((response.data.todayStudents - response.data.yesterdayStudents) / response.data.yesterdayStudents) * 100
                     : response.data.todayRevenue === 0 ? 0 : 100;
                 setTotalStudentsToday(response.data.todayStudents);
                 setPercentStudent(percentStudent);
                 setTotalStudentsYesterday(response.data.yesterdayStudents);
 
                 const percentCoursesSell = response.data.yesterdayOrders > 0
-                    ? ((response.data.todayOrders - response.data.yesterdayOrders) / response.data.yesterdayOrders) * response.data.todayRevenue === 0 ? 0 : 100
+                    ? ((response.data.todayOrders - response.data.yesterdayOrders) / response.data.yesterdayOrders) * 100
                     : response.data.todayRevenue === 0 ? 0 : 100;
                 setTotalCoursesSellToday(response.data.todayOrders);
                 setPercentCoursesSell(percentCoursesSell);
@@ -102,7 +102,7 @@ const TotalRevenueCard = () => {
 
     const getCurrentMonth = (): string => {
         const today = new Date();
-        const month = String(today.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
+        const month = String(today.getMonth() + 1).padStart(2, '0');
         const year = today.getFullYear();
 
         return `${year}-${month}`;
@@ -110,12 +110,12 @@ const TotalRevenueCard = () => {
 
     const getCurrentQuarter = (): string => {
         const today = new Date();
-        const month = today.getMonth() + 1; // Tháng bắt đầu từ 0, nên cần +1
+        const month = today.getMonth() + 1;
         const year = today.getFullYear();
 
-        const quarter = Math.ceil(month / 3); // Xác định quý
-        const startMonth = (quarter - 1) * 3 + 1; // Tháng bắt đầu của quý
-        const endMonth = quarter * 3; // Tháng kết thúc của quý
+        const quarter = Math.ceil(month / 3);
+        const startMonth = (quarter - 1) * 3 + 1;
+        const endMonth = quarter * 3;
 
         return `Q${quarter} (${year}): Tháng ${startMonth} - Tháng ${endMonth}`;
     };
@@ -133,7 +133,7 @@ const TotalRevenueCard = () => {
                     <div className='border w-[13vw] h-[32px] flex justify-center p-1 rounded-md'>
                         {type === 'week' ? (
                             <>
-                                {getStartOfWeek()} <DoubleRightOutlined className="text-green-500 ml-2 mr-2" /> {getEndOfWeek()}
+                                {getStartOfWeek()} <DoubleRightOutlined style={{ color: 'green' }} className="ml-2 mr-2" /> {getEndOfWeek()}
                             </>
                         ) : (
                             currentText
@@ -173,9 +173,11 @@ const TotalRevenueCard = () => {
 
                                 <p className="text-[17px]">Tổng doanh số</p>
                                 <p className="text-xs mt-1 text-blue-500 cursor-pointer" >
-                                    <span title={`Doanh số hôm nay: ${formatNumber(totalSalesToday) ?? 0} ₫\nDoanh số hôm qua ${formatNumber(totalSalesYesterday) ?? 0} ₫`}>
-                                        {percentSale >= 0 ? "+" : ""}{percentSale.toFixed(1) ?? 0}% hôm qua
-                                    </span>
+                                    <Tooltip title={`Doanh số hôm nay: ${formatNumber(totalSalesToday) ?? 0} ₫\nDoanh số hôm qua ${formatNumber(totalSalesYesterday) ?? 0} ₫`} color='#fa5a7d' placement='bottom'>
+                                        <span>
+                                            {percentSale >= 0 ? "+" : ""}{percentSale.toFixed(1) ?? 0}% hôm qua
+                                        </span>
+                                    </Tooltip>
                                 </p>
                             </div>
                         </div>
@@ -196,9 +198,11 @@ const TotalRevenueCard = () => {
                                 </p>
                                 <p className="text-[17px]">Tổng học viên</p>
                                 <p className="text-xs mt-1 text-blue-500 cursor-pointer" >
-                                    <span title={`Số lượng học viên mới hôm nay: ${formatNumber(totalStudentsToday) ?? 0} học viên\nSố lượng học viên mới hôm qua: ${formatNumber(totalStudentsYesterday) ?? 0} học viên`}>
-                                        {percentStudent >= 0 ? "+" : ""}{percentStudent.toFixed(1) ?? 0}% hôm qua
-                                    </span>
+                                    <Tooltip title={`Doanh số hôm nay: ${formatNumber(totalSalesToday) ?? 0} ₫\nDoanh số hôm qua ${formatNumber(totalSalesYesterday) ?? 0} ₫`} color='#3dd857' placement='bottom'>
+                                        <span title={`Số lượng học viên mới hôm nay: ${formatNumber(totalStudentsToday) ?? 0} học viên\nSố lượng học viên mới hôm qua: ${formatNumber(totalStudentsYesterday) ?? 0} học viên`}>
+                                            {percentStudent >= 0 ? "+" : ""}{percentStudent.toFixed(1) ?? 0}% hôm qua
+                                        </span>
+                                    </Tooltip>
                                 </p>
                             </div>
                         </div>
@@ -221,16 +225,18 @@ const TotalRevenueCard = () => {
                                 </p>
                                 <p className="text-[17px]">Khóa học đã bán</p>
                                 <p className="text-xs mt-1 text-blue-500 cursor-pointer" >
-                                    <span title={`Khóa học đã bán hôm nay: ${formatNumber(totalCoursesSellToday) ?? 0} khóa học\nKhóa học đã bán hôm qua: ${formatNumber(totalCoursesSellYesterday) ?? 0} khóa học`}>
-                                        {percentCoursesSell >= 0 ? "+" : ""}{percentCoursesSell.toFixed(1) ?? 0}% hôm qua
-                                    </span>
+                                    <Tooltip title={`Doanh số hôm nay: ${formatNumber(totalSalesToday) ?? 0} ₫\nDoanh số hôm qua ${formatNumber(totalSalesYesterday) ?? 0} ₫`} color='#bf83ff' placement='bottom'>
+                                        <span title={`Khóa học đã bán hôm nay: ${formatNumber(totalCoursesSellToday) ?? 0} khóa học\nKhóa học đã bán hôm qua: ${formatNumber(totalCoursesSellYesterday) ?? 0} khóa học`}>
+                                            {percentCoursesSell >= 0 ? "+" : ""}{percentCoursesSell.toFixed(1) ?? 0}% hôm qua
+                                        </span>
+                                    </Tooltip>
                                 </p>
                             </div>
                         </div>
                     </Card>
-                </Col>
-            </Row>
-        </div>
+                </Col >
+            </Row >
+        </div >
     );
 }
 

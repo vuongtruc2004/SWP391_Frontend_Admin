@@ -9,25 +9,25 @@ import isoWeek from "dayjs/plugin/isoWeek";
 import { DoubleRightOutlined } from '@ant-design/icons';
 
 
-dayjs.extend(isoWeek); // Kích hoạt plugin ISO Week
+dayjs.extend(isoWeek);
 const CourseDayLine = () => {
 
     const getStartOfWeek = (): string => {
         const today = new Date();
-        const dayOfWeek = today.getDay(); // 0: Chủ Nhật, 1: Thứ Hai, ..., 6: Thứ Bảy
-        const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Nếu Chủ Nhật thì quay về Thứ Hai trước đó
+        const dayOfWeek = today.getDay();
+        const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
         const monday = new Date(today);
-        monday.setDate(today.getDate() + diff); // Lùi về Thứ Hai đầu tuần
-        return monday.toISOString().split("T")[0]; // YYYY-MM-DD
+        monday.setDate(today.getDate() + diff);
+        return monday.toISOString().split("T")[0];
     }
 
     const getEndOfWeek = (): string => {
         const today = new Date();
         const dayOfWeek = today.getDay();
-        const diff = dayOfWeek === 0 ? 0 : 7 - dayOfWeek; // Nếu Chủ Nhật thì giữ nguyên, nếu không thì nhảy đến Chủ Nhật
+        const diff = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
         const sunday = new Date(today);
-        sunday.setDate(today.getDate() + diff); // Tiến tới Chủ Nhật cuối tuần
-        return sunday.toISOString().split("T")[0]; // YYYY-MM-DD
+        sunday.setDate(today.getDate() + diff);
+        return sunday.toISOString().split("T")[0];
     }
 
 
@@ -43,7 +43,7 @@ const CourseDayLine = () => {
 
     useEffect(() => {
         fetchData(firstDayOfWeek, endDayOfWeek);
-    }, [firstDayOfWeek, endDayOfWeek]); // Khi state thay đổi, tự động gọi lại API
+    }, [firstDayOfWeek, endDayOfWeek]);
 
 
     const fetchData = async (startDate: string, endDate: string) => {
@@ -110,7 +110,7 @@ const CourseDayLine = () => {
 
             <div className='flex justify-end mr-14 items-center mb-5 gap-5'>
                 <div className='border w-fit p-1 rounded-md'>
-                    {firstDayOfWeek} <DoubleRightOutlined className='text-green-500 ml-2 mr-2' /> {endDayOfWeek}
+                    {firstDayOfWeek} <DoubleRightOutlined style={{ color: 'green' }} className='ml-2 mr-2' /> {endDayOfWeek}
                 </div>
                 <DatePicker
                     size={'middle'}

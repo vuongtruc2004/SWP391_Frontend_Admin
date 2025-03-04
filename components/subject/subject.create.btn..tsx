@@ -236,6 +236,7 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                                             onChange={handleUploadFile}
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                             style={{ maxWidth: "120px", maxHeight: "120px" }}
+                                            title="Chưa chọn file"
                                         />
                                     </div>
 
@@ -256,7 +257,7 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                                             />
                                         </div>
 
-                                        <SyncOutlined className="text-blue-500 text-lg ml-6"
+                                        <SyncOutlined style={{ color: '#4096ff' }} className="text-lg ml-6"
                                             onClick={handleSyncClick}
                                         />
 
@@ -265,6 +266,7 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                                             ref={fileInputRef}
                                             onChange={handleUploadFile}
                                             className="hidden"
+                                            title="Chưa chọn file"
                                         />
                                     </div>
 

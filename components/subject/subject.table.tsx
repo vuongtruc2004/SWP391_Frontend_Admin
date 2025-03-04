@@ -10,6 +10,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl, storageUrl } from '@/utils/url';
 import UpdateSubjectForm from './update.subject.form';
 import { useSession } from 'next-auth/react';
+import dayjs from 'dayjs';
 
 
 export const init = {
@@ -59,6 +60,8 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
 
     }
 
+
+
     const columns: TableProps<SubjectResponse>['columns'] = [
         {
             title: "STT",
@@ -88,37 +91,39 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             align: 'center',
             sorter: (a, b) => a.totalCourses - b.totalCourses,
             render: (text, record) => (
-                <Popconfirm
-                    title={
-                        <div>
-                            <p className='pb-4 text-blue-500 text-lg text-center font-bold'>Các Khóa Học Chi Tiết</p>
-                            <div className="max-h-[200px] w-[350px] overflow-y-auto pr-2">
-                                {record.listCourses && record.listCourses.length > 0 ? (
-                                    <ul className='pl-4'>
-                                        {record.listCourses.map((course, index) => (
-                                            <li key={index}>
-                                                <span className='gap-2 mr-2'>
-                                                    <DoubleRightOutlined style={{ color: 'green' }} />
-                                                </span>
-                                                {course}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <div className='text-center'>
-                                        <InboxOutlined className='text-5xl text-gray-500' />
-                                        <p >Không tìm thấy khóa học nào!</p>
-                                    </div>
-                                )}
+                <Tooltip title='Các khóa học' color='blue'>
+                    <Popconfirm
+                        title={
+                            <div>
+                                <p className='pb-4 text-blue-500 text-lg text-center font-bold'>Các Khóa Học Chi Tiết</p>
+                                <div className="max-h-[200px] w-[350px] overflow-y-auto pr-2">
+                                    {record.listCourses && record.listCourses.length > 0 ? (
+                                        <ul className='pl-4'>
+                                            {record.listCourses.map((course, index) => (
+                                                <li key={index}>
+                                                    <span className='gap-2 mr-2'>
+                                                        <DoubleRightOutlined style={{ color: 'green' }} />
+                                                    </span>
+                                                    {course}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <div className='text-center'>
+                                            <InboxOutlined className='text-5xl text-gray-500' />
+                                            <p >Không tìm thấy khóa học nào!</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    }
-                    icon={null}
-                    showCancel={false}
-                    okText="Đóng"
-                >
-                    <span className="cursor-pointer text-blue-500 hover:underline">{text}</span>
-                </Popconfirm>
+                        }
+                        icon={null}
+                        showCancel={false}
+                        okText="Đóng"
+                    >
+                        <span className="cursor-pointer text-blue-500 hover:underline">{text}</span>
+                    </Popconfirm>
+                </Tooltip>
             ),
         },
         {
@@ -128,7 +133,7 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             width: '10%',
             align: 'center',
             render: (text, record) => (
-                <Tooltip title='Ảnh bìa'>
+                <Tooltip title='Ảnh bìa' color='green'>
                     <Popconfirm
                         title={
                             <Image
@@ -163,7 +168,7 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             render: (_, record: any) => (
                 <Space size="middle">
                     {session?.user.roleName === 'EXPERT' &&
-                        <Tooltip title='Chỉnh sửa'>
+                        <Tooltip title='Chỉnh sửa' color='blue'>
                             <EditOutlined style={{ color: "blue" }}
                                 onClick={() => {
                                     setEditingSubject(record)
@@ -173,7 +178,7 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
                         </Tooltip>
 
                     }
-                    <Tooltip title='Xóa'>
+                    <Tooltip title='Xóa' color='red'>
                         <Popconfirm
                             placement="left"
                             title="Xóa lĩnh vực"

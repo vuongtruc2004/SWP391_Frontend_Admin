@@ -1,7 +1,7 @@
 'use client'
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
-import { Popconfirm, Space, Table, TableProps } from 'antd';
+import { Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
 import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
@@ -53,17 +53,23 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
             width: '20%',
             render: (_, record: any) => (
                 <Space size="middle">
-                    <InfoCircleOutlined style={{ color: "green" }} onClick={() => {
-                        setOpenDraw(true);
-                        setQuestion(record);
-                    }} />
+                    <Tooltip title='Chi tiết câu hỏi' color='blue'>
+                        <InfoCircleOutlined style={{ color: "green" }} onClick={() => {
+                            setOpenDraw(true);
+                            setQuestion(record);
+                        }} />
+                    </Tooltip>
+
                     {session?.user.roleName === 'EXPERT' &&
-                        <EditOutlined style={{ color: "blue" }}
-                            onClick={() => {
-                                setEditingQuestion(record)
-                                setOpenEditForm(true)
-                            }}
-                        />
+                        <Tooltip title='Chỉnh sửa câu hỏi' color='blue'>
+                            <EditOutlined style={{ color: "blue" }}
+                                onClick={() => {
+                                    setEditingQuestion(record)
+                                    setOpenEditForm(true)
+                                }}
+                            />
+                        </Tooltip>
+
                     }
                     <Popconfirm
                         placement="left"
@@ -73,7 +79,10 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
                         okText="Có"
                         cancelText="Không"
                     >
-                        <DeleteOutlined style={{ color: "red" }} />
+                        <Tooltip title='Xóa câu hỏi' color='blue'>
+                            <DeleteOutlined style={{ color: "red" }} />
+                        </Tooltip>
+
                     </Popconfirm>
 
                 </Space>

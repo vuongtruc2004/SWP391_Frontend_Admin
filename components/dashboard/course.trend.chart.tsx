@@ -8,32 +8,25 @@ import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react'
 
 const CourseTrendingChart = () => {
-
     const [chartData, setChartData] = useState<{ type: string; value: number }[]>([]);
     const [courseNumber, setCourseNumber] = useState<number>(5);
     const { data: session, status } = useSession();
+    const [cachedSession, setCachedSession] = useState<any>(null);
 
     // Lưu session vào localStorage để không mất khi reload
     useEffect(() => {
-        if (session) {
+        if (session && typeof window !== "undefined") {
             localStorage.setItem("sessionData", JSON.stringify(session));
         }
     }, [session]);
-
-    // Lấy session từ localStorage nếu bị mất khi reload
-    const getSessionFromStorage = () => {
-        const storedSession = localStorage.getItem("sessionData");
-        return storedSession ? JSON.parse(storedSession) : null;
-    };
-
-    const [cachedSession, setCachedSession] = useState(getSessionFromStorage());
-
-    // Cập nhật cachedSession khi session thay đổi
     useEffect(() => {
-        if (!cachedSession && session) {
-            setCachedSession(session);
+        if (typeof window !== "undefined") {
+            const storedSession = localStorage.getItem("sessionData");
+            if (storedSession) {
+                setCachedSession(JSON.parse(storedSession));
+            }
         }
-    }, [session]);
+    }, []);
 
     const accessToken = cachedSession?.accessToken || session?.accessToken;
 
@@ -69,7 +62,6 @@ const CourseTrendingChart = () => {
 
         fetchData();
     }, [accessToken, courseNumber]);
-
 
     const handleChange = (value: string) => {
         setCourseNumber(Number(value));
@@ -113,7 +105,6 @@ const CourseTrendingChart = () => {
             </div>
 
             <div className='pl-3 mt-[-5vh] mb-6'>Số khóa đã bán</div>
-
         </div>
     );
 }
