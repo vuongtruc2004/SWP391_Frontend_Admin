@@ -107,6 +107,7 @@ declare global {
         subjects: SubjectResponse[],
         introduction: string,
         objectives: string[],
+        chapter: string[]
 
     }
 

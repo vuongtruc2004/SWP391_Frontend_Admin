@@ -195,7 +195,6 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
 
                         )
                     }
-
                     <Tooltip title='Xem danh sách người mua' color='blue'>
                         <Link href={`/course/purchaser/${record.courseId}`}>
                             <UserOutlined />
@@ -219,12 +218,12 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             <Table
                 className="overflow-y-auto max-h-[calc(100vh-100px)] mb-8 pl-6 pr-6"
                 columns={columns}
-                dataSource={coursePageResponse.content}
+                dataSource={coursePageResponse?.content}
                 rowKey={"courseId"}
                 pagination={{
                     current: page,
-                    pageSize: coursePageResponse.pageSize,
-                    total: coursePageResponse.totalElements,
+                    pageSize: coursePageResponse?.pageSize,
+                    total: coursePageResponse?.totalElements,
                     onChange(page, pageSize) {
                         const params = new URLSearchParams(searchParams);
                         params.set('page', page.toString());

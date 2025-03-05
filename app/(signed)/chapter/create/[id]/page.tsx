@@ -14,9 +14,10 @@ const UpdateChapterPage = async ({ params }: { params: Promise<{ id: string }> }
     }
     return (
         <div className="bg-white max-w-[1200px] rounded-md shadow-md p-5 mx-auto">
-            <h1 className="text-center font-semibold text-xl mb-5">Tạo chương học mới </h1>
+            <h1 className="text-center font-bold text-2xl mb-5">Quản lý chương học</h1>
             <CreateChapter course={courseResponse.data} />
         </div>
+
     )
 }
 

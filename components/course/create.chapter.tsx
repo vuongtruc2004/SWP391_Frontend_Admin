@@ -3,14 +3,14 @@ import { isValidYouTubeUrl } from '@/helper/create.course.helper';
 import { calculateReadingTime, extractVideoId, getYouTubeDuration } from '@/helper/get.youtube.duration.helper';
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl, storageUrl } from '@/utils/url';
-import { CloseOutlined } from '@ant-design/icons';
+import { CloseOutlined, HomeOutlined } from '@ant-design/icons';
 import MDEditor, { getCommands, ICommand } from '@uiw/react-md-editor';
-import { Button, Card, Form, Input, notification, Tabs } from 'antd';
+import { Button, Card, Form, Input, notification, Select, Tabs } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 interface FormValues {
     items: [
@@ -35,7 +35,8 @@ const CreateChapter = ({ course }: {
     const { push } = useRouter();
     const [inputMarkdown, setInputMarkdown] = useState("");
     const [form] = Form.useForm();
-
+    const [loading, setLoading] = useState(false);
+    const [chapters, setChapters] = useState<ChapterResponse[]>([]);
     const uploadDocument: ICommand = {
         name: "upload-document",
         keyCommand: "upload-document",
@@ -200,7 +201,30 @@ const CreateChapter = ({ course }: {
             });
         }
     };
-
+    useEffect(() => {
+        const fetchChapters = async () => {
+            setLoading(true);
+            try {
+                const response = await sendRequest<ApiResponse<ChapterResponse[]>>({
+                    url: `${apiUrl}/chapters/${course.courseId}`,
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${session?.accessToken}`
+                    }
+                });
+                console.log(response);
+                if (response.status === 201) {
+                    setChapters(response.data);
+                }
+            } catch (error) {
+                console.error('Lỗi lấy danh sách chương học:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchChapters();
+    }, [course.courseId, session]);
 
     return (
         <Form
@@ -212,6 +236,35 @@ const CreateChapter = ({ course }: {
             initialValues={{ items: [{}] }}
             onFinish={onFinish}
         >
+            <div className='mb-5 flex justify-between items-center'>
+                <Link href={"/course"}>
+                    <HomeOutlined style={{ fontSize: '30px', color: '#006400' }} />
+                </Link>
+            </div>
+            <Form.Item
+                label={<span style={{ fontSize: '18px', fontWeight: 'bold', color: 'black' }}>Các chương học thuộc khoá {course.courseName}</span>}
+            >
+                <Select
+                    placeholder="Chọn chương học"
+                    loading={loading}
+                    style={{
+                        border: '1px solid black',
+                        borderRadius: '8px'
+                    }}
+                >
+                    {chapters.length > 0 ? (
+                        chapters.map((chapter, index) => (
+                            <Select.Option key={chapter.chapterId} value={chapter!.chapterId}>
+                                Chương {index + 1}: {chapter.title}
+                            </Select.Option>
+                        ))
+                    ) : (
+                        <Select.Option disabled>Không có chương học nào</Select.Option>
+                    )}
+                </Select>
+            </Form.Item>
+
+
             <Form.List name="items">
                 {(fields, { add, remove }) => (
                     <div style={{ display: 'flex', rowGap: 16, flexDirection: 'column' }}>
@@ -344,6 +397,7 @@ const CreateChapter = ({ course }: {
                         </Button>
                     </div>
                 )}
+
             </Form.List>
             <div className='mt-5 flex justify-end gap-x-3'>
                 <Link href={"/course"}>
@@ -358,6 +412,9 @@ const CreateChapter = ({ course }: {
                     Tạo chương học
                 </Button>
             </div>
+
+
+
         </Form >
     )
 }
