@@ -1,16 +1,44 @@
 'use client'
+import { sendRequest } from '@/utils/fetch.api';
+import { apiUrl } from '@/utils/url';
+import { DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
-import { Table, TableProps } from 'antd';
+import { notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import ViewCouponDetail from './view.coupon.detail';
 
 
 
 const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResponse[]> }) => {
+    const deleteCoupon = async (couponId: number) => {
+        const deleteResponse = await sendRequest<ApiResponse<CourseDetailsResponse>>({
+            url: `${apiUrl}/coupons/${couponId}`,
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (deleteResponse.status === 200) {
+            notification.success({
+                message: "Thành Công",
+                description: `Xoá thành công coupon ${couponDetail?.couponCode}`,
+            });
+            router.refresh()
+        } else {
+            notification.error({
+                message: "Thất Bại",
+                description: `Không thể xoá coupon ${couponDetail?.couponCode}`,
+            })
+        }
+    }
     const { couponPageResponse } = props;
     const searchParams = useSearchParams();
     const router = useRouter();
     const pathname = usePathname();
     const page = Number(searchParams.get('page')) || 1;
+    const [openDraw, setOpenDraw] = useState<boolean>(false);
+    const [couponDetail, setCouponDetail] = useState<CouponResponse | null>(null);
     const columns: TableProps<CouponResponse>['columns'] = [
         {
             title: "STT",
@@ -51,7 +79,30 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
             title: 'Hành động',
             key: 'action',
             width: '15%',
-
+            render: (_, record: CouponResponse) => (
+                <Space size="middle">
+                    <Tooltip placement="bottom" title="Xem chi tiết">
+                        <InfoCircleOutlined
+                            onClick={() => {
+                                setOpenDraw(true);
+                                setCouponDetail(record);
+                            }}
+                        />
+                    </Tooltip>
+                    <Tooltip placement="bottom" title='Xoá coupon'>
+                        <Popconfirm
+                            placement="left"
+                            title="Xóa coupon"
+                            description="Bạn có chắc chắn muốn xóa coupon này không?"
+                            onConfirm={() => deleteCoupon(record.couponId)}
+                            okText="Có"
+                            cancelText="Không"
+                        >
+                            <DeleteOutlined style={{ color: "red" }} />
+                        </Popconfirm>
+                    </Tooltip>
+                </Space >
+            ),
         },
     ];
     return (
@@ -73,6 +124,7 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
                 }}
                 showSorterTooltip={false}
             />
+            {openDraw && <ViewCouponDetail setOpenDraw={setOpenDraw} openDraw={openDraw} viewCouponDetail={couponDetail} />}
         </>
 
     );

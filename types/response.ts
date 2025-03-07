@@ -124,6 +124,8 @@ declare global {
         maxUses: number;
         usedCount: number;
         courseName: string[];
+        startTime: string;
+        endTime: string;
     }
 
     interface AgeRangeResponse {
