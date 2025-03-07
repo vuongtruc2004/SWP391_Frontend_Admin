@@ -140,7 +140,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                                     }}
                                 />
                             </Tooltip>
-                            <Tooltip title="Thêm chương học" color="blue">
+                            <Tooltip title="Quản lý chương học" color="blue">
                                 <Link href={`/chapter/create/${record.courseId}`}>
                                     <GrChapterAdd
                                         style={{ color: "black" }}

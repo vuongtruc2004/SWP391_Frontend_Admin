@@ -110,6 +110,21 @@ declare global {
         chapter: string[]
 
     }
+    interface CouponResponse {
+        couponId: number;
+        couponName: string;
+        couponDescription: string;
+        couponCode: string;
+        discountType: string;
+        discountRange: string;
+        discountPercent: number;
+        discountAmount: number;
+        maxDiscountAmount: number;
+        minOrderValue: number;
+        maxUses: number;
+        usedCount: number;
+        courseName: string[];
+    }
 
     interface AgeRangeResponse {
         [key: string]: number;

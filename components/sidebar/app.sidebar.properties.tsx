@@ -1,10 +1,11 @@
 import { BarChartOutlined, CodeOutlined, NotificationOutlined, TeamOutlined } from '@ant-design/icons';
-import { RxDashboard } from "react-icons/rx";
-import { LuNewspaper } from "react-icons/lu";
-import { BiBookReader } from "react-icons/bi";
-import { FaRegPaperPlane } from "react-icons/fa";
 import type { MenuProps } from 'antd';
 import Link from 'next/link';
+import { BiBookReader } from "react-icons/bi";
+import { FaRegPaperPlane } from "react-icons/fa";
+import { IoTicketOutline } from "react-icons/io5";
+import { LuNewspaper } from "react-icons/lu";
+import { RxDashboard } from "react-icons/rx";
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -56,6 +57,11 @@ export const sidebarItems: MenuItem[] = [
                 key: 'course',
                 label: <Link href="/course">Quản lí khóa học</Link>,
                 icon: <BiBookReader />,
+            },
+            {
+                key: 'coupon',
+                label: <Link href="/coupon">Quản lí coupon</Link>,
+                icon: <IoTicketOutline />,
             },
             {
                 key: 'exam_group',
@@ -113,6 +119,11 @@ export const sidebarItemsExpert: MenuItem[] = [
                 key: 'course',
                 label: <Link href="/course">Quản lí khóa học</Link>,
                 icon: <BiBookReader />,
+            },
+            {
+                key: 'coupon',
+                label: <Link href="/coupon">Quản lí coupon</Link>,
+                icon: <IoTicketOutline />,
             },
             {
                 key: 'exam_group',
