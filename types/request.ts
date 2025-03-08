@@ -43,6 +43,20 @@ declare global {
         quizzes?: string[];
         correctAnswers?: string[];
     }
+    interface CouponRequest {
+        couponName: string;
+        couponDescription: string;
+        couponCode: string;
+        discountType: string;
+        discountRange: string;
+        discountValue: number;
+        maxDiscountAmount: number;
+        minOrderValue: number;
+        maxUses: number;
+        startTime: string;
+        endTime: string;
+        courses: string[];
+    }
 
     interface UpdateUserRequest {
         userId: number,

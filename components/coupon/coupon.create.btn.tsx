@@ -1,0 +1,406 @@
+'use client'
+
+import { sendRequest } from "@/utils/fetch.api";
+import { apiUrl } from "@/utils/url";
+import { PlusOutlined, WarningOutlined } from "@ant-design/icons";
+import { Button, Checkbox, DatePicker, Input, Modal, notification, Select, Space } from "antd";
+import TextArea from "antd/es/input/TextArea";
+import dayjs from "dayjs";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+const initState: ErrorResponse = {
+    error: false,
+    value: ''
+};
+
+const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<CouponResponse[]> }) => {
+    const { RangePicker } = DatePicker;
+    const router = useRouter();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isRotated, setIsRotated] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [couponName, setCouponName] = useState<ErrorResponse>(initState);
+    const [couponCode, setCouponCode] = useState<ErrorResponse>(initState);
+    const [couponDescription, setCouponDescription] = useState<ErrorResponse>(initState);
+    const [discountType, setDiscountType] = useState('');
+    const [discountRange, setDiscountRange] = useState<ErrorResponse>(initState);
+    const [discountValue, setDiscountValue] = useState<ErrorResponse>(initState);
+    const [maxDiscountAmount, setMaxDiscountAmount] = useState<ErrorResponse>(initState);
+    const [minOrderValue, setMinOrderValue] = useState<ErrorResponse>(initState);
+    const [maxUses, setMaxUses] = useState<ErrorResponse>(initState);
+    const [startTime, setStartTime] = useState<ErrorResponse>(initState);
+    const [endTime, setEndTime] = useState<ErrorResponse>(initState);
+    const [courses, setCourses] = useState<string[]>([]);
+    const CheckboxGroup = Checkbox.Group;
+    const [checkedList, setCheckedList] = useState<string[]>();
+    const { data: session, status } = useSession();
+    const [selectedRange, setSelectedRange] = useState('');
+    const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
+
+
+
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const response = await fetch(`${apiUrl}/courses/all-inpagination`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (Array.isArray(data.data) && data.data) {
+                        setCourses(data.data.map((course: { courseName: string }) => course.courseName));
+                    } else {
+                        console.log("No data")
+                    }
+                } else {
+                    console.error("API fetch failed");
+                }
+            } catch (error) {
+                console.error("Error fetching subjects:", error);
+            }
+        };
+        fetchCourses();
+    }, []);
+
+    const handleRangeChange = (value: any) => {
+        setSelectedRange(value);
+        if (value !== 'COURSES') {
+            setSelectedCourses([]);
+        }
+    };
+
+    const handleCourseChange = (selectedValues: any) => {
+        setSelectedCourses(selectedValues);
+    };
+    const handleDateChange = (dates: any, dateStrings: any) => {
+        if (dates) {
+            setStartTime({ value: dayjs(dates[0]).format('YYYY-MM-DD HH:mm:ss'), error: false });
+            setEndTime({ value: dayjs(dates[1]).format('YYYY-MM-DD HH:mm:ss'), error: false });
+        }
+    };
+    const showModal = () => {
+        setIsRotated(!isRotated);
+        setIsModalOpen(true);
+    };
+
+    const handleOk = async () => {
+        const couponRequest: CouponRequest = {
+            couponName: couponName.value || "",
+            couponDescription: couponDescription.value || "",
+            couponCode: couponCode.value || "",
+            discountType: discountType || "",
+            discountRange: selectedRange || "",
+            discountValue: Number(discountValue.value || 0),
+            maxDiscountAmount: Number(maxDiscountAmount.value || 0),
+            minOrderValue: Number(minOrderValue.value || 0),
+            maxUses: Number(maxUses.value || 0),
+            startTime: startTime.value,
+            endTime: endTime.value,
+            courses: selectedCourses,
+        };
+        console.log(couponRequest);
+        const createResponse = await sendRequest<ApiResponse<CouponResponse>>({
+            url: `${apiUrl}/coupons`,
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+                "Content-Type": "application/json"
+            },
+            body: couponRequest
+        });
+        console.log("Check response", createResponse)
+        if (createResponse.status === 200) {
+            handleCancel();
+            router.refresh();
+            notification.success({
+                message: "Thành công",
+                description: createResponse.message.toString(),
+            });
+        } else {
+            setErrorMessage(createResponse.message.toString());
+            notification.error({
+                message: "Thất bại",
+                description: createResponse.message.toString(),
+            });
+        }
+        setLoading(false);
+
+    };
+
+    const handleCancel = () => {
+        setCouponName(initState);
+        setCouponCode(initState);
+        setCouponDescription(initState);
+        setDiscountType("");
+        setDiscountRange(initState);
+        setDiscountValue(initState);
+        setMaxDiscountAmount(initState);
+        setMinOrderValue(initState);
+        setMaxUses(initState);
+        setStartTime(initState);
+        setEndTime(initState);
+        setSelectedCourses([]);
+        setIsSubmitted(false);
+        setIsModalOpen(false);
+        setCheckedList([]);
+    };
+    return (
+        <>
+            <div>
+                <Button
+                    type="primary"
+                    onClick={showModal}
+                    className="w-fit"
+                    icon={<PlusOutlined className={`transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`} />}
+                >
+                    Tạo mới
+                </Button>
+
+            </div>
+
+            <Modal
+                title={<span style={{ fontSize: '24px', textAlign: 'center', width: '100%' }}>Tạo coupon</span>}
+                open={isModalOpen}
+                footer={null}
+                width={700}
+                onCancel={handleCancel}
+            >
+                <div>
+                    <span className="text-red-500 mr-2">*</span>
+                    <span className="text-lg">Tên coupon:</span>
+                    <Input
+                        status={couponName.error ? 'error' : ''}
+                        className="mt-1 mb-3"
+                        placeholder="Nhập tên coupon"
+                        allowClear
+                        value={couponName.value}
+                        onChange={(e) => setCouponName({ ...couponName, value: e.target.value, error: false })}
+                    />
+                    {couponName.error && (
+                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                            <WarningOutlined />
+                            {couponName.message}
+                        </p>
+                    )}
+                </div>
+
+                <div>
+                    <span className="text-red-500 mr-2">*</span>
+                    <span className="text-lg ">Mã coupon:</span>
+                    <Input
+                        status={couponCode.error ? 'error' : ''}
+                        className="mt-1 mb-3"
+                        placeholder="Nhập mã coupon"
+                        allowClear
+                        value={couponCode.value}
+                        onChange={(e) => setCouponCode({ ...couponCode, value: e.target.value, error: false })}
+                    />
+                    {couponCode.error && (
+                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                            <WarningOutlined />
+                            {couponCode.message}
+                        </p>
+                    )}
+                </div>
+                <div>
+                    <span className="text-red-500 mr-2">*</span>
+                    <span className="text-lg ">Số lượng coupon:</span>
+                    <Input
+                        status={maxUses.error ? 'error' : ''}
+                        className="mt-1 mb-3"
+                        placeholder="Nhập số lượng coupon"
+                        allowClear
+                        value={maxUses.value}
+                        onChange={(e) => setMaxUses({ ...maxUses, value: e.target.value, error: false })}
+                    />
+                    {couponCode.error && (
+                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                            <WarningOutlined />
+                            {couponCode.message}
+                        </p>
+                    )}
+                </div>
+                <div>
+                    <span className="text-red-500 mr-2">*</span>
+                    <span className="text-lg">Thời gian áp dụng:</span>
+                    <div className="mt-2">
+                        <Space direction="vertical" size={12}>
+                            <RangePicker
+                                showTime
+                                placeholder={['Ngày bắt đầu', 'Ngày kết thúc']}
+                                disabledDate={(current) => current && current.isBefore(dayjs(), 'day')}
+                                onChange={handleDateChange}
+                            />
+                        </Space>
+                    </div>
+                </div>
+
+
+
+                <div>
+                    <span className="text-red-500 mr-2">*</span>
+                    <span className="text-lg ">Mô tả:</span> {/* Increase font size */}
+                    <TextArea
+                        status={couponDescription.error ? 'error' : ''}
+                        className="mt-1 mb-3"
+                        placeholder="Nhập mô tả coupon"
+                        allowClear
+                        value={couponDescription.value}
+                        onChange={(e) => setCouponDescription({ ...couponDescription, value: e.target.value, error: false })}
+                    />
+                    {couponDescription.error && (
+                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                            <WarningOutlined />
+                            {couponDescription.message}
+                        </p>
+                    )}
+                </div>
+
+                <div className="flex items-center gap-x-4">
+                    {/* Hình thức giảm giá */}
+                    <div className="flex-1">
+                        <span className="text-red-500 mr-2">*</span>
+                        <span className="text-lg">Hình thức giảm giá:</span>
+                        <Select
+                            placeholder="Chọn hình thức giảm giá"
+                            loading={loading}
+                            style={{
+                                width: '100%',
+                                border: '1px solid black',
+                                borderRadius: '8px',
+                            }}
+                            value={discountType}
+                            onChange={(value) => {
+                                setDiscountType(value);
+                            }}
+                        >
+                            <Select.Option key={`fixed`} value="FIXED"
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <span>Giảm giá cố định</span>
+                                </div>
+                            </Select.Option>
+                            <Select.Option key={`percentage`} value="PERCENTAGE">
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <span>Giảm giá theo tỷ lệ phần trăm</span>
+                                </div>
+                            </Select.Option>
+                        </Select>
+                    </div>
+                    <div className="flex-1">
+                        <span className="text-red-500 mr-2">*</span>
+                        <span className="text-lg ">Giá trị giảm:</span>
+                        <Input
+                            status={discountValue.error ? 'error' : ''}
+                            className="mt-1 w-full"
+                            placeholder="Nhập giá trị giảm"
+                            allowClear
+                            value={discountValue.value}
+                            onChange={(e) => setDiscountValue({ ...discountValue, value: e.target.value, error: false })}
+                        />
+                        {discountValue.error && (
+                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                <WarningOutlined />
+                                {discountValue.message}
+                            </p>
+                        )}
+                    </div>
+                </div>
+                <div className="flex items-center gap-x-4">
+                    {/* Áp dụng cho đơn hàng từ */}
+                    <div className="flex-1">
+                        <span className="text-red-500 mr-2">*</span>
+                        <span className="text-lg ">Áp dụng cho đơn hàng từ:</span>
+                        <Input
+                            status={minOrderValue.error ? 'error' : ''}
+                            className="mt-1 mb-3"
+                            placeholder="Nhập số tiền áp dụng tối thiểu"
+                            allowClear
+                            value={minOrderValue.value}
+                            onChange={(e) => setMinOrderValue({ ...minOrderValue, value: e.target.value, error: false })}
+                        />
+                        {minOrderValue.error && (
+                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                <WarningOutlined />
+                                {minOrderValue.message}
+                            </p>
+                        )}
+                    </div>
+                    <div className="flex-1">
+                        <span className="text-red-500 mr-2">*</span>
+                        <span className="text-lg ">Số tiền giảm giá tối đa:</span>
+                        <Input
+                            status={maxDiscountAmount.error ? 'error' : ''}
+                            className="mt-1 mb-3"
+                            placeholder="Nhập số tiền giảm giá tối đa"
+                            allowClear
+                            value={maxDiscountAmount.value}
+                            onChange={(e) => setMaxDiscountAmount({ ...maxDiscountAmount, value: e.target.value, error: false })}
+                        />
+                        {maxDiscountAmount.error && (
+                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                <WarningOutlined />
+                                {maxDiscountAmount.message}
+                            </p>
+                        )}
+                    </div>
+                </div>
+                <div className="flex-1">
+                    <span className="text-red-500 mr-2">*</span>
+                    <span className="text-lg">Phạm vi áp dụng:</span>
+                    <Select
+                        placeholder="Chọn phạm vi áp dụng"
+                        loading={loading}
+                        style={{
+                            width: '100%',
+                            border: '1px solid black',
+                            borderRadius: '8px',
+                        }}
+                        value={selectedRange}
+                        onChange={handleRangeChange}
+                    >
+                        <Select.Option key={`all`} value="ALL">
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <span>Tất cả khoá học</span>
+                            </div>
+                        </Select.Option>
+                        <Select.Option key={`courses`} value="COURSES">
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <span>Giới hạn khoá học</span>
+                            </div>
+                        </Select.Option>
+                    </Select>
+                    {selectedRange === 'COURSES' && (
+                        <div className="mt-2">
+                            <span className="text-red-500 mr-2">*</span>
+                            <span className="text-lg">Chọn khóa học được áp dụng:</span>
+                            <Checkbox.Group
+                                options={courses.map((course) => ({
+                                    label: course,
+                                    value: course,
+                                }))}
+                                value={selectedCourses}
+                                onChange={handleCourseChange}
+                                style={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    gap: '16px',
+                                }}
+                            />
+                        </div>
+                    )}
+                </div>
+                <div className="flex justify-end mt-5">
+                    <Button className="mr-4" onClick={() => handleCancel()}>Hủy</Button>
+                    <Button loading={loading} type="primary" onClick={() => handleOk()}>Tạo</Button>
+                </div>
+
+            </Modal >
+
+        </>
+    );
+};
+
+export default CouponCreateBtn;

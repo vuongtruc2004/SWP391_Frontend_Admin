@@ -72,7 +72,7 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
             dataIndex: 'minOrderValue',
             key: 'min',
             width: '15%',
-            render: (_, record) => `${record.minOrderValue} - ${record.maxDiscountAmount}`
+            render: (_, record) => `${record.minOrderValue}`
         },
 
         {
