@@ -77,7 +77,7 @@ const ViewOrderDetail = (props: {
                                                     className="flex items-center gap-2 cursor-pointer font-medium text-gray-700"
                                                     onClick={() => handleToggle(index, orderDetail.courseId)}>
                                                     <DoubleRightOutlined style={{ color: 'green' }} />
-                                                    {`Hóa đơn ${index + 1}`}
+                                                    {`Khóa học ${index + 1}`}
                                                 </div>
 
                                                 {activeOrder === index && (

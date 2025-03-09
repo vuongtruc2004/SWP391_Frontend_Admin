@@ -68,7 +68,6 @@ const OrderPage = async (props: {
         url: `${apiUrl}/orders/price-range`,
 
     })
-    console.log("minPrice>>>>>>...", priceResponse);
 
 
     const orderResponse = await sendRequest<ApiResponse<PageDetailsResponse<OrderResponse[]>>>({

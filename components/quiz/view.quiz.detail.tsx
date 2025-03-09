@@ -1,17 +1,16 @@
-import { DoubleRightOutlined } from "@ant-design/icons";
-import { Collapse, Drawer } from "antd";
+import { ArrowLeftOutlined, DoubleRightOutlined } from "@ant-design/icons";
+import { Button, Collapse, Drawer } from "antd";
 import dayjs from "dayjs";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Router } from "next/router";
 import { useState } from "react";
-
+import { motion } from "framer-motion";
 const ViewQuizDetail = (props: {
-    openDraw: any,
-    quizDetail: QuizResponse | null,
-    setOpenDraw: any
+    quizDetail: QuizResponse | null
 }) => {
-    const { openDraw, quizDetail, setOpenDraw } = props;
-    const onClose = () => {
-        setOpenDraw(false);
-    }
+    const { quizDetail } = props;
+    const router = useRouter();
 
 
     const [activeQuestion, setActiveQuestion] = useState<number | null>(null);
@@ -19,67 +18,88 @@ const ViewQuizDetail = (props: {
     const handleToggle = (index: number) => {
         setActiveQuestion(activeQuestion === index ? null : index);
     };
-
+    console.log("quizDetail>>>", quizDetail);
     return (
         <>
-            <Drawer title="THÔNG TIN CHI TIẾT" onClose={onClose} open={openDraw}>
+            <div className="ml-3 mt-3">
+                <div className="flex gap-5 mb-5">
+                    <Link href="/quiz">
+                        <Button
+                            icon={<ArrowLeftOutlined />}
+                            onClick={() => {
+                                router.push("/quiz");
+                            }}
+                        ></Button>
+                    </Link>
+                    <span className="text-xl font-bold ">THÔNG TIN CHI TIẾT</span>
+                </div>
+
                 {quizDetail ? <>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tiêu đề bài kiểm tra: </span>{quizDetail.title}</div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Số lượt kiểm tra: </span>{quizDetail.maxAttempts}</div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Trạng thái: </span>{quizDetail.published ? 'Đang mở' : 'Bị đóng'}</div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Bắt đầu: </span>{quizDetail.startedAt == null ? 'Vô thời hạn' : dayjs(quizDetail.startedAt).format("DD/MM/YYYY HH:mm:ss")}</div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Kết thúc: </span>{quizDetail.endedAt == null ? 'Vô thời hạn' : dayjs(quizDetail.endedAt).format("DD/MM/YYYY HH:mm:ss")}</div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Cập nhật lần cuối: </span>{quizDetail.updatedAt == null ? 'Chưa có dữ liệu' : dayjs(quizDetail.updatedAt).format("DD/MM/YYYY HH:mm:ss")}</div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tác giả: </span>{quizDetail.expert != null ? quizDetail.expert.user.fullname : ''}</div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Chương học: </span>{quizDetail.chapter != null ? quizDetail.chapter.title : ''}</div>
+                    <div className="ml-3 mb-2">
 
 
-                    <div className='mb-2'>
-                        <span className='text-blue-500 text-base mr-2 font-bold'>
-                            Số lượng câu hỏi:
-                        </span>{quizDetail.questions.length}
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tiêu đề bài kiểm tra: </span>{quizDetail.title}</div>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Số lượt kiểm tra: </span>{quizDetail.maxAttempts}</div>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Trạng thái: </span>{quizDetail.published ? 'Đang mở' : 'Bị đóng'}</div>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Bắt đầu: </span>{quizDetail.startedAt == null ? 'Vô thời hạn' : dayjs(quizDetail.startedAt).format("DD/MM/YYYY HH:mm:ss")}</div>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Kết thúc: </span>{quizDetail.endedAt == null ? 'Vô thời hạn' : dayjs(quizDetail.endedAt).format("DD/MM/YYYY HH:mm:ss")}</div>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Cập nhật lần cuối: </span>{quizDetail.updatedAt == null ? 'Chưa có dữ liệu' : dayjs(quizDetail.updatedAt).format("DD/MM/YYYY HH:mm:ss")}</div>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tác giả: </span>{quizDetail.expert != null ? quizDetail.expert.user.fullname : ''}</div>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Chương học: </span>{quizDetail.chapter != null ? quizDetail.chapter.title : ''}</div>
+
+
+                        <div className='mb-2'>
+                            <span className='text-blue-500 text-base mr-2 font-bold'>
+                                Số lượng câu hỏi:
+                            </span>{quizDetail.questions.length}
+                        </div>
+                        <span className='text-blue-900 text-base mr-2 font-bold'>Danh sách câu hỏi: </span>
                     </div>
 
-                    <Collapse
-                        items={[
-                            {
-                                key: '1',
-                                label: 'Xem chi tiết câu hỏi',
-                                children: (
-                                    <ul className='ml-4'>
-                                        {quizDetail.questions.map((question, index) => (
-                                            <li key={index} className="mb-2">
+                    <div className="ml-5">
 
-                                                <div
-                                                    className="flex items-center gap-2 cursor-pointer font-medium text-gray-700"
-                                                    onClick={() => handleToggle(index)}>
-                                                    <DoubleRightOutlined style={{ color: 'green' }} />
-                                                    {question.title}
-                                                </div>
 
-                                                {activeQuestion === index && (
-                                                    <ul className="ml-6 mt-2 ">
-                                                        {question.correctAnswer.map((answer, idx) => (
-                                                            <li key={idx} className="list-disc ">
-                                                                <span className="text-green-600">{answer} </span>
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                )}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ),
-                            },
-                        ]}
-                    />
+                        <ul>
+                            {quizDetail.questions.map((question, index) => (
+                                <li key={index} className="mb-4 border-b pb-2">
+                                    <div
+                                        className="flex items-center gap-2 cursor-pointer font-medium text-gray-700"
+                                        onClick={() => handleToggle(index)}
+                                    >
+                                        <DoubleRightOutlined style={{ color: "green" }} />
+                                        {question.title}
+                                    </div>
+
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: activeQuestion === index ? "auto" : 0, opacity: activeQuestion === index ? 1 : 0 }}
+                                        className="overflow-hidden"
+                                    >
+                                        <ul className="ml-6 mt-2">
+                                            {question.correctAnswer && Array.isArray(question.correctAnswer) ? (
+                                                question.correctAnswer.map((answer, idx) => (
+                                                    <li key={idx} className="list-disc text-green-600">
+                                                        {answer}
+                                                    </li>
+                                                ))
+                                            ) : (
+                                                <li className="text-gray-500">Không có đáp án đúng</li>
+                                            )}
+                                        </ul>
+                                    </motion.div>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
 
                 </>
                     :
                     <div>Không có dữ liệu</div>
                 }
+            </div>
 
-            </Drawer>
+
         </>
     )
 }

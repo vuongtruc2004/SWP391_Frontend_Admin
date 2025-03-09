@@ -9,6 +9,7 @@ import ViewQuizDetail from "./view.quiz.detail";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import UpdateQuizForm from "./update.quiz.form";
+import Link from "next/link";
 
 const QuizTable = (props: {
     quizPageResponse: PageDetailsResponse<QuizResponse[]>
@@ -102,11 +103,12 @@ const QuizTable = (props: {
             width: '40%',
             render: (_, record: any) => (
                 <Space size="middle">
-                    <InfoCircleOutlined style={{ color: "green" }} onClick={() => {
-                        setOpenDraw(true);
-                        setQuizDetail(record);
-                    }} />
-
+                    <Link href={`/quiz/detail/${record.quizId}`}>
+                        <InfoCircleOutlined style={{ color: "green" }} onClick={() => {
+                            setOpenDraw(true);
+                            setQuizDetail(record);
+                        }} />
+                    </Link>
                     <EditOutlined className="text-blue-500" style={{ color: "blue" }}
                         onClick={() => {
                             SetEditingQuiz(record)
@@ -170,11 +172,7 @@ const QuizTable = (props: {
                 showSorterTooltip={false}
             />
 
-            <ViewQuizDetail
-                setOpenDraw={setOpenDraw}
-                openDraw={openDraw}
-                quizDetail={quizDetail}
-            />
+
 
             <UpdateQuizForm
                 editingQuiz={editingQuiz}

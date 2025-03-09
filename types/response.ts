@@ -239,11 +239,13 @@ declare global {
     interface OrderResponse {
         orderId: number;
         orderStatus: string;
+        orderCode: string;
         createdAt: string;
         updatedAt: string;
         user: UserResponse;
         totalAmount: number;
         orderDetails: OrderDetailsResponse[];
+        allowSeeAnswers: boolean;
     }
 
     interface OrderDetailsResponse {

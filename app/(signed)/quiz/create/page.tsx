@@ -1,26 +1,21 @@
 'use client'
+import React from 'react'
 
 import { validDate, validMaxAttempts, validTitle } from "@/helper/create.quiz.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
-import { DeleteFilled, DeleteOutlined, EyeOutlined, MinusCircleOutlined, PlusCircleFilled, PlusCircleOutlined, WarningOutlined } from "@ant-design/icons";
-import { Button, Checkbox, DatePicker, DatePickerProps, Image, Input, Modal, notification, Select, Space, Tooltip } from "antd";
+import { DeleteOutlined, EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, WarningOutlined } from "@ant-design/icons";
+import { Button, Checkbox, DatePicker, DatePickerProps, Input, notification, Select, Space, Tooltip } from "antd";
 import dayjs from "dayjs";
-import { url } from "inspector";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import * as XLSX from 'xlsx';
+import Link from "next/link";
 const initState: ErrorResponse = {
     error: false,
     value: ''
 
 }
-const QuizCreateBtn = (props: {
-    handelOnExportExcel: any;
-}) => {
-    const { handelOnExportExcel } = props;
-    const [isModalOpen, setIsModalOpen] = useState(false);
+const CreateQuizPage = () => {
     const router = useRouter();
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [maxAttempts, setMaxAttempts] = useState<ErrorResponse>(initState);
@@ -30,26 +25,22 @@ const QuizCreateBtn = (props: {
         value: 'active'
     });
 
-    // const [errorMessage, setErrorMessage] = useState("");
 
     const [startedAt, setStartedAt] = useState<ErrorResponse>(initState);
     const [endedAt, setEndedAt] = useState<ErrorResponse>(initState);
-    // const [answers, setAnswers] = useState([{ content: "", correct: false, empty: true }]);
-    const [isSubmitted, setIsSubmitted] = useState(false); // Theo dõi trạng thái đã nhấn "Tạo"
+    const [isSubmitted, setIsSubmitted] = useState(false);
     const [createQuestions, setCreateQuestions] = useState([{ value: "", answers: [{ content: "", correct: false, empty: true }], errorMessage: "" }]);
     const CheckboxGroup = Checkbox.Group;
     const [checkedList, setCheckedList] = useState<string[]>([]);
     const [questionList, setQuestionList] = useState<string[]>([]);
     const [searchText, setSearchText] = useState("");
-
+    const quantityQuestion = useState<number>(0);
 
     useEffect(() => {
         fetchQuestions();
     }, []);
 
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
+
     const fetchQuestions = async () => {
         try {
             const questionResponse = await sendRequest<ApiResponse<QuestionResponse[]>>({
@@ -242,7 +233,7 @@ const QuizCreateBtn = (props: {
             if (createQuizResponse.status === 201) {
                 handleCancel();
                 await fetchQuestions();
-                router.refresh();
+                router.push("/quiz");
                 notification.success({
                     message: "Thành công",
                     description: createQuizResponse.message.toString(),
@@ -289,15 +280,16 @@ const QuizCreateBtn = (props: {
     };
 
     const handleCancel = () => {
+        router.push("/quiz");
         setTitle(initState);
         setMaxAttempts(initState);
         setStartedAt(initState);
         setEndedAt(initState);
         setIsSubmitted(false);
         setCreateQuestions([{ value: "", answers: [{ content: "", correct: false, empty: true }], errorMessage: "" }]);
-        setIsModalOpen(false);
         setCheckedList([]);
         setSearchText('');
+
     };
     const handleStartedAtChange: DatePickerProps["onChange"] = (date) => {
         setStartedAt({ ...startedAt, value: date ? dayjs(date).format("YYYY-MM-DD HH:mm:ss") : "", error: false });
@@ -340,32 +332,12 @@ const QuizCreateBtn = (props: {
         newQuestions[qIndex].answers[aIndex].correct = !newQuestions[qIndex].answers[aIndex].correct;
         setCreateQuestions(newQuestions);
     };
-
     return (
-        <>
-            <div className="flex justify-between">
-                <div className="ml-6">
-                    <Link href="/quiz/create">
-                        <Button type="primary" className="w-fit ">
-                            Tạo bài kiểm tra
-                        </Button>
-                    </Link>
-                </div>
-                <div className="mr-8">
-                    <Button
-                        style={{ background: 'green', borderColor: "green" }}
-                        type="primary"
-                        onClick={() => handelOnExportExcel()}
-                        className="w-fit hover:bg-green-100 hover:border-green-700">
-                        Xuất Excel
-                    </Button>
-                </div>
-            </div>
-
-
-            <Modal title="Tạo bài kiểm tra" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okText="Tạo" cancelText="Hủy">
+        <div className='grid grid-cols-[1.2fr_1fr] gap-5 sticky top-0 left-0 h-full max-h-full'>
+            <div className='bg-white p-5 rounded-md shadow-md overflow-auto'>
 
                 <div className="mb-3">
+                    <h1 className='font-semibold text-lg mb-2'>Tạo bài kiểm tra</h1>
                     <span className="text-red-500 mr-2">*</span>Tiêu đề:
                     <Input
                         status={title.error ? 'error' : ''}
@@ -536,48 +508,57 @@ const QuizCreateBtn = (props: {
                         )}
                     </div>
                 ))}
-                <Button type="primary" style={{ width: '23%', marginBottom: '5px' }} onClick={addQuestion} >Thêm câu hỏi</Button>
 
-                <div>
-                    <span className="text-red-500 mr-2 mb">*</span>Danh sách câu hỏi:
-                    {/* Thanh tìm kiếm */}
+                <div className='flex justify-between'>
+                    <Button type="primary" style={{ width: '18%', marginBottom: '20px' }} onClick={addQuestion} >Thêm câu hỏi</Button>
+                    <div className='flex gap-3'>
+                        <Link href="/quiz"> <Button type="default" style={{ background: 'red', color: 'white' }} onClick={handleCancel}>Hủy</Button></Link>
+                        <Button type="primary" onClick={handleOk}>Tạo</Button>
+                    </div>
+
+                </div>
+
+
+
+
+
+
+            </div>
+
+            <div className='bg-white rounded-md shadow-md overflow-auto relative'>
+                <div className='sticky left-0 top-0 bg-white z-10 p-5'>
+                    <div className='flex items-center justify-between mb-2'>
+                        <h1 className='font-semibold text-lg'>Danh sách câu hỏi</h1>
+                        <p className='text-gray-500 text-sm'>Bài kiểm tra này đang có <strong className='text-blue-500'>{12}</strong> câu hỏi</p>
+                    </div>
+
                     <Input.Search
                         placeholder="Tìm kiếm câu hỏi..."
                         allowClear
                         value={searchText}
                         onChange={(e) => setSearchText(e.target.value)}
-                        style={{ marginBottom: '8px' }}
                     />
-                    <div
-                        style={{
-                            maxHeight: "200px", // Điều chỉnh chiều cao tối đa tùy ý
-                            overflowY: "auto",
-                            border: "1px solid #d9d9d9",
-                            padding: "8px",
-                            borderRadius: "4px",
-                            marginTop: '6px'
-                        }}
-                    >
-                        <CheckboxGroup
-                            options={filteredQuestions.map((question, index) => ({
-                                label: question,
-                                value: question,
-                            }))}
-                            value={checkedList}
-                            onChange={onChange}
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '8px',
-
-                            }}
-                        />
-
-                    </div>
                 </div>
 
-            </Modal >
-        </>
+                <CheckboxGroup
+                    options={filteredQuestions.map((question, index) => ({
+                        label: question,
+                        value: question,
+                    }))}
+                    value={checkedList}
+                    onChange={onChange}
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        rowGap: '12px',
+                        overflow: 'auto',
+                        padding: '20px',
+                        paddingTop: 0
+                    }}
+                />
+            </div>
+        </div>
     )
 }
-export default QuizCreateBtn;
+
+export default CreateQuizPage
