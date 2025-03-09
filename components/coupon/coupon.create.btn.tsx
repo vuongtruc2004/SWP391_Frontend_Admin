@@ -1,5 +1,6 @@
 'use client'
 
+import { isValidCouponCode, isValidCouponDescription, isValidCouponName, isValidDiscountValue, isValidMaxAmount, isValidMaxUsed, isValidMinOrderValue } from "@/helper/create.coupon.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import { PlusOutlined, WarningOutlined } from "@ant-design/icons";
@@ -26,7 +27,7 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
     const [couponName, setCouponName] = useState<ErrorResponse>(initState);
     const [couponCode, setCouponCode] = useState<ErrorResponse>(initState);
     const [couponDescription, setCouponDescription] = useState<ErrorResponse>(initState);
-    const [discountType, setDiscountType] = useState('');
+    const [discountType, setDiscountType] = useState('FIXED');
     const [discountRange, setDiscountRange] = useState<ErrorResponse>(initState);
     const [discountValue, setDiscountValue] = useState<ErrorResponse>(initState);
     const [maxDiscountAmount, setMaxDiscountAmount] = useState<ErrorResponse>(initState);
@@ -38,9 +39,10 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
     const CheckboxGroup = Checkbox.Group;
     const [checkedList, setCheckedList] = useState<string[]>();
     const { data: session, status } = useSession();
-    const [selectedRange, setSelectedRange] = useState('');
+    const [selectedRange, setSelectedRange] = useState('ALL');
     const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
-
+    const [emptyCourse, setEmptyCourse] = useState("");
+    const [emptyDate, setEmptyDate] = useState("");
 
 
     useEffect(() => {
@@ -86,6 +88,29 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
     };
 
     const handleOk = async () => {
+        const isValidName = isValidCouponName(couponName, setCouponName);
+        const isValidCode = isValidCouponCode(couponCode, setCouponCode);
+        const validMaxUsed = isValidMaxUsed(maxUses, setMaxUses);
+        const isValidDescription = isValidCouponDescription(couponDescription, setCouponDescription);
+        const isValidOrderValue = isValidMinOrderValue(minOrderValue, setMinOrderValue);
+        const isValidMax = isValidMaxAmount(maxDiscountAmount, setMaxDiscountAmount);
+        const isValidDisValue = isValidDiscountValue(minOrderValue, discountType, discountValue, setDiscountValue);
+        let checkAll = true;
+        if (!isValidName || !isValidCode || !validMaxUsed || !isValidDescription || !isValidOrderValue || !isValidMax || !isValidDisValue
+        ) {
+            checkAll = false;
+        }
+        if (selectedCourses.length <= 0 && selectedRange === 'COURSES') {
+            setEmptyCourse("Vui lòng chọn ít nhất 1 khoá học!");
+            checkAll = false;
+        }
+        if (!startTime.value && !endTime.value) {
+            setEmptyDate("Ngày áp dụng không để rỗng!")
+            checkAll = false;
+        }
+        if (!checkAll) return;
+
+
         const couponRequest: CouponRequest = {
             couponName: couponName.value || "",
             couponDescription: couponDescription.value || "",
@@ -133,7 +158,6 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
         setCouponName(initState);
         setCouponCode(initState);
         setCouponDescription(initState);
-        setDiscountType("");
         setDiscountRange(initState);
         setDiscountValue(initState);
         setMaxDiscountAmount(initState);
@@ -145,6 +169,9 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
         setIsSubmitted(false);
         setIsModalOpen(false);
         setCheckedList([]);
+        setSelectedRange('ALL');
+        setEmptyCourse("");
+        setEmptyDate("");
     };
     return (
         <>
@@ -215,10 +242,10 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
                         value={maxUses.value}
                         onChange={(e) => setMaxUses({ ...maxUses, value: e.target.value, error: false })}
                     />
-                    {couponCode.error && (
+                    {maxUses.error && (
                         <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                             <WarningOutlined />
-                            {couponCode.message}
+                            {maxUses.message}
                         </p>
                     )}
                 </div>
@@ -235,6 +262,12 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
                             />
                         </Space>
                     </div>
+                    {emptyDate !== "" && (
+                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                            <WarningOutlined />
+                            {emptyDate}
+                        </p>
+                    )}
                 </div>
 
 
@@ -274,6 +307,7 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
                             value={discountType}
                             onChange={(value) => {
                                 setDiscountType(value);
+
                             }}
                         >
                             <Select.Option key={`fixed`} value="FIXED"
@@ -288,6 +322,9 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
                                 </div>
                             </Select.Option>
                         </Select>
+
+
+
                     </div>
                     <div className="flex-1">
                         <span className="text-red-500 mr-2">*</span>
@@ -329,7 +366,6 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
                         )}
                     </div>
                     <div className="flex-1">
-                        <span className="text-red-500 mr-2">*</span>
                         <span className="text-lg ">Số tiền giảm giá tối đa:</span>
                         <Input
                             status={maxDiscountAmount.error ? 'error' : ''}
@@ -390,6 +426,12 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
                                 }}
                             />
                         </div>
+                    )}
+                    {emptyCourse !== "" && (
+                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                            <WarningOutlined />
+                            {emptyCourse}
+                        </p>
                     )}
                 </div>
                 <div className="flex justify-end mt-5">

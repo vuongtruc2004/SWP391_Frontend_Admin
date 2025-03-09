@@ -31,6 +31,19 @@ const CouponPage = async (props: {
 
     let filter = "";
 
+    filter = `(couponName ~ '${keyword.trim()}' or couponCode ~ '${keyword.trim()}')`
+    // if (couponCode !== "") {
+    //     filter += ` }`
+    // }
+
+    // if (createdFrom !== "" && createdTo !== "") {
+    //     filter += ` and createdAt > '${createdFrom}' and createdAt < '${createdTo}'`
+    // }
+
+    // if (priceFrom !== "" && priceTo !== "") {
+    //     filter += ` and price >: ${priceFrom} and price <: ${priceTo}`
+    // }
+
     const couponResponse = await sendRequest<ApiResponse<PageDetailsResponse<CouponResponse[]>>>({
         url: `${apiUrl}/coupons/all`,
         queryParams: {
