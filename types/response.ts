@@ -117,8 +117,7 @@ declare global {
         couponCode: string;
         discountType: string;
         discountRange: string;
-        discountPercent: number;
-        discountAmount: number;
+        discountValue: number
         maxDiscountAmount: number;
         minOrderValue: number;
         maxUses: number;

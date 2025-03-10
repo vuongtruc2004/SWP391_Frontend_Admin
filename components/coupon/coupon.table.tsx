@@ -9,7 +9,6 @@ import { useState } from 'react';
 import ViewCouponDetail from './view.coupon.detail';
 
 
-
 const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResponse[]> }) => {
 
     const deleteCoupon = async (couponId: number) => {
@@ -40,10 +39,6 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
     const page = Number(searchParams.get('page')) || 1;
     const [openDraw, setOpenDraw] = useState<boolean>(false);
     const [couponDetail, setCouponDetail] = useState<CouponResponse | null>(null);
-
-
-
-
     const columns: TableProps<CouponResponse>['columns'] = [
         {
             title: "STT",
@@ -79,7 +74,6 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
             width: '15%',
             render: (_, record) => `${record.minOrderValue}`
         },
-
         {
             title: 'Hành động',
             key: 'action',

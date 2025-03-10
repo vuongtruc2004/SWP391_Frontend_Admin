@@ -63,7 +63,6 @@ const ViewOrderDetail = (props: {
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tổng số tiền: </span>
                         {viewOrderDetail.totalAmount.toLocaleString()}₫
                     </div>
-
                     <Collapse
                         items={[
                             {

@@ -2,6 +2,7 @@ import { SetStateAction } from "react";
 import { isNumber } from "./create.course.helper";
 
 
+
 export const isValidCouponName = (couponName: ErrorResponse, setCouponName: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
     if (couponName.value.trim() === '') {
         setCouponName({
@@ -75,14 +76,6 @@ export const isValidMaxUsed = (maxUsed: ErrorResponse, setMaxUsed: React.Dispatc
 };
 
 export const isValidCouponDescription = (couponDescription: ErrorResponse, setCouponDescription: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
-    if (couponDescription.value.trim().split(/\s+/).length > 20) {
-        setCouponDescription({
-            ...couponDescription,
-            error: true,
-            message: 'Mô tả coupon không được dài hơn 20 từ!'
-        })
-        return false;
-    }
     if (couponDescription.value.trim() === '') {
         setCouponDescription({
             ...couponDescription,
@@ -91,10 +84,27 @@ export const isValidCouponDescription = (couponDescription: ErrorResponse, setCo
         })
         return false;
     }
+    if (couponDescription.value.trim().split(/\s+/).length > 20) {
+        setCouponDescription({
+            ...couponDescription,
+            error: true,
+            message: 'Mô tả coupon không được dài hơn 20 từ!'
+        })
+        return false;
+    }
+
 
     return true;
 };
 export const isValidMinOrderValue = (minOrderValue: ErrorResponse, setMinOrderValue: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
+    if (minOrderValue.value.trim() === '') {
+        setMinOrderValue({
+            ...minOrderValue,
+            error: true,
+            message: 'Giá trị áp dụng không được để rỗng!'
+        })
+        return false;
+    }
     if (Number(minOrderValue.value) < 0) {
         setMinOrderValue({
             ...minOrderValue,
@@ -111,14 +121,7 @@ export const isValidMinOrderValue = (minOrderValue: ErrorResponse, setMinOrderVa
         })
         return false;
     }
-    if (minOrderValue.value.trim() === '') {
-        setMinOrderValue({
-            ...minOrderValue,
-            error: true,
-            message: 'Giá trị áp dụng không được để rỗng!'
-        })
-        return false;
-    }
+
 
     return true;
 };
@@ -131,7 +134,7 @@ export const isValidMaxAmount = (maxAmount: ErrorResponse, setMaxAmount: React.D
         })
         return false;
     }
-    if (!isNumber(maxAmount.value)) {
+    if (!isNumber(maxAmount.value) && maxAmount.value) {
         setMaxAmount({
             ...maxAmount,
             error: true,
@@ -159,11 +162,11 @@ export const isValidDiscountValue = (minOrderValue: ErrorResponse, discountType:
         })
         return false;
     }
-    if (!isNumber(discountValue.value)) {
+    if (!isNumber(discountValue.value) && discountType === 'FIXED') {
         setDiscountValue({
             ...discountValue,
             error: true,
-            message: 'Số tiền giảm tối đa phải là một số!'
+            message: 'Giá trị giảm tối đa phải là một số!'
         })
         return false;
     }
@@ -179,7 +182,7 @@ export const isValidDiscountValue = (minOrderValue: ErrorResponse, discountType:
         setDiscountValue({
             ...discountValue,
             error: true,
-            message: 'Giá trị giảm từ 1000VND-1.000.000VND!'
+            message: 'Giá trị giảm từ 1.000VND-1.000.000VND!'
         })
         return false;
     }

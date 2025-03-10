@@ -125,7 +125,7 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
             endTime: endTime.value,
             courses: selectedCourses,
         };
-        console.log(couponRequest);
+        console.log(">>> check coupon request", couponRequest);
         const createResponse = await sendRequest<ApiResponse<CouponResponse>>({
             url: `${apiUrl}/coupons`,
             method: 'POST',
@@ -165,7 +165,6 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
         setMaxUses(initState);
         setStartTime(initState);
         setEndTime(initState);
-        setSelectedCourses([]);
         setIsSubmitted(false);
         setIsModalOpen(false);
         setCheckedList([]);
@@ -189,7 +188,11 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
             </div>
 
             <Modal
-                title={<span style={{ fontSize: '24px', textAlign: 'center', width: '100%' }}>Tạo coupon</span>}
+                title={
+                    <div style={{ fontSize: '24px', textAlign: 'center', width: '100%', display: 'block' }}>
+                        Tạo coupon
+                    </div>
+                }
                 open={isModalOpen}
                 footer={null}
                 width={700}
@@ -272,6 +275,21 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
                                 showTime
                                 placeholder={['Ngày bắt đầu', 'Ngày kết thúc']}
                                 disabledDate={(current) => current && current.isBefore(dayjs(), 'day')}
+                                disabledTime={(current) => {
+                                    const now = dayjs();
+                                    if (!current) return {};
+                                    if (current.isSame(now, "day")) {
+                                        return {
+                                            disabledHours: () =>
+                                                Array.from({ length: now.hour() }, (_, i) => i),
+                                            disabledMinutes: (hour) =>
+                                                hour === now.hour()
+                                                    ? Array.from({ length: now.minute() }, (_, i) => i)
+                                                    : [],
+                                        };
+                                    }
+                                    return {};
+                                }}
                                 onChange={handleDateChange}
                             />
                         </Space>

@@ -10,6 +10,7 @@ const ViewCouponDetail = (props: {
     openDraw: any,
     viewCouponDetail: CouponResponse | null
 }) => {
+
     const { openDraw, setOpenDraw, viewCouponDetail } = props;
     const [courseDetails, setCourseDetails] = useState<{ [key: number]: CourseDetailsResponse | null }>({});
 
@@ -17,15 +18,20 @@ const ViewCouponDetail = (props: {
         <Drawer title="THÔNG TIN CHI TIẾT" onClose={() => setOpenDraw(false)} open={openDraw} width={450}>
             {viewCouponDetail ? (
                 <>
+
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tên coupon: </span>
                         {viewCouponDetail.couponName}
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Mã coupon: </span>
                         {viewCouponDetail.couponCode}
                     </div>
+                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Giá trị coupon: </span>
+                        {viewCouponDetail.discountValue}{viewCouponDetail.discountValue < 100 ? "%" : "VND"}
+                    </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Mô tả: </span>
                         {viewCouponDetail.couponDescription}
                     </div>
+
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Hiệu lực: </span>
                         {viewCouponDetail.startTime ? dayjs(viewCouponDetail.startTime).format("DD/MM/YYYY HH:mm:ss") : 'Không có dữ liệu'}
                         - {viewCouponDetail.endTime ? dayjs(viewCouponDetail.endTime).format("DD/MM/YYYY HH:mm:ss") : 'Không có dữ liệu'}
