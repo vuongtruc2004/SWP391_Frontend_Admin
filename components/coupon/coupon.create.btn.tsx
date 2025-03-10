@@ -213,42 +213,55 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
                     )}
                 </div>
 
-                <div>
-                    <span className="text-red-500 mr-2">*</span>
-                    <span className="text-lg ">Mã coupon:</span>
-                    <Input
-                        status={couponCode.error ? 'error' : ''}
-                        className="mt-1 mb-3"
-                        placeholder="Nhập mã coupon"
-                        allowClear
-                        value={couponCode.value}
-                        onChange={(e) => setCouponCode({ ...couponCode, value: e.target.value, error: false })}
-                    />
-                    {couponCode.error && (
-                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                            <WarningOutlined />
-                            {couponCode.message}
-                        </p>
-                    )}
+
+                <div className="flex items-center space-x-4">
+                    <div className="flex-1">
+                        <span className="text-red-500 mr-2">*</span>
+                        <span className="text-lg">Mã coupon:</span>
+                        <Input
+                            status={couponCode.error ? 'error' : ''}
+                            className="mt-1 mb-3"
+                            placeholder="Nhập mã coupon"
+                            allowClear
+                            value={couponCode.value}
+                            onChange={(e) => setCouponCode({ ...couponCode, value: e.target.value, error: false })}
+                            suffix={
+                                <span
+                                    className={`text-sm ${couponCode.value.length > 5 ? 'text-red-500' : 'text-gray-500'}`}
+                                >
+                                    {couponCode.value.length}/5
+                                </span>
+                            }
+                        />
+                        {couponCode.error && (
+                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                <WarningOutlined />
+                                {couponCode.message}
+                            </p>
+                        )}
+
+                    </div>
+
+                    <div className="flex-1">
+                        <span className="text-red-500 mr-2">*</span>
+                        <span className="text-lg">Số lượng coupon:</span>
+                        <Input
+                            status={maxUses.error ? 'error' : ''}
+                            className="mt-1 mb-3"
+                            placeholder="Nhập số lượng coupon"
+                            allowClear
+                            value={maxUses.value}
+                            onChange={(e) => setMaxUses({ ...maxUses, value: e.target.value, error: false })}
+                        />
+                        {maxUses.error && (
+                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                <WarningOutlined />
+                                {maxUses.message}
+                            </p>
+                        )}
+                    </div>
                 </div>
-                <div>
-                    <span className="text-red-500 mr-2">*</span>
-                    <span className="text-lg ">Số lượng coupon:</span>
-                    <Input
-                        status={maxUses.error ? 'error' : ''}
-                        className="mt-1 mb-3"
-                        placeholder="Nhập số lượng coupon"
-                        allowClear
-                        value={maxUses.value}
-                        onChange={(e) => setMaxUses({ ...maxUses, value: e.target.value, error: false })}
-                    />
-                    {maxUses.error && (
-                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                            <WarningOutlined />
-                            {maxUses.message}
-                        </p>
-                    )}
-                </div>
+
                 <div>
                     <span className="text-red-500 mr-2">*</span>
                     <span className="text-lg">Thời gian áp dụng:</span>

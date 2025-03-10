@@ -1,4 +1,5 @@
 import { SetStateAction } from "react";
+import { isNumber } from "./create.course.helper";
 
 
 export const isValidCouponName = (couponName: ErrorResponse, setCouponName: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
@@ -53,6 +54,14 @@ export const isValidMaxUsed = (maxUsed: ErrorResponse, setMaxUsed: React.Dispatc
         })
         return false;
     }
+    if (!isNumber(maxUsed.value)) {
+        setMaxUsed({
+            ...maxUsed,
+            error: true,
+            message: 'Số lượng coupon phải là một số!'
+        })
+        return false;
+    }
     if (Number(maxUsed.value) <= 0) {
         setMaxUsed({
             ...maxUsed,
@@ -94,6 +103,14 @@ export const isValidMinOrderValue = (minOrderValue: ErrorResponse, setMinOrderVa
         })
         return false;
     }
+    if (!isNumber(minOrderValue.value)) {
+        setMinOrderValue({
+            ...minOrderValue,
+            error: true,
+            message: 'Giá trị áp dụng phải là một số!'
+        })
+        return false;
+    }
     if (minOrderValue.value.trim() === '') {
         setMinOrderValue({
             ...minOrderValue,
@@ -111,6 +128,14 @@ export const isValidMaxAmount = (maxAmount: ErrorResponse, setMaxAmount: React.D
             ...maxAmount,
             error: true,
             message: 'Số tiền giảm tối đa không được nhỏ hơn 0!'
+        })
+        return false;
+    }
+    if (!isNumber(maxAmount.value)) {
+        setMaxAmount({
+            ...maxAmount,
+            error: true,
+            message: 'Số tiền giảm tối đa phải là một số!'
         })
         return false;
     }
@@ -134,11 +159,19 @@ export const isValidDiscountValue = (minOrderValue: ErrorResponse, discountType:
         })
         return false;
     }
-    if (discountType === 'PERCENTAGE' && (Number(discountValue.value) < 10 || Number(discountValue.value) > 70)) {
+    if (!isNumber(discountValue.value)) {
         setDiscountValue({
             ...discountValue,
             error: true,
-            message: 'Giá trị giảm từ 10%-70%!'
+            message: 'Số tiền giảm tối đa phải là một số!'
+        })
+        return false;
+    }
+    if (discountType === 'PERCENTAGE' && (Number(discountValue.value) < 1 || Number(discountValue.value) > 99)) {
+        setDiscountValue({
+            ...discountValue,
+            error: true,
+            message: 'Giá trị giảm từ 1%-99%!'
         })
         return false;
     }
