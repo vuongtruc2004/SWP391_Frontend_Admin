@@ -31,13 +31,13 @@ const ViewCouponDetail = (props: {
                         - {viewCouponDetail.endTime ? dayjs(viewCouponDetail.endTime).format("DD/MM/YYYY HH:mm:ss") : 'Không có dữ liệu'}
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Giá trị đơn hàng áp dụng: </span>
-                        {viewCouponDetail.minOrderValue}₫ - {viewCouponDetail.maxDiscountAmount}₫
+                        {viewCouponDetail.minOrderValue}₫
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Số lượng coupon: </span>
                         {viewCouponDetail.maxUses}
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Số coupon đã sử dụng: </span>
-                        {viewCouponDetail.usedCount}
+                        {viewCouponDetail.usedCount || 0}
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Phạm vi áp dụng: </span>
                         {viewCouponDetail.discountRange === 'ALL' ? 'Tất cả' : 'Giới hạn'}

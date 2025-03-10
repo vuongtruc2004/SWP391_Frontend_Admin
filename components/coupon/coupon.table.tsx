@@ -11,6 +11,7 @@ import ViewCouponDetail from './view.coupon.detail';
 
 
 const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResponse[]> }) => {
+
     const deleteCoupon = async (couponId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<CourseDetailsResponse>>({
             url: `${apiUrl}/coupons/${couponId}`,
@@ -22,13 +23,13 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
         if (deleteResponse.status === 200) {
             notification.success({
                 message: "Thành Công",
-                description: `Xoá thành công coupon ${couponDetail?.couponCode}`,
+                description: `Xoá thành công coupon`,
             });
             router.refresh()
         } else {
             notification.error({
                 message: "Thất Bại",
-                description: `Không thể xoá coupon ${couponDetail?.couponCode}`,
+                description: `Không thể xoá coupon`,
             })
         }
     }
@@ -39,6 +40,10 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
     const page = Number(searchParams.get('page')) || 1;
     const [openDraw, setOpenDraw] = useState<boolean>(false);
     const [couponDetail, setCouponDetail] = useState<CouponResponse | null>(null);
+
+
+
+
     const columns: TableProps<CouponResponse>['columns'] = [
         {
             title: "STT",

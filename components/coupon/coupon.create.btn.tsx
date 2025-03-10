@@ -172,6 +172,7 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
         setSelectedRange('ALL');
         setEmptyCourse("");
         setEmptyDate("");
+        setSelectedCourses([]);
     };
     return (
         <>
