@@ -28,7 +28,6 @@ const QuizTable = (props: {
             title: 'STT',
             dataIndex: 'index',
             key: 'index',
-            width: '5%',
             align: 'center',
             render: (text, record, index) => <>{(index + 1) + (page - 1) * quizPageResponse.pageSize}</>,
         },
@@ -36,29 +35,57 @@ const QuizTable = (props: {
             title: 'Tiêu đề',
             dataIndex: 'title',
             key: 'title',
-            width: '30%',
             align: 'center',
             sorter: (a, b) => a.title.localeCompare(b.title),
         },
         {
-            title: 'Số lượt kiểm tra',
-            dataIndex: 'maxAttempts',
-            key: 'maxAttempts',
-            width: '15%',
+            title: 'Chương học',
+            dataIndex: ['chapter', 'title'],
+            key: 'chapter.title',
             align: 'center',
+            sorter: (a, b) => a.chapter.title.localeCompare(b.chapter.title),
+            render: (_, record) => {
+                return (
+                    <span style={{ color: record.chapter?.title ? '' : 'red' }} >
+                        {record.chapter?.title || 'Không có chương học'}
+                    </span>)
+            }
+        },
+        {
+            title: 'Ngày tạo',
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            align: 'center',
+            render: (createdAt: string, record) => (
+                <span>
+                    {record.createdAt ? dayjs(createdAt).format('DD/MM/YYYY HH:mm:ss') : 'Không có dữ liệu'}
+                </span>
+            ),
             sorter: {
-                compare: (a, b) => a.maxAttempts - b.maxAttempts
+                compare: (a: QuizResponse, b: QuizResponse) =>
+                    dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
             },
+        },
+        {
+            title: 'Thời gian',
+            dataIndex: 'duration',
+            key: 'duration',
+            align: 'center',
+            sorter: (a, b) => a.duration - b.duration,
+            render: (duration: number) => {
+                const minutes = Math.floor(duration / 60);
+                const seconds = duration % 60;
+                return (`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`)
+            }
         },
         {
             title: 'Trạng thái',
             dataIndex: 'published',
             key: 'published',
-            width: '15%',
             align: 'center',
             render: (published: boolean) => (
                 <span style={{ color: published ? 'green' : 'red' }}>
-                    {published ? "Đang mở" : "Bị đóng"}
+                    {published ? "Mở" : "Đóng"}
                 </span>
             ),
             sorter: {
@@ -66,41 +93,22 @@ const QuizTable = (props: {
             },
         },
         {
-            title: 'Bắt đầu',
-            dataIndex: 'startedAt',
-            key: 'startedAt',
-            width: '20%',
+            title: 'Cho xem đáp án',
+            dataIndex: 'allowSeeAnswers',
+            key: 'allowSeeAnswers',
             align: 'center',
-            render: (startedAt: string) => (
-                <span>
-                    {startedAt ? dayjs(startedAt).format('DD/MM/YYYY HH:mm:ss') : 'Vô thời hạn'}
+            render: (allowSeeAnswers: boolean) => (
+                <span style={{ color: allowSeeAnswers ? 'green' : 'red' }}>
+                    {allowSeeAnswers ? "Mở" : "Đóng"}
                 </span>
             ),
             sorter: {
-                compare: (a: QuizResponse, b: QuizResponse) =>
-                    dayjs(a.startedAt).unix() - dayjs(b.startedAt).unix(),
-            },
-        },
-        {
-            title: 'Kết thúc',
-            dataIndex: 'endedAt',
-            key: 'endedAt',
-            width: '20%',
-            align: 'center',
-            render: (endedAt: string) => (
-                <span >
-                    {endedAt ? dayjs(endedAt).format('DD/MM/YYYY HH:mm:ss') : 'Vô thời hạn'}
-                </span>
-            ),
-            sorter: {
-                compare: (a: QuizResponse, b: QuizResponse) =>
-                    dayjs(a.endedAt).unix() - dayjs(b.endedAt).unix(),
+                compare: (a, b) => Number(a.published) - Number(b.published)
             },
         },
         {
             title: 'Hành động',
             key: 'action',
-            width: '40%',
             render: (_, record: any) => (
                 <Space size="middle">
                     <Link href={`/quiz/detail/${record.quizId}`}>
@@ -132,7 +140,7 @@ const QuizTable = (props: {
 
     const publishedQuiz = async (quizId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<Boolean>>({
-            url: `${apiUrl}/quiz/${quizId}`,
+            url: `${apiUrl}/quizzes/${quizId}`,
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'

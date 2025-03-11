@@ -13,24 +13,17 @@ const QuizPage = async (props: {
         keyword?: string;
         page?: string;
         published?: string;
-        maxAttempts?: string;
-        startedFrom?: string;
-        startedTo?: string;
-        endedFrom?: string;
-        endedTo?: string;
-        haveTime?: string;
+        createdFrom?: string;
+        createdTo?: string;
     }>
 }) => {
     const searchParam = await props.searchParams;
     const keyword = searchParam.keyword || '';
     const page = searchParam.page || 1;
     const published = getPublished(searchParam.published);
-    const maxAttempts = getMaxAttempts(searchParam.maxAttempts);
-    const haveTime = getStartedAt(searchParam.haveTime);
-    const startedFrom = searchParam.startedFrom || '';
-    const startedTo = searchParam.startedTo || '';
-    const endedFrom = searchParam.endedFrom || '';
-    const endedTo = searchParam.endedTo || '';
+    const createdFrom = searchParam.createdFrom || '';
+    const createdTo = searchParam.createdTo || '';
+
 
     let filters: string[] = [];
     if (keyword !== '') {
@@ -40,27 +33,18 @@ const QuizPage = async (props: {
     if (published !== 'ALL') {
         filters.push(`published : ${published === 'active' ? true : false}`);
     }
-    if (maxAttempts !== '') {
-        filters.push(`maxAttempts : ${maxAttempts}`);
+    if (createdFrom != '') {
+        filters.push(` createdAt > '${createdFrom}'`);
+    }
+    if (createdTo != '') {
+        filters.push(` createdAt < '${createdTo}'`);
     }
 
 
-
-    if (haveTime !== 'ALL') {
-        filters.push(`startedAt ${haveTime === 'noTime' ? 'is null' : 'is not null'}`);
-    }
-
-    if (startedFrom !== '' && startedTo !== '') {
-        filters.push(`startedAt > '${startedFrom}' and startedAt < '${startedTo}'`);
-    }
-
-    if (endedFrom !== '' && endedTo !== '') {
-        filters.push(`endedAt > '${endedFrom}' and endedAt < '${endedTo}'`);
-    }
 
     const filter = filters.length > 0 ? filters.join(" and ") : '';
     const quizResponse = await sendRequest<ApiResponse<PageDetailsResponse<QuizResponse[]>>>({
-        url: `${apiUrl}/quiz`,
+        url: `${apiUrl}/quizzes`,
         queryParams: {
             page: page,
             size: 10,
@@ -69,7 +53,7 @@ const QuizPage = async (props: {
         }
     })
 
-
+    console.log("quizResponse>>", quizResponse);
     const fetchAllQuiz = async () => {
         let allQuiz: QuizResponse[] = [];
         let currentPage = 1;
@@ -77,7 +61,7 @@ const QuizPage = async (props: {
 
         while (currentPage <= totalPages) {
             const response = await sendRequest<ApiResponse<PageDetailsResponse<QuizResponse[]>>>({
-                url: `${apiUrl}/quiz`,
+                url: `${apiUrl}/quizzes`,
                 queryParams: {
                     page: currentPage,
                     size: 10,
@@ -86,12 +70,12 @@ const QuizPage = async (props: {
                 },
             });
 
-            if (!response?.data) break; // Nếu không có dữ liệu, thoát vòng lặp tránh lặp vô hạn
+            if (!response?.data) break;
 
             allQuiz = [...allQuiz, ...response.data.content];
             totalPages = response.data.totalPages;
 
-            if (currentPage >= totalPages) break; // Thêm điều kiện để tránh lặp vô tận
+            if (currentPage >= totalPages) break;
             currentPage++;
         }
 
@@ -111,10 +95,8 @@ const QuizPage = async (props: {
                     allQuiz={allQuiz}
                     keyword={keyword}
                     published={published}
-                    maxAttempts={maxAttempts}
-                    haveTime={haveTime}
-                    startedFrom={startedFrom} startedTo={startedTo}
-                    endedFrom={endedFrom} endedTo={endedTo}
+                    createdFrom={createdFrom}
+                    createdTo={createdTo}
                     quizPageResponse={quizResponse.data} />
             </div>
 

@@ -61,11 +61,7 @@ declare global {
         yesterdayOrders: number;
     }
 
-    interface AnswerResponse {
-        answerId: number;
-        content: string;
-        correct: boolean;
-    }
+
 
     interface BlogResponse {
         blogId: number;
@@ -90,59 +86,38 @@ declare global {
     interface QuestionResponse {
         questionId: number;
         title: string;
-        correctAnswer: string[];
         answers: AnswerResponse[];
     }
-
+    interface AnswerResponse {
+        answerId: number;
+        content: string;
+        correct: boolean;
+    }
     interface CourseResponse {
-        courseId: number,
-        courseName: string,
-        description: string,
-        thumbnail: string,
-        price: number,
-        expert: ExpertResponse,
-        totalPurchased: number,
-        createdAt: string,
-        updatedAt: string,
-        subjects: SubjectResponse[],
-        introduction: string,
-        objectives: string[],
-
-    }
-
-    interface AgeRangeResponse {
-        [key: string]: number;
-    }
-
-    interface CourseWeekResponse {
-        [key: string]: number;
-    }
-
-    interface DocumentResponse {
-        documentId: number;
-        title: string
-        content: string
-        plainContent: string;
-        createdAt: string;
-        updatedAt: string;
-    }
-
-    interface ExpertResponse {
-        expertId: number;
-        diploma: string;
-        yearOfExperience: number;
-        totalCourses: number;
-        user: UserResponse;
-    }
-
-    interface VideoResponse {
-        videoId: number;
-        title: string;
+        courseId: number;
+        courseName: string;
         description: string;
-        videoUrl: string;
+        thumbnail: string;
+        introduction: string;
+        price: number;
+        expert: ExpertResponse;
+        totalPurchased: number;
+        totalLessons: number;
         createdAt: string;
         updatedAt: string;
     }
+
+    interface CourseDetailsResponse extends CourseResponse {
+        introduction: string;
+        objectives: string[];
+        accepted: boolean;
+        expert: ExpertDetailsResponse;
+        subjects: SubjectResponse[];
+        chapters: ChapterResponse[];
+        averageRating: number;
+        totalRating: number;
+    }
+
     interface ChapterResponse {
         chapterId: number;
         title: string;
@@ -152,13 +127,36 @@ declare global {
 
     interface LessonResponse {
         lessonId: number;
-        description: string;
         title: string;
+        description: string;
         duration: number;
-        lessonType: string;
-        videoUrl?: string;
-        documentContent?: string;
+        createdAt: string;
+        updatedAt: string;
+        lessonType: "VIDEO" | "DOCUMENT";
+        videoUrl: string | null;
+        documentContent: string | null;
     }
+
+
+    interface AgeRangeResponse {
+        [key: string]: number;
+    }
+
+    interface CourseWeekResponse {
+        [key: string]: number;
+    }
+
+
+
+    interface ExpertResponse {
+        expertId: number;
+        diploma: string;
+        yearOfExperience: number;
+        totalCourses: number;
+        user: UserResponse;
+    }
+
+
 
     interface SubjectResponse {
         subjectId: number;
@@ -175,16 +173,7 @@ declare global {
         minPrice: number;
         maxPrice: number;
     }
-    interface CourseDetailsResponse extends CourseResponse {
-        introduction: string,
-        objectives: string[],
-        accepted: boolean,
-        expert: ExpertDetailsResponse,
-        subjects: SubjectResponse[],
-        lessons: ChapterResponse[],
-        totalLikes: number,
-        totalComments: number,
-    }
+
 
     interface ExpertDetailsResponse extends ExpertResponse {
         job: string,
@@ -225,15 +214,14 @@ declare global {
 
         quizId: number;
         title: string;
-        maxAttempts: number;
         published: boolean;
+        description: string;
+        allowSeeAnswers: boolean;
         createdAt: string;
         updatedAt: string;
-        startedAt: string;
-        endedAt: string;
-        chapter: ChapterResponse;
-        expert: ExpertResponse;
         questions: QuestionResponse[];
+        duration: number;
+        chapter: ChapterResponse;
     }
 
     interface OrderResponse {

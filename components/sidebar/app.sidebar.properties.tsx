@@ -58,13 +58,9 @@ export const sidebarItems: MenuItem[] = [
                 icon: <BiBookReader />,
             },
             {
-                key: 'exam_group',
-                label: 'Quản lí bài kiểm tra',
+                key: 'quiz',
+                label: <Link href="/quiz">Quản lí bài kiểm tra</Link>,
                 icon: <LuNewspaper />,
-                children: [
-                    { key: 'exam', label: <Link href="/quiz">Bài kiểm tra</Link> },
-                    { key: 'question', label: <Link href="/question">Câu hỏi</Link> },
-                ],
             },
         ]
     }
@@ -115,13 +111,9 @@ export const sidebarItemsExpert: MenuItem[] = [
                 icon: <BiBookReader />,
             },
             {
-                key: 'exam_group',
-                label: 'Quản lí bài kiểm tra',
+                key: 'quiz',
+                label: <Link href="/quiz">Quản lí bài kiểm tra</Link>,
                 icon: <LuNewspaper />,
-                children: [
-                    { key: 'exam', label: <Link href="/quiz">Bài kiểm tra</Link> },
-                    { key: 'question', label: <Link href="/question">Câu hỏi</Link> },
-                ],
             },
         ]
     }

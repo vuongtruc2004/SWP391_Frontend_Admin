@@ -343,7 +343,7 @@ const QuizCreateBtn = (props: {
 
     return (
         <>
-            <div className="flex justify-between">
+            <div className="flex justify-between mb-3">
                 <div className="ml-6">
                     <Link href="/quiz/create">
                         <Button type="primary" className="w-fit ">

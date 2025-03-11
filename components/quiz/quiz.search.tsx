@@ -10,14 +10,10 @@ import { useEffect } from 'react'
 const QuizSearch = (props: {
     keyword: string,
     published: string,
-    maxAttempts: string | number,
-    startedFrom: string,
-    startedTo: string,
-    endedFrom: string,
-    endedTo: string,
-    haveTime: string
+    createdFrom: string,
+    createdTo: string
 }) => {
-    const { keyword, published, maxAttempts, startedFrom, startedTo, endedFrom, endedTo, haveTime } = props
+    const { keyword, published, createdFrom, createdTo } = props
     const router = useRouter()
     const searchParam = useSearchParams()
     const pathName = usePathname()
@@ -26,66 +22,47 @@ const QuizSearch = (props: {
 
 
     const handleReset = () => {
-        form.setFieldsValue({ keyword: '', published: 'ALL', maxAttempts: '', startedFrom: '', startedTo: '', endedFrom: '', endedTo: '', haveTime: 'ALL' })
+        form.setFieldsValue({ keyword: '', published: 'ALL', createdFrom: '', createdTo: '' })
         router.push("/quiz")
     }
 
     const onFinish = (values: any) => {
-        const { keyword, published, maxAttempts, haveTime } = values;
+        const { keyword, published } = values;
 
         const newSearchParam = new URLSearchParams(searchParam);
 
         newSearchParam.set("keyword", keyword);
         newSearchParam.set("published", published);
-        newSearchParam.set("maxAttempts", maxAttempts);
-        if (haveTime === 'noTime') {
-            form.setFieldsValue({ startedFrom: '', startedTo: '', endedFrom: '', endedTo: '' });
-            newSearchParam.set("startedFrom", '');
-            newSearchParam.set("startedTo", '');
-            newSearchParam.set("endedFrom", '');
-            newSearchParam.set("endedTo", '');
-        }
-        newSearchParam.set("haveTime", haveTime);
+
         newSearchParam.set("page", "1");
         router.replace(`${pathName}?${newSearchParam}`);
     };
 
-    const onChangeStartedFrom: DatePickerProps['onChange'] = (date, dateString) => {
+    const onChangecreatedFrom: DatePickerProps['onChange'] = (date, dateString) => {
         const newSearchParam = new URLSearchParams(searchParam)
-        newSearchParam.set('startedFrom', date.format('YYYY-MM-DD')) // Định dạng chuẩn cho URL
+        newSearchParam.set('createdFrom', date.format('YYYY-MM-DD')) // Định dạng chuẩn cho URL
         newSearchParam.set("page", "1")
         router.replace(`${pathName}?${newSearchParam}`)
     };
-    const onChangeStartedTo: DatePickerProps['onChange'] = (date, dateString) => {
+    const onChangecreatedTo: DatePickerProps['onChange'] = (date, dateString) => {
         const newSearchParam = new URLSearchParams(searchParam)
-        newSearchParam.set('startedTo', date.format('YYYY-MM-DD')) // Định dạng chuẩn cho URL
+        newSearchParam.set('createdTo', date.format('YYYY-MM-DD')) // Định dạng chuẩn cho URL
         newSearchParam.set("page", "1")
         router.replace(`${pathName}?${newSearchParam}`)
     };
-    const onChangeEndedFrom: DatePickerProps['onChange'] = (date, dateString) => {
-        const newSearchParam = new URLSearchParams(searchParam)
-        newSearchParam.set('endedFrom', date.format('YYYY-MM-DD')) // Định dạng chuẩn cho URL
-        newSearchParam.set("page", "1")
-        router.replace(`${pathName}?${newSearchParam}`)
-    };
-    const onChangeEndedTo: DatePickerProps['onChange'] = (date, dateString) => {
-        const newSearchParam = new URLSearchParams(searchParam)
-        newSearchParam.set('endedTo', date.format('YYYY-MM-DD')) // Định dạng chuẩn cho URL
-        newSearchParam.set("page", "1")
-        router.replace(`${pathName}?${newSearchParam}`)
-    };
+
 
     const getValidDayjs = (dateString?: string) => {
         return dateString ? dayjs(dateString, "YYYY-MM-DD").isValid() ? dayjs(dateString, "YYYY-MM-DD") : null : null;
     };
 
     useEffect(() => {
-        form.setFieldsValue({ keyword, published, maxAttempts, haveTime });
+        form.setFieldsValue({ keyword, published });
     }, []);
 
     return (
         <div className="flex gap-2 ml-10 mt-10">
-            <Form className='w-[40%]' onFinish={onFinish} form={form} initialValues={{ keyword: keyword, published: published, maxAttempts: maxAttempts, haveTime: haveTime }}>
+            <Form className='w-[40%]' onFinish={onFinish} form={form} initialValues={{ keyword: keyword, published: published }}>
                 <Form.Item name="keyword" className="mb-0">
                     <Input
                         placeholder="Tìm kiếm bằng tiêu đề bài kiểm tra"
@@ -110,15 +87,7 @@ const QuizSearch = (props: {
                             ]}
                         />
                     </Form.Item>
-                    <Form.Item name="maxAttempts" className="mb-0" label="Lượt kiểm tra:">
-                        <Input
-                            type="number"
-                            placeholder="Nhập số lượt kiểm tra"
-                            style={{ width: 200 }}
-                            min={1}
-                            onChange={() => form.submit()}
-                        />
-                    </Form.Item>
+
 
                     <Form.Item name="haveTime" className="mb-0" label="Thời gian:">
                         <Select
@@ -137,24 +106,13 @@ const QuizSearch = (props: {
                 </div>
                 <div className='flex gap-10'>
                     <div className='flex'>
-                        <span className="mr-2 ml-3 text-nowrap mt-1">Bắt đầu :</span>
-                        <Form.Item name="startedFrom" initialValue={getValidDayjs(startedFrom)}>
-                            <DatePicker style={{ width: '120px' }} onChange={onChangeStartedFrom} format={dateFormat} placeholder='Từ Ngày' allowClear={false} />
+                        <span className="mr-2 ml-3 text-nowrap mt-1">Ngày tạo :</span>
+                        <Form.Item name="createdFrom" initialValue={getValidDayjs(createdFrom)}>
+                            <DatePicker style={{ width: '120px' }} onChange={onChangecreatedFrom} format={dateFormat} placeholder='Từ Ngày' allowClear={false} />
                         </Form.Item>
                         <span className='ml-2 mr-2'>~</span>
-                        <Form.Item name="startedTo" initialValue={getValidDayjs(startedTo)}>
-                            <DatePicker style={{ width: '120px' }} onChange={onChangeStartedTo} format={dateFormat} placeholder='Đến Ngày' allowClear={false} />
-                        </Form.Item>
-                    </div>
-
-                    <div className='flex'>
-                        <span className="mr-2 text-nowrap mt-1">Kết thúc :</span>
-                        <Form.Item name="endedFrom" initialValue={getValidDayjs(endedFrom)}>
-                            <DatePicker style={{ width: '120px' }} onChange={onChangeEndedFrom} format={dateFormat} placeholder='Từ Ngày' allowClear={false} />
-                        </Form.Item>
-                        <span className='ml-2 mr-2'>~</span>
-                        <Form.Item name="endedTo" initialValue={getValidDayjs(endedTo)}>
-                            <DatePicker style={{ width: '120px' }} onChange={onChangeEndedTo} format={dateFormat} placeholder='Đến Ngày' allowClear={false} />
+                        <Form.Item name="createdTo" initialValue={getValidDayjs(createdTo)}>
+                            <DatePicker style={{ width: '120px' }} onChange={onChangecreatedTo} format={dateFormat} placeholder='Đến Ngày' allowClear={false} />
                         </Form.Item>
                     </div>
                 </div>

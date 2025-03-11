@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@bprogress/next": "^3.0.0",
     "@ant-design/icons": "^5.5.2",
     "@ant-design/nextjs-registry": "^1.0.2",
     "@ant-design/plots": "^2.3.3",
@@ -21,9 +22,8 @@
     "management-ui": "file:",
     "marked": "^15.0.7",
     "mui-one-time-password-input": "^3.0.2",
-    "next": "15.1.4",
+    "next": "^15.2.1",
     "next-auth": "^4.24.11",
-    "next-nprogress-bar": "^2.4.3",
     "query-string": "^9.1.1",
     "react": "^19.0.0",
     "react-countup": "^6.5.3",
