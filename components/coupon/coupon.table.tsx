@@ -21,7 +21,7 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
             const end = new Date(endTime).getTime();
 
             if (now < start) {
-                return `Chờ đến ${new Date(startTime).toLocaleTimeString()}`;
+                return `Chưa bắt đầu`;
             }
 
             const diff = end - now;
