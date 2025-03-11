@@ -26,7 +26,7 @@ const ViewCouponDetail = (props: {
                         {viewCouponDetail.couponCode}
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Giá trị coupon: </span>
-                        {viewCouponDetail.discountValue}{viewCouponDetail.discountValue < 100 ? "%" : "VND"}
+                        {viewCouponDetail.discountValue} {viewCouponDetail.discountValue < 100 ? "%" : "VND"}
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Mô tả: </span>
                         {viewCouponDetail.couponDescription}

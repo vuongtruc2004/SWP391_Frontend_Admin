@@ -5,11 +5,54 @@ import { DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
 import { notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ViewCouponDetail from './view.coupon.detail';
 
 
 const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResponse[]> }) => {
+
+    const CountdownTimer = ({ startTime, endTime }) => {
+        const [timeLeft, setTimeLeft] = useState(null); // Ban đầu không render
+        const [hasStarted, setHasStarted] = useState(false);
+
+        function calculateTimeLeft() {
+            const now = new Date().getTime();
+            const start = new Date(startTime).getTime();
+            const end = new Date(endTime).getTime();
+
+            if (now < start) {
+                return `Chờ đến ${new Date(startTime).toLocaleTimeString()}`;
+            }
+
+            const diff = end - now;
+            if (diff <= 0) return 'Hết hạn';
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            return `${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        useEffect(() => {
+            setTimeLeft(calculateTimeLeft());
+
+            const interval = setInterval(() => {
+                const now = new Date().getTime();
+                const start = new Date(startTime).getTime();
+                if (now >= start) {
+                    setHasStarted(true);
+                    setTimeLeft(calculateTimeLeft());
+                }
+            }, 1000);
+
+            return () => clearInterval(interval);
+        }, [startTime, endTime]);
+
+        if (timeLeft === null) return null;
+
+        return <span>{timeLeft}</span>;
+    };
 
     const deleteCoupon = async (couponId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<CourseDetailsResponse>>({
@@ -66,6 +109,13 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
             key: 'range',
             width: '15%',
             render: (_, record) => `${record.discountRange === 'ALL' ? 'Tất cả' : 'Giới hạn'}`
+        },
+        {
+            title: 'Hiệu lực',
+            dataIndex: 'endTime',
+            key: 'countdown',
+            width: '15%',
+            render: (_, record) => <CountdownTimer startTime={record.startTime} endTime={record.endTime} />
         },
         {
             title: 'Giá trị đơn hàng áp dụng',
