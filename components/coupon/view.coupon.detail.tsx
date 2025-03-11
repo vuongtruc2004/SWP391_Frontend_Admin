@@ -63,7 +63,7 @@ const ViewCouponDetail = (props: {
                                         <ul className='ml-0.5'>
                                             {viewCouponDetail.courseName.map((couponDetail, index) => (
                                                 <li key={index} className="mb-2">
-                                                    <div className="flex items-center gap-2 cursor-pointer font-medium text-gray-700">
+                                                    <div className="flex items-center gap-2 font-medium text-gray-700">
                                                         <DoubleRightOutlined style={{ color: 'green' }} />
                                                         <span>{couponDetail}</span>
                                                     </div>

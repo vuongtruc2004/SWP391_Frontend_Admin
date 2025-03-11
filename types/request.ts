@@ -44,6 +44,7 @@ declare global {
         correctAnswers?: string[];
     }
     interface CouponRequest {
+        couponId?: number;
         couponName: string;
         couponDescription: string;
         couponCode: string;

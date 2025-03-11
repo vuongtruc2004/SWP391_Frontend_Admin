@@ -1,16 +1,19 @@
 'use client'
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
-import { DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
 import { notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import UpdateCouponForm from './update.coupon.form';
 import ViewCouponDetail from './view.coupon.detail';
 const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResponse[]> }) => {
+    //@ts-ignore
     const CountdownTimer = ({ startTime, endTime }) => {
         const [timeLeft, setTimeLeft] = useState(null);
         const [hasStarted, setHasStarted] = useState(false);
+
 
         function calculateTimeLeft() {
             const now = new Date().getTime();
@@ -32,6 +35,7 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
         }
 
         useEffect(() => {
+            //@ts-ignore
             setTimeLeft(calculateTimeLeft());
 
             const interval = setInterval(() => {
@@ -39,6 +43,7 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
                 const start = new Date(startTime).getTime();
                 if (now >= start) {
                     setHasStarted(true);
+                    //@ts-ignore
                     setTimeLeft(calculateTimeLeft());
                 }
             }, 1000);
@@ -79,6 +84,8 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
     const page = Number(searchParams.get('page')) || 1;
     const [openDraw, setOpenDraw] = useState<boolean>(false);
     const [couponDetail, setCouponDetail] = useState<CouponResponse | null>(null);
+    const [editingCoupon, setEditingCoupon] = useState<CouponResponse | null>(null);
+    const [openEditForm, setOpenEditForm] = useState(false);
     const columns: TableProps<CouponResponse>['columns'] = [
         {
             title: "STT",
@@ -118,16 +125,16 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
             title: 'Giá trị đơn hàng áp dụng',
             dataIndex: 'minOrderValue',
             key: 'min',
-            width: '15%',
+            width: '20%',
             render: (price: number) => <>{price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " đ"}</>
         },
         {
             title: 'Hành động',
             key: 'action',
-            width: '15%',
+            width: '10%',
             render: (_, record: CouponResponse) => (
                 <Space size="middle">
-                    <Tooltip placement="bottom" title="Xem chi tiết">
+                    <Tooltip color='black' title="Xem chi tiết">
                         <InfoCircleOutlined
                             onClick={() => {
                                 setOpenDraw(true);
@@ -135,7 +142,15 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
                             }}
                         />
                     </Tooltip>
-                    <Tooltip placement="bottom" title='Xoá coupon'>
+                    <Tooltip title='Cập nhật coupon' color='blue'>
+                        <EditOutlined style={{ color: "blue" }}
+                            onClick={() => {
+                                setEditingCoupon(record)
+                                setOpenEditForm(true)
+                            }}
+                        />
+                    </Tooltip>
+                    <Tooltip title='Xoá coupon' color='red'>
                         <Popconfirm
                             placement="left"
                             title="Xóa coupon"
@@ -171,6 +186,13 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
                 showSorterTooltip={false}
             />
             {openDraw && <ViewCouponDetail setOpenDraw={setOpenDraw} openDraw={openDraw} viewCouponDetail={couponDetail} />}
+
+            <UpdateCouponForm
+                openEditForm={openEditForm}
+                setOpenEditForm={setOpenEditForm}
+                editingCoupon={editingCoupon}
+                setEditingCoupon={setEditingCoupon}
+            />
         </>
 
     );
