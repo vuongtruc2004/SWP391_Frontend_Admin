@@ -7,12 +7,9 @@ import { notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'ant
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ViewCouponDetail from './view.coupon.detail';
-
-
 const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResponse[]> }) => {
-
     const CountdownTimer = ({ startTime, endTime }) => {
-        const [timeLeft, setTimeLeft] = useState(null); // Ban đầu không render
+        const [timeLeft, setTimeLeft] = useState(null);
         const [hasStarted, setHasStarted] = useState(false);
 
         function calculateTimeLeft() {
@@ -122,7 +119,7 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
             dataIndex: 'minOrderValue',
             key: 'min',
             width: '15%',
-            render: (_, record) => `${record.minOrderValue}`
+            render: (price: number) => <>{price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " đ"}</>
         },
         {
             title: 'Hành động',

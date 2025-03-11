@@ -26,7 +26,11 @@ const ViewCouponDetail = (props: {
                         {viewCouponDetail.couponCode}
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Giá trị coupon: </span>
-                        {viewCouponDetail.discountValue} {viewCouponDetail.discountValue < 100 ? "%" : "VND"}
+
+                        {viewCouponDetail.discountValue < 100
+                            ? `${viewCouponDetail.discountValue} %`
+                            : `${viewCouponDetail.discountValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} đ`}
+
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Mô tả: </span>
                         {viewCouponDetail.couponDescription}
@@ -37,7 +41,7 @@ const ViewCouponDetail = (props: {
                         - {viewCouponDetail.endTime ? dayjs(viewCouponDetail.endTime).format("DD/MM/YYYY HH:mm:ss") : 'Không có dữ liệu'}
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Giá trị đơn hàng áp dụng: </span>
-                        {viewCouponDetail.minOrderValue}₫
+                        {viewCouponDetail.minOrderValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " đ"}
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Số lượng coupon: </span>
                         {viewCouponDetail.maxUses}

@@ -15,8 +15,8 @@ const CouponPage = async (props: {
         page: string;
         couponCode: string;
         couponName: string;
-        minPrice: number;
-        maxPrice: number;
+        minPrice: string;
+        maxPrice: string;
         discount_range: string;
     }>
 }) => {
@@ -25,24 +25,20 @@ const CouponPage = async (props: {
     const keyword = searchParams.keyword || "";
     const couponCode = searchParams.couponCode || "";
     const couponName = searchParams.couponName || "";
-    const minPrice = searchParams.minPrice || 0;
-    const maxPrice = searchParams.maxPrice || 100000000;
+    const minOrderPrice = searchParams.minPrice || '';
+    const maxOrderPrice = searchParams.maxPrice || "";
     const discount_range = searchParams.discount_range || "";
 
     let filter = "";
 
     filter = `(couponName ~ '${keyword.trim()}' or couponCode ~ '${keyword.trim()}')`
-    // if (couponCode !== "") {
-    //     filter += ` }`
-    // }
 
-    // if (createdFrom !== "" && createdTo !== "") {
-    //     filter += ` and createdAt > '${createdFrom}' and createdAt < '${createdTo}'`
-    // }
-
-    // if (priceFrom !== "" && priceTo !== "") {
-    //     filter += ` and price >: ${priceFrom} and price <: ${priceTo}`
-    // }
+    if (discount_range !== "") {
+        filter += ` and discountRange = '${discount_range}'`;
+    }
+    if (minOrderPrice !== "" && maxOrderPrice !== "") {
+        filter += ` and minOrderValue >: ${minOrderPrice} and minOrderValue <: ${maxOrderPrice}`
+    }
 
     const couponResponse = await sendRequest<ApiResponse<PageDetailsResponse<CouponResponse[]>>>({
         url: `${apiUrl}/coupons/all`,
@@ -50,7 +46,7 @@ const CouponPage = async (props: {
             page: page,
             size: 10,
             filter: filter,
-            sort: "updatedAt,desc"
+            sort: "createdAt,desc"
         }
     });
 
@@ -62,8 +58,8 @@ const CouponPage = async (props: {
                 keyword={keyword}
                 couponCode={couponCode}
                 couponName={couponName}
-                minPrice={minPrice}
-                maxPrice={maxPrice}
+                minPrice={minOrderPrice}
+                maxPrice={maxOrderPrice}
                 discount_range={discount_range}
             />
             <div className="flex justify-end mr-7 mt-[-50px]">
