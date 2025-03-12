@@ -90,15 +90,15 @@ const UpdateCouponForm = (props: {
             });
             setDiscountValue({
                 error: false,
-                value: editingCoupon.discountValue.toString()
+                value: editingCoupon.discountValue?.toString()
             })
             setMinOrderValue({
                 error: false,
-                value: editingCoupon.minOrderValue.toString()
+                value: editingCoupon.minOrderValue?.toString()
             })
             setMaxDiscountAmount({
                 error: false,
-                value: editingCoupon.maxDiscountAmount.toString()
+                value: editingCoupon.maxDiscountAmount?.toString()
             })
             setEndTime({
                 error: false,
