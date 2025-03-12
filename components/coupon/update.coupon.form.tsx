@@ -153,9 +153,11 @@ const UpdateCouponForm = (props: {
         ) {
             checkAll = false;
         }
-        if (selectedCourses!.length <= 0 && selectedRange === 'COURSES') {
-            setEmptyCourse("Vui lòng chọn ít nhất 1 khoá học!");
-            checkAll = false;
+        if (!selectedCourses || selectedCourses.length === 0) {
+            if (selectedRange === 'COURSES') {
+                setEmptyCourse("Vui lòng chọn ít nhất 1 khoá học!");
+                checkAll = false;
+            }
         }
         if (!startTime.value && !endTime.value) {
             setEmptyDate("Ngày áp dụng không để rỗng!")

@@ -3,16 +3,18 @@ import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
+import { Client } from '@stomp/stompjs';
 import { notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import UpdateCouponForm from './update.coupon.form';
 import ViewCouponDetail from './view.coupon.detail';
 const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResponse[]> }) => {
-    //@ts-ignore
+
     const CountdownTimer = ({ startTime, endTime }) => {
         const [timeLeft, setTimeLeft] = useState(null);
         const [hasStarted, setHasStarted] = useState(false);
+        const [stompClient, setStompClient] = useState<Client | null>(null);
 
 
         function calculateTimeLeft() {
@@ -33,9 +35,30 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
 
             return `${hours}h ${minutes}m ${seconds}s`;
         }
+        useEffect(() => {
+            const client = new Client({
+                brokerURL: "ws://localhost:8386/ws/websocket",
+                reconnectDelay: 5000,
+                onConnect: () => {
+
+                    client.subscribe("/topic/coupon", (message) => {
+                        console.log("📩 Nhận thông báo mới:", message.body);
+                        router.refresh();
+                    });
+                },
+                onStompError: (error) => {
+                    console.error("WebSocket lỗi:", error);
+                }
+            });
+            client.activate();
+            setStompClient(client);
+            return () => {
+                client.deactivate();
+            };
+        }, []);
 
         useEffect(() => {
-            //@ts-ignore
+
             setTimeLeft(calculateTimeLeft());
 
             const interval = setInterval(() => {
@@ -43,7 +66,7 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
                 const start = new Date(startTime).getTime();
                 if (now >= start) {
                     setHasStarted(true);
-                    //@ts-ignore
+
                     setTimeLeft(calculateTimeLeft());
                 }
             }, 1000);

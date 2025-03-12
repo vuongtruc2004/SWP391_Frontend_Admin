@@ -126,6 +126,7 @@ export const isValidMinOrderValue = (minOrderValue: ErrorResponse, setMinOrderVa
     return true;
 };
 export const isValidMaxAmount = (maxAmount: ErrorResponse, setMaxAmount: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
+    const numberRegex = /^\d+(\.\d+)?$/;
     if (Number(maxAmount.value) < 0) {
         setMaxAmount({
             ...maxAmount,
@@ -134,7 +135,7 @@ export const isValidMaxAmount = (maxAmount: ErrorResponse, setMaxAmount: React.D
         })
         return false;
     }
-    if (!isNumber(maxAmount.value) && maxAmount.value) {
+    if (!numberRegex.test(maxAmount.value) && maxAmount.value) {
         setMaxAmount({
             ...maxAmount,
             error: true,
