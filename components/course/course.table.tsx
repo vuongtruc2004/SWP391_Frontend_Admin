@@ -105,6 +105,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             dataIndex: 'price',
             key: 'price',
             width: '10%',
+            render: (price: number) => <>{price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " đ"}</>,
             sorter: {
                 compare: (a, b) => a.price - b.price,
             },
@@ -234,12 +235,6 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                 showSorterTooltip={false}
             />
 
-            <ViewCourseDetail
-                setOpenDraw={setOpenDraw}
-                openDraw={openDraw}
-                course={course}
-                setCourse={setCourse}
-            />
             <UpdateCourseForm
                 openEditForm={openEditForm}
                 setOpenEditForm={setOpenEditForm}

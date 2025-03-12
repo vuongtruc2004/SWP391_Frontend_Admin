@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import BlogCreate from "./blog.create";
 import dayjs from "dayjs";
+import { useSession } from "next-auth/react";
 
 
 const BlogSearch = (props: {
@@ -20,6 +21,7 @@ const BlogSearch = (props: {
     const pathName = usePathname();
     const router = useRouter();
     const [openFormCreate, setOpenFormCreate] = useState(false);
+    const { data: session } = useSession();
 
     const handleOnFinish = (values: any) => {
         const { keyword, published } = values;
@@ -129,7 +131,10 @@ const BlogSearch = (props: {
                             </Button>
                             <Button onClick={handleOnReset}>Làm mới</Button>
                         </div>
-                        <Button type="primary" icon={<PlusOutlined />} onClick={handleOnClickButton}>Tạo bài viết </Button>
+                        {session?.user.roleName === "MARKETING" && (
+                            <Button type="primary" icon={<PlusOutlined />} onClick={handleOnClickButton}>Tạo bài viết </Button>
+                        )}
+
 
                     </div>
                 </Form>

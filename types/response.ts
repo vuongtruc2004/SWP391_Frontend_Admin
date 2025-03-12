@@ -106,7 +106,6 @@ declare global {
         updatedAt: string,
         subjects: SubjectResponse[],
         introduction: string,
-        objectives: string[],
 
     }
 
@@ -179,11 +178,12 @@ declare global {
         introduction: string,
         objectives: string[],
         accepted: boolean,
-        expert: ExpertDetailsResponse,
         subjects: SubjectResponse[],
-        lessons: ChapterResponse[],
+        chapters: ChapterResponse[],
         totalLikes: number,
         totalComments: number,
+        averageRating: number,
+        totalRating: number,
     }
 
     interface ExpertDetailsResponse extends ExpertResponse {
@@ -192,7 +192,7 @@ declare global {
         description: string,
         yearOfExperience: number,
         totalCourses: number,
-        totalStudents: number
+        totalStudents: number,
     }
 
     interface BlogDetailsResponse extends BlogResponse {
@@ -255,7 +255,8 @@ declare global {
         notificationId: number,
         title: string,
         content: string,
-        createdAt: string,
+        status: string,
+        setDate: string,
         global: boolean,
         userNotifications: UserNotificationResponse[],
     }
@@ -270,6 +271,15 @@ declare global {
     interface CourseSalesEntryResponse {
         key: string;
         value: number;
+    }
+
+    interface RateResponse {
+        rateId: number,
+        content: string,
+        stars: number,
+        createdAt: string,
+        updatedAt: string,
+        user: UserResponse,
     }
 
 }

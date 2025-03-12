@@ -9,6 +9,7 @@ import TextArea from 'antd/es/input/TextArea';
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import NotificationCreate from './notification.create';
+import { Client } from '@stomp/stompjs';
 
 //@ts-ignore
 const initState: ErrorResponse = {
@@ -28,7 +29,31 @@ const NotificationTable = (props: {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [openCreate, setOpenCreate] = useState(false);
     const [recordNotification, setRecordNotification] = useState<NotificationResponse | null>(null)
+    const [stompClient, setStompClient] = useState<Client | null>(null);
 
+    useEffect(() => {
+        const client = new Client({
+            brokerURL: "ws://localhost:8386/ws/websocket",
+            reconnectDelay: 5000, // Tự động kết nối lại sau 5s nếu bị mất
+            onConnect: () => {
+
+                client.subscribe("/topic/purchased", (message) => {
+                    console.log("📩 Nhận thông báo mới:", message.body);
+                    router.refresh(); // Refresh lại trang
+                });
+            },
+            onStompError: (error) => {
+                console.error("WebSocket lỗi:", error);
+            }
+        });
+
+        client.activate();
+        setStompClient(client);
+
+        return () => {
+            client.deactivate();
+        };
+    }, []);
 
     const handleDelete = async (notificationId: number) => {
         const deleteRes = await sendRequest<ApiResponse<String>>({
@@ -65,9 +90,16 @@ const NotificationTable = (props: {
         },
         {
             title: 'Trạng thái',
+            dataIndex: 'status',
+            key: 'status',
+            width: '20%',
+            align: "center"
+        },
+        {
+            title: 'Phạm vi',
             dataIndex: 'global',
             key: 'global',
-            width: '10%',
+            width: '20%',
             render: (global: boolean) => (global ? "Công khai" : "Giới hạn"),
             align: "center"
         },
