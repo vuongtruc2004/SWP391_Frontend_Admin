@@ -15,8 +15,6 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
         const [timeLeft, setTimeLeft] = useState(null);
         const [hasStarted, setHasStarted] = useState(false);
         const [stompClient, setStompClient] = useState<Client | null>(null);
-
-
         function calculateTimeLeft() {
             const now = new Date().getTime();
             const start = new Date(startTime).getTime();
@@ -32,7 +30,6 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
             const hours = Math.floor(diff / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
             return `${hours}h ${minutes}m ${seconds}s`;
         }
         useEffect(() => {
