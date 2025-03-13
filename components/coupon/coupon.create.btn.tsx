@@ -248,7 +248,7 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
 
                     <div className="flex-1">
                         <span className="text-red-500 mr-2">*</span>
-                        <span className="text-lg">Số lượng coupon:</span>
+                        <span className="text-lg">Số lượt dùng tối đa:</span>
                         <Input
                             status={maxUses.error ? 'error' : ''}
                             className="mt-1 mb-3"
@@ -368,6 +368,12 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
                             allowClear
                             value={discountValue.value}
                             onChange={(e) => setDiscountValue({ ...discountValue, value: e.target.value, error: false })}
+                            suffix={
+                                <span className="text-sm text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                                    {discountType === 'FIXED' ? "VND" : "%"}
+                                </span>
+                            }
+
                         />
                         {discountValue.error && (
                             <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
@@ -383,6 +389,11 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
                         <span className="text-red-500 mr-2">*</span>
                         <span className="text-lg ">Áp dụng cho đơn hàng từ:</span>
                         <Input
+                            suffix={
+                                <span className="text-sm text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                                    VND
+                                </span>
+                            }
                             status={minOrderValue.error ? 'error' : ''}
                             className="mt-1 mb-3"
                             placeholder="Nhập số tiền áp dụng tối thiểu"
@@ -400,6 +411,11 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
                     <div className="flex-1">
                         <span className="text-lg ">Số tiền giảm giá tối đa:</span>
                         <Input
+                            suffix={
+                                <span className="text-sm text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                                    VND
+                                </span>
+                            }
                             status={maxDiscountAmount.error ? 'error' : ''}
                             className="mt-1 mb-3"
                             placeholder="Nhập số tiền giảm giá tối đa"

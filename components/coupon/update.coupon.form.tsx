@@ -235,7 +235,7 @@ const UpdateCouponForm = (props: {
         <Modal
             title={
                 <div style={{ fontSize: '24px', textAlign: 'center', width: '100%', display: 'block' }}>
-                    Tạo coupon
+                    Cập nhật coupon
                 </div>
             }
             open={openEditForm}
@@ -293,7 +293,7 @@ const UpdateCouponForm = (props: {
 
                 <div className="flex-1">
                     <span className="text-red-500 mr-2">*</span>
-                    <span className="text-lg">Số lượng coupon:</span>
+                    <span className="text-lg">Số lượt dùng tối đa:</span>
                     <Input
                         status={maxUses.error ? 'error' : ''}
                         className="mt-1 mb-3"
@@ -407,6 +407,11 @@ const UpdateCouponForm = (props: {
                     <span className="text-red-500 mr-2">*</span>
                     <span className="text-lg ">Giá trị giảm:</span>
                     <Input
+                        suffix={
+                            <span className="text-sm text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                                {discountType === 'FIXED' ? "VND" : "%"}
+                            </span>
+                        }
                         status={discountValue.error ? 'error' : ''}
                         className="mt-1 w-full"
                         placeholder="Nhập giá trị giảm"
@@ -428,6 +433,11 @@ const UpdateCouponForm = (props: {
                     <span className="text-red-500 mr-2">*</span>
                     <span className="text-lg ">Áp dụng cho đơn hàng từ:</span>
                     <Input
+                        suffix={
+                            <span className="text-sm text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                                VND
+                            </span>
+                        }
                         status={minOrderValue.error ? 'error' : ''}
                         className="mt-1 mb-3"
                         placeholder="Nhập số tiền áp dụng tối thiểu"
@@ -445,6 +455,11 @@ const UpdateCouponForm = (props: {
                 <div className="flex-1">
                     <span className="text-lg ">Số tiền giảm giá tối đa:</span>
                     <Input
+                        suffix={
+                            <span className="text-sm text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                                VND
+                            </span>
+                        }
                         status={maxDiscountAmount.error ? 'error' : ''}
                         className="mt-1 mb-3"
                         placeholder="Nhập số tiền giảm giá tối đa"
