@@ -15,15 +15,14 @@ const ViewCouponDetail = (props: {
     const [courseDetails, setCourseDetails] = useState<{ [key: number]: CourseDetailsResponse | null }>({});
 
     return (
-        <Drawer title="THÔNG TIN CHI TIẾT" onClose={() => setOpenDraw(false)} open={openDraw} width={450}>
+        <Drawer title={`THÔNG TIN CHI TIẾT COUPON ${viewCouponDetail?.couponCode}`} onClose={() => setOpenDraw(false)} open={openDraw} width={450}>
             {viewCouponDetail ? (
                 <>
-
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tên coupon: </span>
-                        {viewCouponDetail.couponName}
-                    </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Mã coupon: </span>
                         {viewCouponDetail.couponCode}
+                    </div>
+                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tên coupon: </span>
+                        {viewCouponDetail.couponName}
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Giá trị coupon: </span>
 
@@ -43,7 +42,7 @@ const ViewCouponDetail = (props: {
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Giá trị đơn hàng áp dụng: </span>
                         {viewCouponDetail.minOrderValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " đ"}
                     </div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Số lượng coupon: </span>
+                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Số lượt dùng tối đa: </span>
                         {viewCouponDetail.maxUses}
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Số coupon đã sử dụng: </span>
