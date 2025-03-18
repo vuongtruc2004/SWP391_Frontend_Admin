@@ -1,6 +1,6 @@
 import { SetStateAction } from "react";
 
-const isNumber = (s: string): boolean => {
+export const isNumber = (s: string): boolean => {
     const regex = /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/;
     if (!regex.test(s))
         return false;

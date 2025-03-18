@@ -2,6 +2,7 @@ import { BarChartOutlined, CodeOutlined, NotificationOutlined, TeamOutlined } fr
 import { RxDashboard } from "react-icons/rx";
 import { LuNewspaper } from "react-icons/lu";
 import { BiBookReader } from "react-icons/bi";
+import { IoTicketOutline } from "react-icons/io5";
 import { FaRegPaperPlane } from "react-icons/fa";
 import type { MenuProps } from 'antd';
 import Link from 'next/link';
@@ -58,6 +59,11 @@ export const sidebarItems: MenuItem[] = [
                 icon: <BiBookReader />,
             },
             {
+                key: 'coupon',
+                label: <Link href="/coupon">Quản lí coupon</Link>,
+                icon: <IoTicketOutline />,
+            },
+            {
                 key: 'quiz',
                 label: <Link href="/quiz">Quản lí bài kiểm tra</Link>,
                 icon: <LuNewspaper />,
@@ -109,6 +115,11 @@ export const sidebarItemsExpert: MenuItem[] = [
                 key: 'course',
                 label: <Link href="/course">Quản lí khóa học</Link>,
                 icon: <BiBookReader />,
+            },
+            {
+                key: 'coupon',
+                label: <Link href="/coupon">Quản lí coupon</Link>,
+                icon: <IoTicketOutline />,
             },
             {
                 key: 'quiz',
