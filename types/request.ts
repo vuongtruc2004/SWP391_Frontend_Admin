@@ -90,8 +90,10 @@ declare global {
     interface NotificationRequest {
         title: string;
         content: string;
+        status?: string;
         global: boolean;
         emails: string[];
+        setDate: string;
     }
 
     interface OrderRequest {

@@ -1,11 +1,13 @@
-import { validContent, validTitle } from "@/helper/create.blog.helper";
+import { validContent, validDateSet, validTitle } from "@/helper/create.blog.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import { WarningOutlined } from "@ant-design/icons";
-import { Form, Input, Modal, notification, Select } from "antd";
+import { DatePicker, DatePickerProps, Form, Input, Modal, notification, Select } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useRouter } from "next/navigation";
+import viVN from 'antd/es/date-picker/locale/vi_VN';
 import { SetStateAction, useEffect, useState } from "react";
+import dayjs from "dayjs";
 
 const initState: ErrorResponse = {
     error: false,
@@ -19,14 +21,35 @@ const NotificationCreate = (props: {
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [content, setContent] = useState<ErrorResponse>(initState);
     const [global, setGlobal] = useState(true);
+    const [status, setStatus] = useState("SENT");
+    const [dateSet, setDateSet] = useState<ErrorResponse>(initState);
     const [receiver, setReceiver] = useState<{ error: boolean, tags: string[] }>({ error: false, tags: [] });
     const [userOption, setUserOption] = useState<{ value: string, label: string }[]>([])
-    const router = useRouter()
+    const router = useRouter();
+
+    const handleOnChangeStatus = (value: string) => {
+        setStatus(value);
+    }
 
     const handleOnChangeSelect = (value: boolean) => {
         setGlobal(value);
-        console.log(value)
     }
+
+    const handleOnChangeSetDate: DatePickerProps['onChange'] = (date, dateString) => {
+        if (date === null) {
+            setDateSet({
+                ...dateSet,
+                value: ''
+            })
+            return
+        }
+        setDateSet({
+            ...dateSet,
+            value: date.toISOString(),
+        })
+    };
+
+    console.log("set date: ", dateSet);
 
     useEffect(() => {
         if (!openCreate) return;
@@ -54,12 +77,16 @@ const NotificationCreate = (props: {
     const notificationRequest: NotificationRequest = {
         title: title.value,
         content: content.value,
+        status: status,
         global: global,
         emails: receiver?.tags,
+        setDate: dateSet.value,
+
     }
     const handleOnOk = async () => {
         const isValidTitle = validTitle(title, setTitle);
         const isValidContent = validContent(content, setContent);
+        const isDateSet = validDateSet(status, dateSet, setDateSet);
 
         if (!isValidTitle || !isValidContent) {
             return;
@@ -67,6 +94,10 @@ const NotificationCreate = (props: {
 
         if (!global && receiver.tags.length === 0) {
             setReceiver(prev => ({ ...prev, error: true }))
+            return;
+        }
+
+        if (!isDateSet) {
             return;
         }
 
@@ -100,6 +131,7 @@ const NotificationCreate = (props: {
         setTitle(initState);
         setGlobal(true);
         setReceiver({ error: false, tags: [] });
+        setStatus("SENT");
         setOpenCreate(false);
     }
 
@@ -109,6 +141,7 @@ const NotificationCreate = (props: {
             setContent(initState);
             setGlobal(true);
             setReceiver({ error: false, tags: [] });
+            setStatus("SENT");
         }
     }, [openCreate]);
 
@@ -198,6 +231,54 @@ const NotificationCreate = (props: {
                                     <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
                                         <WarningOutlined />
                                         Vui lòng thêm người nhận thông báo
+                                    </p>
+                                )}
+                            </Form.Item>
+                        </div>
+                    )}
+                    <div>
+                        <p><span className='text-red-600'>*</span>Trạng thái:</p>
+                        <Form.Item>
+                            <Select
+                                value={status}
+                                style={{ width: 470 }}
+                                onChange={handleOnChangeStatus}
+                                options={[
+                                    { value: 'PENDING', label: "Đặt lịch" },
+                                    { value: 'SENT', label: "Gửi ngay" },
+                                ]}
+                            />
+                        </Form.Item>
+                    </div>
+                    {status === 'PENDING' && (
+                        <div>
+                            <p><span className='text-red-600'>*</span>Đặt lịch:</p>
+                            <Form.Item>
+                                <DatePicker
+                                    // defaultValue={defaultValue}
+                                    disabledDate={(current) => current && current.isBefore(dayjs(), 'day')}
+                                    disabledTime={(current) => {
+                                        const now = dayjs();
+                                        if (!current) return {};
+                                        if (current.isSame(now, "day")) {
+                                            return {
+                                                disabledHours: () =>
+                                                    Array.from({ length: now.hour() }, (_, i) => i),
+                                                disabledMinutes: (hour) =>
+                                                    hour === now.hour()
+                                                        ? Array.from({ length: now.minute() }, (_, i) => i)
+                                                        : [],
+                                            };
+                                        }
+                                        return {};
+                                    }}
+                                    showTime
+                                    onChange={handleOnChangeSetDate}
+                                />
+                                {dateSet.error && (
+                                    <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
+                                        <WarningOutlined />
+                                        {dateSet.message}
                                     </p>
                                 )}
                             </Form.Item>

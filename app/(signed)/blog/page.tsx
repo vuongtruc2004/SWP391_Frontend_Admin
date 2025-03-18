@@ -1,9 +1,11 @@
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import BlogSearch from "@/components/blog/blog.search";
 import BlogTable from "@/components/blog/blog.table";
 import { isFullNumber } from "@/helper/subject.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import { Metadata } from "next";
+import { getServerSession } from "next-auth";
 
 export const metadata: Metadata = {
     title: "Quản lí bài viết",
@@ -25,6 +27,7 @@ const BlogPage = async (props: {
     const published = searchParam.published || "all"
     const createdFrom = searchParam.createdFrom || ""
     const createdTo = searchParam.createdTo || ""
+    const session = await getServerSession(authOptions);
 
     let filter = ""
     if (isFullNumber(keyword)) {
@@ -43,6 +46,9 @@ const BlogPage = async (props: {
 
     const blogResponse = await sendRequest<ApiResponse<PageDetailsResponse<BlogDetailsResponse[]>>>({
         url: `${apiUrl}/blogs/all`,
+        headers: {
+            'Authorization': `Bearer ${session?.accessToken}`
+        },
         queryParams: {
             page: page,
             size: 10,

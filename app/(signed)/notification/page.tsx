@@ -25,6 +25,7 @@ const NotificationPage = async (props: {
             page: page,
             size: 10,
             filter: filter,
+            sort: 'updatedAt,desc'
         }
     });
 

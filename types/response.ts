@@ -108,14 +108,15 @@ declare global {
     }
 
     interface CourseDetailsResponse extends CourseResponse {
-        introduction: string;
-        objectives: string[];
-        accepted: boolean;
-        expert: ExpertDetailsResponse;
-        subjects: SubjectResponse[];
-        chapters: ChapterResponse[];
-        averageRating: number;
-        totalRating: number;
+        introduction: string,
+        objectives: string[],
+        accepted: boolean,
+        subjects: SubjectResponse[],
+        chapters: ChapterResponse[],
+        totalLikes: number,
+        totalComments: number,
+        averageRating: number,
+        totalRating: number,
     }
 
     interface ChapterResponse {
@@ -245,7 +246,8 @@ declare global {
         notificationId: number,
         title: string,
         content: string,
-        createdAt: string,
+        status: string,
+        setDate: string,
         global: boolean,
         userNotifications: UserNotificationResponse[],
     }
@@ -260,6 +262,15 @@ declare global {
     interface CourseSalesEntryResponse {
         key: string;
         value: number;
+    }
+
+    interface RateResponse {
+        rateId: number,
+        content: string,
+        stars: number,
+        createdAt: string,
+        updatedAt: string,
+        user: UserResponse,
     }
 
 }

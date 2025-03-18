@@ -1,3 +1,4 @@
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import CourseCreateBtn from "@/components/course/course.create.btn"
 import CourseSearch from "@/components/course/course.search"
 import CourseTable from "@/components/course/course.table"
@@ -5,6 +6,7 @@ import { isFullNumber } from "@/helper/subject.helper"
 import { sendRequest } from "@/utils/fetch.api"
 import { apiUrl } from "@/utils/url"
 import { Metadata } from "next"
+import { getServerSession } from "next-auth"
 
 export const metadata: Metadata = {
     title: "Quản lí khóa học",
@@ -29,6 +31,7 @@ const CoursePage = async (props: {
     const createdTo = searchParams.createdTo || "";
     const priceFrom = searchParams.minPrice || "";
     const priceTo = searchParams.maxPrice || "";
+    const session = await getServerSession(authOptions);
 
     let filter = ""
     if (isFullNumber(keyword)) {
@@ -51,6 +54,9 @@ const CoursePage = async (props: {
 
     const courseResponse = await sendRequest<ApiResponse<PageDetailsResponse<CourseDetailsResponse[]>>>({
         url: `${apiUrl}/courses/all`,
+        headers: {
+            "Authorization": `Bearer ${session?.accessToken}`
+        },
         queryParams: {
             page: page,
             size: 10,
