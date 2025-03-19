@@ -35,14 +35,7 @@ declare global {
         subjects?: string[];
     }
 
-    interface QuestionRequest {
-        questionId?: number;
-        title?: string;
-        answersId?: number[];
-        answers?: AnswerResponse[];
-        quizzes?: string[];
-        correctAnswers?: string[];
-    }
+
 
     interface UpdateUserRequest {
         userId: number,
@@ -119,14 +112,28 @@ declare global {
             price: number;
         }[];
     }
+
     interface QuizRequest {
         quizId?: number;
+        title: string;
+        published: boolean;
+        allowSeeAnswers: boolean;
+        description: string;
+        duration: number;
+        chapterId: number;
+        bankQuestionIds: number[];
+        newQuestions: QuestionRequest[];
+
+
+    }
+
+    interface QuestionRequest {
+        // questionId?: number;
         title?: string;
-        maxAttempts?: number;
-        published?: boolean;
-        startedAt: string;
-        endedAt: string;
-        questions: string[];
+        answers: {
+            content: string;
+            correct: boolean;
+        }[];
     }
 
     interface ChapterRequest {

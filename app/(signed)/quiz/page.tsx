@@ -1,5 +1,5 @@
-import QuizPageClient from "@/components/quiz/quiz.page.client";
-import { getMaxAttempts, getPublished, getStartedAt } from "@/helper/create.quiz.helper";
+import QuizPageClient from "@/components/quiz/quiz-list/quiz.page.client";
+import { getAllowSeeAnswers, getDuration, getPublished } from "@/helper/create.quiz.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import { Metadata } from "next";
@@ -13,32 +13,49 @@ const QuizPage = async (props: {
         keyword?: string;
         page?: string;
         published?: string;
+        allowSeeAnswers: string;
         createdFrom?: string;
         createdTo?: string;
+        durationFrom: string;
+        durationTo: string;
     }>
 }) => {
     const searchParam = await props.searchParams;
     const keyword = searchParam.keyword || '';
     const page = searchParam.page || 1;
     const published = getPublished(searchParam.published);
+    const allowSeeAnswers = getAllowSeeAnswers(searchParam.allowSeeAnswers);
     const createdFrom = searchParam.createdFrom || '';
     const createdTo = searchParam.createdTo || '';
-
+    const durationFrom = getDuration(searchParam.durationFrom || '');
+    const durationTo = getDuration(searchParam.durationTo || '');
 
     let filters: string[] = [];
     if (keyword !== '') {
-        filters.push(`title ~ '${keyword}'`);
+        filters.push(`(title ~ '${keyword}' or chapter.title ~ '${keyword}')`);
     }
 
     if (published !== 'ALL') {
-        filters.push(`published : ${published === 'active' ? true : false}`);
+        filters.push(`published : ${published === 'open' ? true : false}`);
+    }
+    console.log("quizPage>>>allowSeeAnswers ", allowSeeAnswers);
+    if (allowSeeAnswers !== 'ALL') {
+        filters.push(` allowSeeAnswers : ${allowSeeAnswers === 'open' ? true : false}`)
     }
     if (createdFrom != '') {
-        filters.push(` createdAt > '${createdFrom}'`);
+        filters.push(` createdAt >: '${createdFrom}'`);
     }
     if (createdTo != '') {
-        filters.push(` createdAt < '${createdTo}'`);
+        filters.push(` createdAt <: '${createdTo}'`);
     }
+
+    if (durationFrom != '') {
+        filters.push(` duration >: ${durationFrom}`);
+    }
+    if (durationTo != '') {
+        filters.push(` duration <: ${durationTo}`);
+    }
+
 
 
 
@@ -52,6 +69,7 @@ const QuizPage = async (props: {
             sort: "updatedAt,desc"
         }
     })
+
 
     console.log("quizResponse>>", quizResponse);
     const fetchAllQuiz = async () => {
@@ -95,8 +113,11 @@ const QuizPage = async (props: {
                     allQuiz={allQuiz}
                     keyword={keyword}
                     published={published}
+                    allowSeeAnswers={allowSeeAnswers}
                     createdFrom={createdFrom}
                     createdTo={createdTo}
+                    durationFrom={durationFrom}
+                    durationTo={durationTo}
                     quizPageResponse={quizResponse.data} />
             </div>
 

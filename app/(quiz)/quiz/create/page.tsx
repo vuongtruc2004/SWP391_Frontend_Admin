@@ -17,11 +17,9 @@ const CreateQuizPage = async () => {
             Authorization: `Bearer ${session.accessToken}`
         }
     })
-    console.log("coursesResponse>>", coursesResponse)
     if (coursesResponse.status !== 200) {
         return null;
     }
-
 
     return (
         <div className="flex-1 grid grid-cols-[2fr_1fr]">

@@ -16,7 +16,7 @@ const initState: ErrorResponse = {
     value: ''
 
 }
-const QuizCreateBtn = (props: {
+const QuizTableButton = (props: {
     handelOnExportExcel: any;
 }) => {
     const { handelOnExportExcel } = props;
@@ -213,46 +213,6 @@ const QuizCreateBtn = (props: {
                     return;
                 }
 
-            }
-
-
-            // Tạo bài kiểm tra
-            const quizRequest: QuizRequest = {
-                title: title.value,
-                maxAttempts: Number(maxAttempts.value),
-                published: published.value == 'active' ? true : false,
-                startedAt: startedAt.value !== '' ? dayjs(startedAt.value).format("YYYY-MM-DD HH:mm:ss") : '',
-                endedAt: endedAt.value !== '' ? dayjs(endedAt.value).format("YYYY-MM-DD HH:mm:ss") : '',
-                questions: [...checkedList, ...createQuestionResponses.filter(q => q !== null) as string[]]
-            }
-
-            console.log("quizRequest>>>>", quizRequest);
-
-            const createQuizResponse = await sendRequest<ApiResponse<QuizResponse>>({
-                url: `${apiUrl}/quiz`,
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: quizRequest
-            });
-
-            console.log("createQuizResponse>>", createQuizResponse);
-
-            if (createQuizResponse.status === 201) {
-                handleCancel();
-                await fetchQuestions();
-                router.refresh();
-                notification.success({
-                    message: "Thành công",
-                    description: createQuizResponse.message.toString(),
-                });
-            } else {
-                setTitle({
-                    ...title,
-                    error: true,
-                    message: createQuizResponse.message.toString()
-                });
             }
         } catch (error) {
             console.error("Lỗi khi tạo câu hỏi/câu trả lời:", error);
@@ -580,4 +540,4 @@ const QuizCreateBtn = (props: {
         </>
     )
 }
-export default QuizCreateBtn;
+export default QuizTableButton;

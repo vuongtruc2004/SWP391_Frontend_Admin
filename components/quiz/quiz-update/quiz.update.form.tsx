@@ -8,16 +8,21 @@ import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
+import { useQuizUpdate } from '@/wrapper/quiz-update/quiz.update.wrapper';
 
 
 const { Option } = Select;
-const QuizCreateForm = ({ courses }: {
+const QuizUpdateForm = ({ courses, quizId }: {
+    quizId: number | undefined
     courses: CourseDetailsResponse[];
 }) => {
     const { data: session } = useSession();
     const router = useRouter();
-    const { form, createQuestions, setCreateQuestions, selectQuestions, setSelectQuestions, isSubmitted, setIsSubmitted } = useQuizCreate();
-    const [selectedCourseId, setSelectedCourseId] = useState(courses[0].courseId);
+    const { form, createQuestions, setCreateQuestions, selectQuestions, setSelectQuestions, isSubmitted, setIsSubmitted } = useQuizUpdate();
+    const [selectedCourseId, setSelectedCourseId] = useState<number | undefined>(
+        courses.length > 0 ? courses[0].courseId : undefined
+    );
+
     const [chapters, setChapters] = useState<ChapterResponse[]>([]);
     const [selectedChapterId, setSelectedChapterId] = useState<number | null>(null);
     const [questionList, setQuestionList] = useState<string[]>([]);
@@ -75,7 +80,9 @@ const QuizCreateForm = ({ courses }: {
 
 
 
+            console.log("values>>", values);
             const quizRequest: QuizRequest = {
+                quizId: quizId,
                 title: values.title,
                 published: values.published,
                 allowSeeAnswers: values.allowSeeAnswers,
@@ -87,12 +94,9 @@ const QuizCreateForm = ({ courses }: {
 
 
             }
-
-
-
             const quizResponse = await sendRequest<ApiResponse<QuizResponse>>({
                 url: `${apiUrl}/quizzes`,
-                method: 'POST',
+                method: 'PUT',
                 body: quizRequest,
                 headers: {
                     'Content-Type': 'application/json',
@@ -102,7 +106,7 @@ const QuizCreateForm = ({ courses }: {
 
 
             console.log("quizResponse>>", quizResponse)
-            if (quizResponse.status == 201) {
+            if (quizResponse.status == 200) {
 
                 notification.success({
                     message: "Thành công",
@@ -132,12 +136,18 @@ const QuizCreateForm = ({ courses }: {
         };
     }
     useEffect(() => {
-        const courseChapters = courses.find(course => course.courseId === selectedCourseId)?.chapters;
-        if (courseChapters) {
-            setChapters(courseChapters)
-        }
+        const courseChapters = courses.find(course => course.courseId === selectedCourseId)?.chapters || [];
+        setChapters(courseChapters);
 
-    }, [selectedCourseId])
+        if (courseChapters.length > 0) {
+            setSelectedChapterId(courseChapters[0].chapterId);
+            form.setFieldsValue({ chapterId: courseChapters[0].chapterId });
+        } else {
+            setSelectedChapterId(null);
+            form.setFieldsValue({ chapterId: null });
+        }
+    }, [selectedCourseId]);
+
 
     useEffect(() => {
         if (chapters.length > 0) {
@@ -176,7 +186,43 @@ const QuizCreateForm = ({ courses }: {
         }
         fetchAllQuestions();
     }, []);
+    useEffect(() => {
+        if (quizId) {
+            // Gọi API lấy dữ liệu quiz khi đang ở chế độ cập nhật
+            const fetchQuiz = async () => {
+                try {
+                    const response = await sendRequest<ApiResponse<QuizResponse>>({
+                        url: `${apiUrl}/quizzes/${quizId}`,
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${session?.accessToken}`
+                        }
+                    });
+                    console.log("response>>> ne", response);
+                    if (response.status === 200) {
+                        form.setFieldsValue({
+                            title: response.data.title,
+                            description: response.data.description,
+                            published: response.data.published,
+                            duration: response.data.duration,
+                            chapterId: response.data.chapter.chapterId,
+                            allowSeeAnswers: response.data.allowSeeAnswers,
+                            courseId: response.data.chapter.course.courseId
+                        });
+                        setSelectedCourseId(response.data.chapter.course.courseId);
+                        setSelectedChapterId(response.data.chapter.chapterId);
+                        setCreateQuestions([]);
+                        setSelectQuestions(response.data.questions);
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi tải quiz:", error);
+                }
+            };
 
+            fetchQuiz();
+        }
+    }, [quizId]);
     return (
         <div className='p-5 border border-l-gray-300 h-[calc(100vh-61.6px)] sticky top-0 right-0'>
             <h1 className='font-semibold text-lg mb-3'>Thông tin cơ bản</h1>
@@ -186,11 +232,12 @@ const QuizCreateForm = ({ courses }: {
                 onFinish={onFinish}
                 initialValues={{
                     published: false,
-                    courseId: courses[0].courseId,
-                    chapterId: courses[0].chapters[0]?.chapterId || null,
+                    courseId: courses.length > 0 ? courses[0].courseId : undefined,
+                    chapterId: courses.length > 0 ? courses[0].chapters[0]?.chapterId : null,
                     allowSeeAnswers: false
                 }}
             >
+
                 <Form.Item<QuizFieldType>
                     label="Tiêu đề"
                     name='title'
@@ -218,14 +265,14 @@ const QuizCreateForm = ({ courses }: {
                     rules={[{ required: true, message: 'Vui lòng không để trống mô tả!' }]}
                 >
                     <Select
+                        value={selectedCourseId} // Đảm bảo không bị undefined
                         onChange={(value) => setSelectedCourseId(value)}
-                        options={courses.map(course => {
-                            return {
-                                value: course.courseId,
-                                label: course.courseName
-                            }
-                        })}
+                        options={courses.map(course => ({
+                            value: course.courseId,
+                            label: course.courseName
+                        }))}
                     />
+
                 </Form.Item>
 
                 <Form.Item<QuizFieldType>
@@ -281,4 +328,4 @@ const QuizCreateForm = ({ courses }: {
     )
 }
 
-export default QuizCreateForm
+export default QuizUpdateForm

@@ -1,11 +1,11 @@
 'use client'
-import { useQuizCreate } from "@/wrapper/quiz-create/quiz.create.wrapper";
+import { useQuizUpdate } from "@/wrapper/quiz-update/quiz.update.wrapper";
 import { DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined, WarningOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Input, Tooltip } from "antd";
 import { useEffect, useState } from "react";
 
-const QuestionsCreateForm = () => {
-    const { setCreateQuestions, createQuestions, isSubmitted, selectQuestions } = useQuizCreate();
+const QuestionsUpdateForm = () => {
+    const { setCreateQuestions, createQuestions, isSubmitted, selectQuestions } = useQuizUpdate();
 
     const addQuestion = () => {
         setCreateQuestions([...createQuestions, { id: `c-${Date.now()}-${Math.random()}`, title: "", answers: [{ content: "", correct: false }], errorMessage: "" }]);
@@ -118,4 +118,4 @@ const QuestionsCreateForm = () => {
     )
 }
 
-export default QuestionsCreateForm
+export default QuestionsUpdateForm

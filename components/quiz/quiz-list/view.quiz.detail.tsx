@@ -39,12 +39,10 @@ const ViewQuizDetail = (props: {
 
 
                         <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tiêu đề bài kiểm tra: </span>{quizDetail.title}</div>
-                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Số lượt kiểm tra: </span>{quizDetail.maxAttempts}</div>
                         <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Trạng thái: </span>{quizDetail.published ? 'Đang mở' : 'Bị đóng'}</div>
-                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Bắt đầu: </span>{quizDetail.startedAt == null ? 'Vô thời hạn' : dayjs(quizDetail.startedAt).format("DD/MM/YYYY HH:mm:ss")}</div>
-                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Kết thúc: </span>{quizDetail.endedAt == null ? 'Vô thời hạn' : dayjs(quizDetail.endedAt).format("DD/MM/YYYY HH:mm:ss")}</div>
-                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Cập nhật lần cuối: </span>{quizDetail.updatedAt == null ? 'Chưa có dữ liệu' : dayjs(quizDetail.updatedAt).format("DD/MM/YYYY HH:mm:ss")}</div>
-                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tác giả: </span>{quizDetail.expert != null ? quizDetail.expert.user.fullname : ''}</div>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Thời gian: </span>{quizDetail.duration} phút</div>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Cho xem đáp án: </span>{quizDetail.allowSeeAnswers ? 'Đang mở' : 'Bị đóng'}</div>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Cập nhật lần cuối: </span>{quizDetail.updatedAt == null ? 'Chưa có dữ liệu' : dayjs(quizDetail.updatedAt).format("DD/MM/YYYY")}</div>
                         <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Chương học: </span>{quizDetail.chapter != null ? quizDetail.chapter.title : ''}</div>
 
 
@@ -76,10 +74,10 @@ const ViewQuizDetail = (props: {
                                         className="overflow-hidden"
                                     >
                                         <ul className="ml-6 mt-2">
-                                            {question.correctAnswer && Array.isArray(question.correctAnswer) ? (
-                                                question.correctAnswer.map((answer, idx) => (
+                                            {question.answers && Array.isArray(question.answers) ? (
+                                                question.answers.map((answer, idx) => (
                                                     <li key={idx} className="list-disc text-green-600">
-                                                        {answer}
+                                                        {answer.content}
                                                     </li>
                                                 ))
                                             ) : (

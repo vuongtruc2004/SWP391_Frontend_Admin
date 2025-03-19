@@ -6,11 +6,11 @@ import { Input } from 'antd';
 import { useEffect, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
-import { useQuizCreate } from '@/wrapper/quiz-create/quiz.create.wrapper';
+import { useQuizUpdate } from '@/wrapper/quiz-update/quiz.update.wrapper';
 const { Search } = Input;
 
 const QuestionBank = () => {
-    const { setSelectQuestions, selectQuestions } = useQuizCreate();
+    const { setSelectQuestions, selectQuestions } = useQuizUpdate();
     const [questionsPage, setQuestionsPage] = useState<PageDetailsResponse<QuestionResponse[]> | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [keyword, setKeyword] = useState("");

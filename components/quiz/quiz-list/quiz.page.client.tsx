@@ -2,22 +2,21 @@
 import { useEffect, useRef, useState } from "react";
 import * as XLSX from 'xlsx';
 import QuizSearch from "./quiz.search";
-import QuizCreateBtn from "./quiz.create.btn";
 import QuizTable from "./quiz.table";
-import dayjs from "dayjs";
+import QuizTableButton from "./quiz.table.button";
 const QuizPageClient = (props: {
     keyword: string,
     published: string,
     createdFrom: string,
+    allowSeeAnswers: string,
     createdTo: string,
+    durationFrom: string | number,
+    durationTo: string | number,
     quizPageResponse: PageDetailsResponse<QuizResponse[]>,
     allQuiz: QuizResponse[],
 }) => {
-    const { keyword, published, createdFrom, createdTo, quizPageResponse, allQuiz } = props;
+    const { keyword, published, allowSeeAnswers, createdFrom, createdTo, durationFrom, durationTo, quizPageResponse, allQuiz } = props;
     const [sheetData, setSheetData] = useState<QuizResponse[]>([]);
-
-
-
 
     useEffect(() => {
         if (allQuiz.length > 0) {
@@ -50,8 +49,8 @@ const QuizPageClient = (props: {
     };
     return (
         <div className="borde w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col">
-            <QuizSearch keyword={keyword} published={published} createdFrom={createdFrom} createdTo={createdTo} />
-            <QuizCreateBtn handelOnExportExcel={handelOnExportExcel} />
+            <QuizSearch keyword={keyword} published={published} allowSeeAnswers={allowSeeAnswers} createdFrom={createdFrom} createdTo={createdTo} durationFrom={durationFrom} durationTo={durationTo} />
+            <QuizTableButton handelOnExportExcel={handelOnExportExcel} />
             <QuizTable quizPageResponse={quizPageResponse} />
         </div>
     );

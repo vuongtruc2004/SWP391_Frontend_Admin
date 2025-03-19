@@ -1,0 +1,9 @@
+.section-2 {
+    div:first-child {
+        flex: 1;
+    }
+}
+
+:where(.css-dev-only-do-not-override-240cud).ant-form-item {
+    margin-bottom: 20px !important;
+}

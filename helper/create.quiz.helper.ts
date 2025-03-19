@@ -3,7 +3,17 @@ import { SetStateAction } from "react";
 
 export const getPublished = (value: string | undefined | null) => {
 
-    if (!value || (value !== 'active' && value !== 'unactive')) {
+    if (!value || (value !== 'open' && value !== 'close')) {
+        return 'ALL';
+    }
+    else {
+        return value;
+    }
+
+}
+export const getAllowSeeAnswers = (value: string | undefined | null) => {
+
+    if (!value || (value !== 'open' && value !== 'close')) {
         return 'ALL';
     }
     else {
@@ -12,7 +22,7 @@ export const getPublished = (value: string | undefined | null) => {
 
 }
 
-export const getMaxAttempts = (value: string | null | undefined): string | number => {
+export const getDuration = (value: string | null | undefined): string | number => {
     if (!value || !/^\d+(\.\d+)?$/.test(value.trim())) {
         return '';
     }

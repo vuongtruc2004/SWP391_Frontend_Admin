@@ -1,15 +1,15 @@
 'use client'
 
 import { EditOutlined, InfoCircleOutlined, LockOutlined } from "@ant-design/icons";
-import { notification, Popconfirm, Space, Table, TableProps } from "antd";
+import { Button, notification, Popconfirm, Space, Table, TableProps } from "antd";
 import dayjs from "dayjs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import ViewQuizDetail from "./view.quiz.detail";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import UpdateQuizForm from "./update.quiz.form";
 import Link from "next/link";
+import { useQuizCreate } from "@/wrapper/quiz-create/quiz.create.wrapper";
 
 const QuizTable = (props: {
     quizPageResponse: PageDetailsResponse<QuizResponse[]>
@@ -46,7 +46,7 @@ const QuizTable = (props: {
             sorter: (a, b) => a.chapter.title.localeCompare(b.chapter.title),
             render: (_, record) => {
                 return (
-                    <span style={{ color: record.chapter?.title ? '' : 'red' }} >
+                    <span style={{ color: record.chapter?.title ? '' : 'red', whiteSpace: 'nowrap' }} >
                         {record.chapter?.title || 'Không có chương học'}
                     </span>)
             }
@@ -57,8 +57,8 @@ const QuizTable = (props: {
             key: 'createdAt',
             align: 'center',
             render: (createdAt: string, record) => (
-                <span>
-                    {record.createdAt ? dayjs(createdAt).format('DD/MM/YYYY HH:mm:ss') : 'Không có dữ liệu'}
+                <span style={{ whiteSpace: 'nowrap' }}>
+                    {record.createdAt ? dayjs(createdAt).format('DD/MM/YYYY') : 'Không có dữ liệu'}
                 </span>
             ),
             sorter: {
@@ -67,16 +67,12 @@ const QuizTable = (props: {
             },
         },
         {
-            title: 'Thời gian',
+            title: 'Thời gian (phút)',
             dataIndex: 'duration',
             key: 'duration',
             align: 'center',
             sorter: (a, b) => a.duration - b.duration,
-            render: (duration: number) => {
-                const minutes = Math.floor(duration / 60);
-                const seconds = duration % 60;
-                return (`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`)
-            }
+            render: (duration: number) => (<span>{duration}</span>)
         },
         {
             title: 'Trạng thái',
@@ -117,12 +113,11 @@ const QuizTable = (props: {
                             setQuizDetail(record);
                         }} />
                     </Link>
-                    <EditOutlined className="text-blue-500" style={{ color: "blue" }}
-                        onClick={() => {
-                            SetEditingQuiz(record)
-                            setOpenEditForm(true)
-                        }}
-                    />
+                    <Link href={`/quiz/update?quizId=${record.quizId}`} passHref>
+                        <EditOutlined style={{ color: "blue", cursor: "pointer" }} />
+                    </Link>
+
+
                     <Popconfirm
                         placement="left"
                         title={`${record.published ? "Đóng" : "Mở"} bài kiểm tra`}

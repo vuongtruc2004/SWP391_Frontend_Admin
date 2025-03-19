@@ -3,11 +3,11 @@ import { LeftOutlined } from "@ant-design/icons";
 import { Button, Drawer } from "antd"
 import Link from "next/link"
 import { useState } from "react";
+import { useQuizUpdate } from "@/wrapper/quiz-update/quiz.update.wrapper";
 import QuestionBank from "./question.bank";
-import { useQuizCreate } from "@/wrapper/quiz-create/quiz.create.wrapper";
 
 const QuizHeader = () => {
-    const { form } = useQuizCreate();
+    const { form } = useQuizUpdate();
     const [openBank, setOpenBank] = useState(false);
 
     return (
@@ -21,7 +21,7 @@ const QuizHeader = () => {
                 </div>
 
                 <h1 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex-1 text-center font-semibold text-xl">
-                    Tạo bài kiểm tra
+                    Cập nhật bài kiểm tra
                 </h1>
 
                 <div className="flex items-center gap-x-3">
@@ -29,7 +29,7 @@ const QuizHeader = () => {
                         Chọn câu hỏi có sẵn
                     </Button>
                     <Button type="primary" onClick={() => form.submit()}>
-                        Tạo
+                        Cập nhật
                     </Button>
                 </div>
             </div>

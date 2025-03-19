@@ -1,5 +1,5 @@
 'use client'
-import ViewQuizDetail from '@/components/quiz/view.quiz.detail';
+import ViewQuizDetail from '@/components/quiz/quiz-list/view.quiz.detail';
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import React, { useState, useEffect, use } from 'react';
@@ -7,12 +7,12 @@ import React, { useState, useEffect, use } from 'react';
 const QuizDetailPage = ({ params }: { params: Promise<{ quizId: number }> }) => {
     const { quizId } = use(params);
     const [quizDetail, setQuizDetail] = useState<QuizResponse | null>(null);
-
     useEffect(() => {
         const fetchQuiz = async () => {
             try {
                 const response = await sendRequest<ApiResponse<QuizResponse>>({
-                    url: `${apiUrl}/quiz/${quizId}`
+                    url: `${apiUrl}/quizzes/${quizId}`
+
                 });
                 setQuizDetail(response.data);
             } catch (error) {
