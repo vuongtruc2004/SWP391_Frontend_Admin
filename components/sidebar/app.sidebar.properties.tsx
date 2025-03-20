@@ -6,6 +6,7 @@ import { IoTicketOutline } from "react-icons/io5";
 import { FaRegPaperPlane } from "react-icons/fa";
 import type { MenuProps } from 'antd';
 import Link from 'next/link';
+import { BsClipboardData } from "react-icons/bs";
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -68,6 +69,11 @@ export const sidebarItems: MenuItem[] = [
                 label: <Link href="/quiz">Quản lí bài kiểm tra</Link>,
                 icon: <LuNewspaper />,
             },
+            {
+                key: 'campaign',
+                label: <Link href="/campaign">Quản lí chiến dịch</Link>,
+                icon: <BsClipboardData />,
+            },
         ]
     }
 ];
@@ -125,6 +131,11 @@ export const sidebarItemsExpert: MenuItem[] = [
                 key: 'quiz',
                 label: <Link href="/quiz">Quản lí bài kiểm tra</Link>,
                 icon: <LuNewspaper />,
+            },
+            {
+                key: 'campaign',
+                label: <Link href="/campaign">Quản lí chiến dịch</Link>,
+                icon: <BsClipboardData />,
             },
         ]
     }

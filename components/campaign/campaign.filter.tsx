@@ -7,15 +7,13 @@ import { useSession } from 'next-auth/react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
-const { RangePicker } = DatePicker;
-const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: string, createdTo: string, minPrice: number, maxPrice: number }) => {
-    const { keyword, accepted, createdFrom, createdTo, minPrice, maxPrice } = props
+const CampaignFilter = (props: { keyword: string, discountType?: string, startTime: string, endTime: string }) => {
+    const { keyword, discountType, startTime, endTime } = props
     const router = useRouter()
     const searchParam = useSearchParams()
     const pathName = usePathname()
     const [form] = useForm()
     const [render, setRender] = useState(false);
-    const [inputValue, setInputValue] = useState(minPrice);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
     const { data: session, status } = useSession();
 
@@ -24,7 +22,6 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
     };
 
     const handleReset = () => {
-        setRange([minPrice, maxPrice])
         form.setFieldsValue({ keyword: '', accepted: "all", createdFrom: '', createdTo: '' })
         router.push("/course")
     }
@@ -85,37 +82,6 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
         }
     }, []);
 
-
-    const step = 10000; // Bước nhảy 10.000 đ
-    const rangeFromURL: [number, number] = [
-        searchParam.get("minPrice") ? Number(searchParam.get("minPrice")) : minPrice,
-        searchParam.get("maxPrice") ? Number(searchParam.get("maxPrice")) : maxPrice
-    ]
-    const [range, setRange] = useState<[number, number]>(rangeFromURL);
-
-
-    const handleSliderChange = (value: number | number[]) => {
-        if (!Array.isArray(value) || value.length < 2) return; // Đảm bảo value là mảng có 2 phần tử
-
-        setRange(value as [number, number]);
-
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
-
-        // Thiết lập timeout mới sau 3 giây
-        timeoutRef.current = setTimeout(() => {
-            const newSearchParam = new URLSearchParams(searchParam);
-            newSearchParam.set("minPrice", value[0].toString());
-            newSearchParam.set("maxPrice", value[1].toString());
-            newSearchParam.set("page", "1");
-            router.replace(`${pathName}?${newSearchParam}`);
-
-            timeoutRef.current = null; // Reset lại sau khi thực hiện
-        }, 800);
-    };
-
-
     if (!render) {
         return <></>;
     }
@@ -127,11 +93,11 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
                 className='w-[90%]'
                 onFinish={onFinish}
                 form={form}
-                initialValues={{ keyword: keyword, accepted: accepted, inputValue: inputValue }}
+                initialValues={{ keyword: keyword, discountType: discountType, createdFrom: startTime, endTime: endTime }}
             >
                 <Form.Item name="keyword" className="mb-0 w-[50%]">
                     <Input
-                        placeholder="Tìm kiếm tên lĩnh vực, mô tả"
+                        placeholder="Tìm kiếm tên Lĩnh vực, mô tả"
                         prefix={<SearchOutlined />}
                         className='!p-[10px]'
                     />
@@ -152,61 +118,14 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
                         />
                     </Form.Item>
                     <div className='flex gap-3'>
-                        <h4 className='pt-1'>Ngày Tạo:</h4>
-                        <Form.Item name="createdFrom" initialValue={getValidDayjs(createdFrom)}>
+                        <h4 className='pt-1'>Ngày bắt đầu:</h4>
+                        <Form.Item name="startTime" initialValue={getValidDayjs(endTime)}>
                             <DatePicker onChange={onChangeFrom} format={dateFormat} placeholder='Từ Ngày' allowClear={false} />
                         </Form.Item>
                         <h4>~</h4>
-                        <Form.Item name="createdTo" initialValue={getValidDayjs(createdTo)}>
+                        <h4 className='pt-1'>Ngày kết thúc:</h4>
+                        <Form.Item name="endTime" initialValue={getValidDayjs(endTime)}>
                             <DatePicker onChange={onChangeTo} format={dateFormat} placeholder='Đến Ngày' allowClear={false} />
-                        </Form.Item>
-                    </div>
-                    <div className='flex gap-2 pt-10'>
-                        <Form.Item label="Khoảng giá">
-                            <Row align="middle" gutter={5}>
-                                {/* Input Min */}
-                                <Col>
-                                    <InputNumber
-                                        min={minPrice}
-                                        max={maxPrice}
-                                        step={step}
-                                        value={range[0]}
-                                        // onChange={(value) => handleInputChange(0, value)}
-                                        readOnly
-                                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ"}
-                                    />
-                                </Col>
-
-                                <Col>~</Col>
-
-                                {/* Input Max */}
-                                <Col>
-                                    <InputNumber
-                                        min={minPrice}
-                                        max={maxPrice}
-                                        step={step}
-                                        value={range[1]}
-                                        // onChange={(value) => handleInputChange(1, value)}
-                                        readOnly
-                                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ"}
-                                    />
-                                </Col>
-
-                                {/* Slider */}
-                                <Col span={24}>
-                                    <Slider
-                                        range
-                                        min={minPrice}
-                                        max={maxPrice}
-                                        step={step}
-                                        value={range}
-                                        onChange={handleSliderChange}
-                                        style={{
-                                            width: '90%'
-                                        }}
-                                    />
-                                </Col>
-                            </Row>
                         </Form.Item>
                     </div>
                 </div>
@@ -220,4 +139,4 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
     )
 }
 
-export default CourseSearch
+export default CampaignFilter

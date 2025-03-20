@@ -8,7 +8,7 @@ import { apiUrl } from "@/utils/url"
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Quản lí công nghệ",
+    title: "Quản lí Lĩnh vực",
 };
 const SubjectPage = async (props: {
     searchParams: Promise<{

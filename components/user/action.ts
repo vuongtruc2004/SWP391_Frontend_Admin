@@ -28,7 +28,7 @@ export const validSubject = async (subjectId: number, prev: any, formData: FormD
     }
     if (subjectName.trim() === "") {
         result.subjectName.error = true
-        result.subjectName.message = "Tên môn học không được để trống!"
+        result.subjectName.message = "Tên lĩnh vực không được để trống!"
     }
     if (description.trim() === "") {
         result.description.error = true

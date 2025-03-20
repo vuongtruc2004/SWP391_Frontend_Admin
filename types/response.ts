@@ -273,4 +273,21 @@ declare global {
         user: UserResponse,
     }
 
+
+    interface CampaignResponse {
+        campaignId: number;
+        campaignName: string;
+        campaignDescription: string;
+        discountPercentage: number;
+        discountType: string;
+        discountRange: string;
+        thumbnail: string;
+        startTime: string;
+        endTime: string;
+        createdAt: string;
+        updatedAt: string;
+        courses: CourseDetailsResponse[];
+    }
+
+
 }

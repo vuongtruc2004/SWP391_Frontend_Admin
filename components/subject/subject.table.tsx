@@ -1,17 +1,14 @@
-'use client'
 import { DeleteOutlined, DoubleRightOutlined, EditOutlined, EyeOutlined, InboxOutlined, PictureOutlined } from '@ant-design/icons';
-import { Empty, Image, notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
-import React, { RefObject, useState } from 'react'
+import { Empty, Image, notification, Popconfirm, Space, Table, TableProps, Tooltip, Typography } from 'antd';
+import React, { RefObject, useState } from 'react';
 import { sendRequest } from '@/utils/fetch.api';
 import Link from 'next/link';
 import '@ant-design/v5-patch-for-react-19';
-
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl, storageUrl } from '@/utils/url';
 import UpdateSubjectForm from './update.subject.form';
 import { useSession } from 'next-auth/react';
 import dayjs from 'dayjs';
-
 
 export const init = {
     subjectName: {
@@ -22,18 +19,27 @@ export const init = {
         error: false,
         value: ""
     }
-}
+};
+
 const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectResponse[]>, componentPDF: RefObject<HTMLDivElement | null> }) => {
     const { subjectPageResponse, componentPDF } = props;
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const router = useRouter();
-    const page = Number(searchParams.get('page')) || 1; // Lấy số trang từ URL
+    const page = Number(searchParams.get('page')) || 1;
     const [openEditForm, setOpenEditForm] = useState(false);
-    const [editingUSubject, setEditingSubject] = useState<SubjectResponse | null>(null)
+    const [editingUSubject, setEditingSubject] = useState<SubjectResponse | null>(null);
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
     const { data: session, status } = useSession();
+    const [expandedRows, setExpandedRows] = useState<Record<number, boolean>>({});
+    const { Paragraph } = Typography;
 
+    const handleExpand = (key: number, expanded: boolean) => {
+        setExpandedRows(prevState => ({
+            ...prevState,
+            [key]: expanded,
+        }));
+    };
 
     const deleteSubject = async (subjectId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<SubjectResponse>>({
@@ -49,18 +55,15 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
                 description: "Bạn đã xóa thành công lĩnh vực này!",
                 showProgress: true
             });
-            router.refresh()
+            router.refresh();
         } else {
             notification.error({
                 message: String(deleteResponse.message),
                 description: "Không thể xóa lĩnh vực này do đang có khóa học!",
                 showProgress: true
-            })
+            });
         }
-
-    }
-
-
+    };
 
     const columns: TableProps<SubjectResponse>['columns'] = [
         {
@@ -82,6 +85,19 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             key: 'description',
             width: '40%',
             sorter: (a, b) => a.description.localeCompare(b.description),
+            render: (text, record) => (
+                <Paragraph
+                    ellipsis={{
+                        rows: 2,
+                        expandable: 'collapsible',
+                        expanded: expandedRows[record.subjectId],
+                        symbol: expandedRows[record.subjectId] ? 'Thu gọn' : 'Xem thêm',
+                        onExpand: (_, info) => handleExpand(record.subjectId, info.expanded),
+                    }}
+                >
+                    {text}
+                </Paragraph>
+            ),
         },
         {
             title: 'Số lượng khóa học',
@@ -157,7 +173,6 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
                         <PictureOutlined style={{ color: 'green' }} />
                     </Popconfirm>
                 </Tooltip>
-
             ),
         },
         {
@@ -167,17 +182,14 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             align: 'center',
             render: (_, record: any) => (
                 <Space size="middle">
-                    {session?.user.roleName === 'EXPERT' &&
-                        <Tooltip title='Chỉnh sửa' color='blue'>
-                            <EditOutlined style={{ color: "blue" }}
-                                onClick={() => {
-                                    setEditingSubject(record)
-                                    setOpenEditForm(true)
-                                }}
-                            />
-                        </Tooltip>
-
-                    }
+                    <Tooltip title='Chỉnh sửa' color='blue'>
+                        <EditOutlined style={{ color: "blue" }}
+                            onClick={() => {
+                                setEditingSubject(record)
+                                setOpenEditForm(true)
+                            }}
+                        />
+                    </Tooltip>
                     <Tooltip title='Xóa' color='red'>
                         <Popconfirm
                             placement="left"
@@ -190,12 +202,10 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
                             <DeleteOutlined style={{ color: "red" }} />
                         </Popconfirm>
                     </Tooltip>
-
                 </Space>
             ),
         },
     ];
-
 
     return (
         <>
@@ -231,4 +241,5 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
         </>
     );
 };
+
 export default SubjectTable;

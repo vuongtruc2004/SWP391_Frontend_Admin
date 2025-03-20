@@ -7,6 +7,7 @@ import '@ant-design/v5-patch-for-react-19';
 import { validTitle } from '@/helper/create.question.helper';
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
+import TextArea from 'antd/es/input/TextArea';
 
 
 const initState: ErrorResponse = {
@@ -83,7 +84,6 @@ const UpdateQuestionForm = (props: {
             return;
         }
 
-        // Kiểm tra nếu không có đáp án nào đúng
         if (!answers.some(answer => answer.correct)) {
             setLoading(false);
             return;
@@ -94,21 +94,23 @@ const UpdateQuestionForm = (props: {
             return;
         }
 
-        const questionRequest: QuestionRequest = {
-            title: title.value,
+        if (title.value.split(/\s+/).length > 100) {
+            notification.error({
+                message: "Thất bại",
+                description: "Tiêu đề câu hỏi không được quá 100 từ!",
+                showProgress: true
+            });
+            setLoading(false)
+            return
         }
 
-        // Tạo danh sách ID các câu trả lời hiện tại
         const currentAnswerIds = answers.map(a => a.answersId).filter(id => id !== null) as number[];
 
-        // Tìm các câu trả lời bị xóa (có trong `initialAnswers` nhưng không có trong `answers`)
         const deletedAnswers = initialAnswers.filter(a => a.answersId !== null && !currentAnswerIds.includes(a.answersId));
 
-        // Cập nhật hoặc tạo mới đáp án
         await Promise.all(
             answers.map(async (answer) => {
                 if (answer.answersId !== null) {
-                    // Cập nhật đáp án
                     return sendRequest<ApiResponse<AnswerResponse>>({
                         url: `${apiUrl}/answers/update/${answer.answersId}`,
                         method: 'PATCH',
@@ -119,7 +121,6 @@ const UpdateQuestionForm = (props: {
                         }
                     });
                 } else {
-                    // Tạo mới đáp án
                     return sendRequest<ApiResponse<AnswerResponse>>({
                         url: `${apiUrl}/answers`,
                         method: 'POST',
@@ -134,7 +135,6 @@ const UpdateQuestionForm = (props: {
             })
         );
 
-        // Xóa đáp án không còn tồn tại
         await Promise.all(
             deletedAnswers.map(async (answer) => {
                 return sendRequest<ApiResponse<null>>({
@@ -178,17 +178,14 @@ const UpdateQuestionForm = (props: {
         setOpenEditForm(false);
     };
 
-    // Thêm câu trả lời mới
     const addAnswer = () => {
         setAnswers([...answers, { content: "", correct: false, answersId: null, empty: true }]);
     };
 
-    // Xóa câu trả lời
     const removeAnswer = (index: number) => {
         setAnswers(answers.filter((_, i) => i !== index));
     };
 
-    // Cập nhật nội dung câu trả lời
     const updateAnswer = (index: number, content: string) => {
         const newAnswers = [...answers];
         newAnswers[index].content = content;
@@ -196,7 +193,6 @@ const UpdateQuestionForm = (props: {
         setAnswers(newAnswers);
     };
 
-    // Cập nhật trạng thái checkbox đúng/sai
     const toggleCorrect = (index: number) => {
         const newAnswers = [...answers];
         newAnswers[index].correct = !newAnswers[index].correct;
@@ -208,10 +204,11 @@ const UpdateQuestionForm = (props: {
             open={openEditForm}
             footer={null}
             onCancel={handleCancel}
+            width='50%'
         >
             <div className="mb-3">
                 <span className="text-red-500 mr-2">*</span>Tiêu đề:
-                <Input
+                <TextArea
                     placeholder="Nhập tiêu đề"
                     status={title.error ? 'error' : ''}
                     allowClear
@@ -223,7 +220,7 @@ const UpdateQuestionForm = (props: {
                             error: false
                         })
                     }}
-                    className="mt-1"
+                    className="mt-1 h-[15vh]"
                     name="subjectName"
                 />
                 {title.error && (
@@ -248,7 +245,8 @@ const UpdateQuestionForm = (props: {
                             <div className="flex items-center gap-2">
                                 <Tooltip title='Xác nhận đáp án đúng' color="green">
                                     <Checkbox checked={answer.correct} onChange={() => toggleCorrect(index)} />
-                                </Tooltip>                                <Input
+                                </Tooltip>
+                                <TextArea
                                     className={`w-full ${isSubmitted && answer.empty ? "border-red-500" : ""}`}
                                     placeholder={`Câu trả lời ${index + 1}`}
                                     value={answer.content}

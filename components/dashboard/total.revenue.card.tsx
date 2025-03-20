@@ -173,7 +173,16 @@ const TotalRevenueCard = () => {
 
                                 <p className="text-[17px]">Tổng doanh số</p>
                                 <p className="text-xs mt-1 text-blue-500 cursor-pointer" >
-                                    <Tooltip title={`Doanh số hôm nay: ${formatNumber(totalSalesToday) ?? 0} ₫\nDoanh số hôm qua ${formatNumber(totalSalesYesterday) ?? 0} ₫`} color='#fa5a7d' placement='bottom'>
+                                    <Tooltip
+                                        title={
+                                            <>
+                                                Doanh số hôm nay: {formatNumber(totalSalesToday) ?? 0} ₫<br />
+                                                Doanh số hôm qua: {formatNumber(totalSalesYesterday) ?? 0} ₫
+                                            </>
+                                        }
+                                        color='#fa5a7d'
+                                        placement='bottom'
+                                    >
                                         <span>
                                             {percentSale >= 0 ? "+" : ""}{percentSale.toFixed(1) ?? 0}% hôm qua
                                         </span>
@@ -198,8 +207,16 @@ const TotalRevenueCard = () => {
                                 </p>
                                 <p className="text-[17px]">Tổng học viên</p>
                                 <p className="text-xs mt-1 text-blue-500 cursor-pointer" >
-                                    <Tooltip title={`Doanh số hôm nay: ${formatNumber(totalSalesToday) ?? 0} ₫\nDoanh số hôm qua ${formatNumber(totalSalesYesterday) ?? 0} ₫`} color='#3dd857' placement='bottom'>
-                                        <span title={`Số lượng học viên mới hôm nay: ${formatNumber(totalStudentsToday) ?? 0} học viên\nSố lượng học viên mới hôm qua: ${formatNumber(totalStudentsYesterday) ?? 0} học viên`}>
+                                    <Tooltip
+                                        title={
+                                            <>
+                                                Số lượng học viên mới hôm nay: {formatNumber(totalStudentsToday) ?? 0} học viên<br />
+                                                Số lượng học viên mới hôm qua: {formatNumber(totalStudentsYesterday) ?? 0} học viên
+                                            </>
+                                        }
+                                        color='#3dd857'
+                                        placement='bottom'
+                                    >                                        <span >
                                             {percentStudent >= 0 ? "+" : ""}{percentStudent.toFixed(1) ?? 0}% hôm qua
                                         </span>
                                     </Tooltip>
@@ -225,8 +242,16 @@ const TotalRevenueCard = () => {
                                 </p>
                                 <p className="text-[17px]">Khóa học đã bán</p>
                                 <p className="text-xs mt-1 text-blue-500 cursor-pointer" >
-                                    <Tooltip title={`Doanh số hôm nay: ${formatNumber(totalSalesToday) ?? 0} ₫\nDoanh số hôm qua ${formatNumber(totalSalesYesterday) ?? 0} ₫`} color='#bf83ff' placement='bottom'>
-                                        <span title={`Khóa học đã bán hôm nay: ${formatNumber(totalCoursesSellToday) ?? 0} khóa học\nKhóa học đã bán hôm qua: ${formatNumber(totalCoursesSellYesterday) ?? 0} khóa học`}>
+                                    <Tooltip
+                                        title={
+                                            <>
+                                                Khóa học đã bán hôm nay: {formatNumber(totalCoursesSellToday) ?? 0} khóa học<br />
+                                                Khóa học đã bán hôm qua: {formatNumber(totalCoursesSellYesterday) ?? 0} khóa học
+                                            </>
+                                        }
+                                        color='#bf83ff'
+                                        placement='bottom'
+                                    >                                        <span >
                                             {percentCoursesSell >= 0 ? "+" : ""}{percentCoursesSell.toFixed(1) ?? 0}% hôm qua
                                         </span>
                                     </Tooltip>

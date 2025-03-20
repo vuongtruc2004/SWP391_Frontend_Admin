@@ -147,7 +147,7 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
                             <Tooltip placement="bottom" title={"Xóa bài viết"}>
                                 <Popconfirm
                                     placement="left"
-                                    title="Xóa môn học"
+                                    title="Xóa bài viết"
                                     description="Bạn có chắc chắn muốn xóa bài viết này không?"
                                     okText="Có"
                                     cancelText="Không"

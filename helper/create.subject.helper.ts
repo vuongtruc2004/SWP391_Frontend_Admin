@@ -18,7 +18,7 @@ export const validSubjectName = (subjectName: ErrorResponse, setSubjectName: Rea
         setSubjectName({
             ...subjectName,
             error: true,
-            message: 'Tên công nghệ không được để rỗng!'
+            message: 'Tên lĩnh vực không được để rỗng!'
         })
         return false;
     }

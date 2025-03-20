@@ -154,7 +154,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                     <Tooltip placement="bottom" title='Xóa khóa học'>
                         <Popconfirm
                             placement="left"
-                            title="Xóa môn học"
+                            title="Xóa khóa học"
                             description="Bạn có chắc chắn muốn xóa khóa học này không?"
                             onConfirm={() => deleteCourse(record.courseId)}
                             okText="Có"

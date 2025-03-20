@@ -5,6 +5,7 @@ import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
 import { Avatar, Button, Col, Image, Input, Modal, notification, Row, Select, Spin } from "antd";
+import TextArea from "antd/es/input/TextArea";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useRef, useState } from "react";
@@ -20,7 +21,6 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
     const [isRotated, setIsRotated] = useState(false);
     const [errThumbnail, setErrThumbnail] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
     const [urlThumbnail, setUrlThumbnail] = useState("");
     const [loading, setLoading] = useState(false);
     const [subjectName, setSubjectName] = useState<ErrorResponse>(initState);
@@ -29,7 +29,7 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
     const { data: session, status } = useSession();
 
     const showModal = () => {
-        setIsRotated(!isRotated); // Đảo ngược trạng thái xoay icon
+        setIsRotated(!isRotated);
         setIsModalOpen(true);
     };
 
@@ -38,11 +38,9 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
 
         setTimeout(async () => {
 
-            // Kiểm tra tất cả các giá trị
             const isSubjectNameValid = validSubjectName(subjectName, setSubjectName);
             const isDescriptionValid = validDescription(description, setDescription);
 
-            // Nếu bất kỳ giá trị nào không hợp lệ, dừng lại
             if (!isSubjectNameValid || !isDescriptionValid || urlThumbnail === "") {
                 setErrThumbnail("Ảnh không được để rỗng!")
                 if (urlThumbnail !== "") {
@@ -51,6 +49,26 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                     return
                 }
                 setLoading(false);
+                return
+            }
+
+            if (subjectName.value.split(/\s+/).length > 20) {
+                notification.error({
+                    message: "Thất bại",
+                    description: "Tên lĩnh vực không được quá 20 từ!",
+                    showProgress: true
+                });
+                setLoading(false)
+                return
+            }
+
+            if (description.value.split(/\s+/).length > 1000) {
+                notification.error({
+                    message: "Thất bại",
+                    description: "Mô tả không được quá 1000 từ!",
+                    showProgress: true
+                });
+                setLoading(false)
                 return
             }
 
@@ -77,7 +95,6 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                     showProgress: true
                 });
             } else {
-                setErrorMessage(createResponse.message.toString());
                 notification.error({
                     message: "Thất bại",
                     description: createResponse.message.toString(),
@@ -130,21 +147,18 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
     return (
         <><div className="flex justify-between items-center mb-4 px-6">
             <div className="">
-                {session?.user.roleName === 'EXPERT' &&
-                    <Button
-                        type="primary"
-                        onClick={showModal}
-                        className="w-fit !pt-5 !pb-5"
-                        icon={
-                            <PlusOutlined
-                                className={`transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`}
-                            />
-                        }
-                    >
-                        Tạo mới
-                    </Button>
-                }
-
+                <Button
+                    type="primary"
+                    onClick={showModal}
+                    className="w-fit !pt-5 !pb-5"
+                    icon={
+                        <PlusOutlined
+                            className={`transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`}
+                        />
+                    }
+                >
+                    Tạo mới
+                </Button>
             </div>
             <div className="flex gap-2 mr-2">
 
@@ -164,6 +178,7 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                 open={isModalOpen}
                 footer={null}
                 onCancel={handleCancel}
+                width='40%'
             >
                 <Spin spinning={loading}>
                     <Row gutter={24} className="mb-7">
@@ -173,7 +188,7 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                                 <Input
                                     status={subjectName.error ? 'error' : ''}
                                     className="mt-1"
-                                    placeholder="Nhập tên môn học"
+                                    placeholder="Nhập tên Lĩnh vực"
                                     allowClear
                                     value={subjectName.value}
                                     onChange={(e) => {
@@ -196,7 +211,7 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                             </div>
                             <div className="mb-3">
                                 <span className="text-red-500 mr-2">*</span>Mô tả:
-                                <Input
+                                <TextArea
                                     status={description.error ? 'error' : ''}
                                     className="mt-1"
                                     placeholder="Nhập mô tả lĩnh vực"
@@ -227,7 +242,7 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                                     <div className={`${errThumbnail !== "" ? "border-red-500 border-2 w-fit rounded-lg " : "relative w-fit"}`}>
                                         <Avatar
                                             shape="square"
-                                            size={120}
+                                            size={140}
                                             icon={<PlusOutlined />}
                                             alt="avatar"
                                         />

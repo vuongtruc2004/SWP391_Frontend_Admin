@@ -150,4 +150,17 @@ declare global {
         documentContent?: string;
         duration?: number;
     }
+
+    interface CampaignRequest {
+        campaignId?: number;
+        campaignName: string;
+        campaignDescription: string;
+        discountPercentage?: number;
+        discountType: string;
+        discountRange: string;
+        thumbnail: string;
+        startTime: string;
+        endTime: string;
+        courseIds?: number[];
+    }
 }

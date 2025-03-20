@@ -120,7 +120,7 @@ const NotificationTable = (props: {
                             <Tooltip key={`delete-${record.notificationId}`} placement="bottom" title={"Xóa thông báo"}>
                                 <Popconfirm
                                     placement="left"
-                                    title="Xóa môn học"
+                                    title="Xóa thông báo"
                                     description="Thông báo này đang có người nhận, bạn có chắc chắn muốn xóa thông báo này không?"
                                     okText="Có"
                                     cancelText="Không"

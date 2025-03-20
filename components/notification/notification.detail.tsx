@@ -74,7 +74,7 @@ const NotificationDetail = (props: {
                     <Tooltip placement="bottom" title={"Xóa người nhận thông báo này"}>
                         <Popconfirm
                             placement="left"
-                            title="Xóa môn học"
+                            title="Xóa người nhận"
                             description="Bạn có chắc chắn muốn xóa người nhận này không?"
                             okText="Có"
                             cancelText="Không"
