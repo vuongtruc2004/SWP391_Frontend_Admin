@@ -105,11 +105,11 @@ declare global {
         totalLessons: number;
         createdAt: string;
         updatedAt: string;
+        objectives: string[],
     }
 
     interface CourseDetailsResponse extends CourseResponse {
         introduction: string,
-        objectives: string[],
         accepted: boolean,
         subjects: SubjectResponse[],
         chapters: ChapterResponse[],

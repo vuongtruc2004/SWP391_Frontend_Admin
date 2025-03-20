@@ -44,8 +44,8 @@ const CoursePage = async (props: {
         filter += ` and accepted : ${accepted === "active" ? true : false}`
     }
 
-    if (createdFrom !== "" && createdTo !== "") {
-        filter += ` and createdAt > '${createdFrom}' and createdAt < '${createdTo}'`
+    if (createdFrom !== "" || createdTo !== "") {
+        filter += ` and createdAt > '${createdFrom}' or createdAt < '${createdTo}'`
     }
 
     if (priceFrom !== "" && priceTo !== "") {
