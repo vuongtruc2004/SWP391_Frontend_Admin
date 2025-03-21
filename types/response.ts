@@ -106,6 +106,7 @@ declare global {
         createdAt: string;
         updatedAt: string;
         objectives: string[],
+        courseStatus:string
     }
 
     interface CourseDetailsResponse extends CourseResponse {

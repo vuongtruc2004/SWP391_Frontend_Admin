@@ -1,17 +1,17 @@
 'use client'
 import { sendRequest } from '@/utils/fetch.api';
+import { apiUrl } from '@/utils/url';
 import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, UserOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
-import { notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
-
-import { apiUrl } from '@/utils/url';
+import { notification, Popconfirm, Space, Spin, Table, TableProps, Tooltip } from 'antd';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { FaBan } from "react-icons/fa";
 import { GrChapterAdd } from 'react-icons/gr';
+import { LuGitPullRequestCreateArrow } from "react-icons/lu";
 import UpdateCourseForm from './update.course.form';
-import ViewCourseDetail from './view.course.detail';
 
 export const init = {
     courseName: {
@@ -79,6 +79,50 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
         }
     }
 
+    const changeDraftToProcessingCourse = async (courseId: number) => {
+        const changeStatus = await sendRequest<ApiResponse<CourseDetailsResponse>>({
+            url: `${apiUrl}/courses/request-processing/${courseId}`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (changeStatus.status === 200) {
+            notification.success({
+                message: String(changeStatus.message),
+                description: changeStatus.errorMessage,
+            });
+            router.refresh()
+        } else {
+            notification.error({
+                message: "Lỗi!",
+                description: String(changeStatus.message),
+            })
+        }
+    }
+
+    const rejectCourse = async (courseId: number) => {
+        const changeStatus = await sendRequest<ApiResponse<CourseDetailsResponse>>({
+            url: `${apiUrl}/courses/request-reject/${courseId}`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (changeStatus.status === 200) {
+            notification.success({
+                message: String(changeStatus.message),
+                description: changeStatus.errorMessage,
+            });
+            router.refresh()
+        } else {
+            notification.error({
+                message: "Lỗi!",
+                description: String(changeStatus.message),
+            })
+        }
+    }
+
     const columns: TableProps<CourseDetailsResponse>['columns'] = [
         {
             title: "STT",
@@ -97,7 +141,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             title: 'Mô tả',
             dataIndex: 'description',
             key: 'description',
-            width: '35%',
+            width: '30%',
             sorter: (a, b) => a.description.localeCompare(b.description),
         },
         {
@@ -116,8 +160,41 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             key: 'accepted',
             width: '15%',
             align: 'center',
-            render: (accepted: boolean) => (accepted === true ? <CheckOutlined style={{ color: 'green' }} /> : <CloseOutlined style={{ color: 'red' }} />),
+            render: (_, record: CourseDetailsResponse) => {
+                const { accepted, courseStatus } = record;
 
+                if (courseStatus === 'PROCESSING') {
+                    return <Spin size="small" />;
+                }
+
+                return !accepted || ['DRAFT', 'REJECT'].includes(courseStatus) ? (
+                    <CloseOutlined style={{ color: 'red' }} />
+                ) : (
+                    <CheckOutlined style={{ color: 'green' }} />
+                );
+            }
+
+        },
+
+        {
+            title: 'Trạng thái duyệt',
+            dataIndex: 'courseStatus',
+            key: 'courseStatus',
+            width: '15%',
+            align: 'center',
+            render: (status) => {
+                switch (status) {
+                    case 'DRAFT':
+                    case 'REJECT':
+                        return 'Chưa được duyệt';
+                    case 'PROCESSING':
+                        return 'Đang chờ duyệt';
+                    case 'SUCCESS':
+                        return 'Đã duyệt';
+                    default:
+                        return 'Không xác định';
+                }
+            }
         },
         {
             title: 'Hành động',
@@ -141,6 +218,14 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                                     }}
                                 />
                             </Tooltip>
+                            {(record.courseStatus === 'DRAFT' || record.courseStatus === 'REJECT') && (
+                                <Tooltip title='Gửi yêu cầu duyệt' color='blue'>
+                                    <LuGitPullRequestCreateArrow
+                                        onClick={() => changeDraftToProcessingCourse(record.courseId)}
+
+                                    />
+                                </Tooltip>
+                            )}
                             <Tooltip title="Thêm chương học" color="blue">
                                 <Link href={`/chapter/create/${record.courseId}`}>
                                     <GrChapterAdd
@@ -148,8 +233,12 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                                     />
                                 </Link>
                             </Tooltip>
-
                         </>
+                    )}
+                    {session?.user.roleName && session.user.roleName === "ADMIN" && (
+                        <Tooltip title="Từ chối duyệt khoá học" color="red">
+                            <FaBan onClick={() => rejectCourse(record.courseId)} />
+                        </Tooltip>
                     )}
                     <Tooltip placement="bottom" title='Xóa khóa học'>
                         <Popconfirm
