@@ -185,6 +185,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             render: (status) => {
                 switch (status) {
                     case 'DRAFT':
+                        return 'Bản nháp';
                     case 'REJECT':
                         return 'Chưa được duyệt';
                     case 'PROCESSING':
