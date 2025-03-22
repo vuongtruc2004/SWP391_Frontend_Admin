@@ -11,6 +11,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -31,13 +32,13 @@ const CampaignCreateBtn = () => {
     const [description, setDescription] = useState<ErrorResponse>(initState);
     const [reduceValue, setReduceValue] = useState<ErrorResponse>(initState);
     const { RangePicker } = DatePicker;
-
     const [global, setGlobal] = useState<string>("ALL");
     const [reduceType, setReduceType] = useState<string>("FIXED");
     const [dates, setDates] = useState<[string | null, string | null] | null>(null);
     const router = useRouter()
     const [allCourse, setAllCourse] = useState<{ value: number, label: string }[]>([])
     const [applymentType, setApplymentType] = useState<{ error: boolean, tags: number[] }>({ error: false, tags: [] });
+    const { data: session, status } = useSession();
 
     const showModal = () => {
         setIsRotated(!isRotated);
@@ -99,7 +100,7 @@ const CampaignCreateBtn = () => {
             if (campaigntName.value.split(/\s+/).length > 50) {
                 notification.error({
                     message: "Thất bại",
-                    description: "Tên lĩnh vực không được quá 50 từ!",
+                    description: "Tên chiến dịch không được quá 50 từ!",
                     showProgress: true
                 });
                 setLoading(false)
@@ -141,6 +142,7 @@ const CampaignCreateBtn = () => {
                 url: `${apiUrl}/campaigns`,
                 method: 'POST',
                 headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
                     'Content-Type': 'application/json'
                 },
                 body: campaignRequest
@@ -227,11 +229,11 @@ const CampaignCreateBtn = () => {
     return (
         <>
             <div className="flex justify-between items-center mb-4 px-6">
-                <div className="">
+                <div className="mt-[-5rem] ml-[25rem]">
                     <Button
                         type="primary"
                         onClick={showModal}
-                        className="w-fit !pt-5 !pb-5"
+                        className="w-fit !pt-2 !pb-2"
                         icon={
                             <PlusOutlined
                                 className={`transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`}
@@ -311,7 +313,7 @@ const CampaignCreateBtn = () => {
                                 onChange={handleOnChangeReduceType}
                                 value={reduceType}
                                 options={[
-                                    { value: 'FIXED', label: 'Tiền tươi' },
+                                    { value: 'FIXED', label: 'Giá cố định' },
                                     { value: 'PERCENTAGE', label: 'Phần trăm' },
                                 ]}
                             />
@@ -340,10 +342,10 @@ const CampaignCreateBtn = () => {
                                 </p>
                             )}
 
-                            {reduceType === 'PERCENTAGE' && (Number(reduceValue?.value) > 100 || Number(reduceValue?.value) < 0) && (
+                            {reduceType === 'PERCENTAGE' && (Number(reduceValue?.value) > 99 || Number(reduceValue?.value) < 0) && (
                                 <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                     <WarningOutlined />
-                                    Phần trăm giảm giá phải trong khoảng từ 0% đến 100%
+                                    Phần trăm giảm giá phải trong khoảng từ 0% đến 99%
                                 </p>
                             )}
 
@@ -442,14 +444,14 @@ const CampaignCreateBtn = () => {
                     )}
 
                     <Row gutter={24} className="mb-2">
-                        <Col span={24} className="!p-0">
+                        <Col span={24}>
                             <span className="text-red-500 mr-2">*</span>Ảnh:
                             <div>
                                 {urlThumbnail === "" ? (
                                     <div className={`${errThumbnail !== "" ? "border-red-500 border-2 w-fit rounded-lg " : "relative w-fit"}`}>
                                         <Avatar
                                             shape="square"
-                                            size={120}
+                                            size={140}
                                             icon={<PlusOutlined />}
                                             alt="avatar"
                                         />
@@ -457,13 +459,18 @@ const CampaignCreateBtn = () => {
                                             type="file"
                                             onChange={handleUploadFile}
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                            style={{ maxWidth: "120px", maxHeight: "120px" }}
+                                            title="Chưa chọn file"
                                         />
                                     </div>
+
                                 ) : (
-                                    <div className="flex items-end w-full">
-                                        <div className="h-[120px] w-[210px]">
+                                    <div className="flex items-end">
+                                        <div className="h-[120px] w-[120px]">
                                             <Image
                                                 className="h-full w-full object-contain"
+                                                width="100%"
+                                                height="100%"
                                                 preview={{
                                                     visible: isPreviewVisible,
                                                     mask: <span><EyeOutlined className='mr-2' />Xem</span>,
@@ -490,10 +497,9 @@ const CampaignCreateBtn = () => {
                                             className="!hidden"
                                         />
                                     </div>
+
                                 )}
                             </div>
-
-
                             {errThumbnail !== "" && (
                                 <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                     <WarningOutlined />

@@ -9,7 +9,7 @@ import { getOrderStatus, getPrice } from "@/helper/create.order.helper";
 
 
 export const metadata: Metadata = {
-    title: "Quản lí người dùng",
+    title: "Quản lý người dùng",
 };
 
 const OrderPage = async (props: {

@@ -9,7 +9,7 @@ import { Metadata } from "next"
 import { getServerSession } from "next-auth"
 
 export const metadata: Metadata = {
-    title: "Quản lí khóa học",
+    title: "Quản lý khóa học",
 };
 const CoursePage = async (props: {
     searchParams: Promise<{

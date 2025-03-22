@@ -291,7 +291,6 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
     const handleOnSelect = () => {
         console.log("check")
     }
-    console.log("check comments: ", selectRecord?.comments)
     return (
         <>
             <Table

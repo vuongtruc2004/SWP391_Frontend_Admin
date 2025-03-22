@@ -9,6 +9,7 @@ import { apiUrl, storageUrl } from '@/utils/url';
 import { validCampaignName, validDescription, validReduceValue } from '@/helper/create.campaign.helper';
 import TextArea from 'antd/es/input/TextArea';
 import dayjs, { Dayjs } from 'dayjs';
+import { useSession } from 'next-auth/react';
 
 
 const initState: ErrorResponse = {
@@ -36,6 +37,8 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
     const { RangePicker } = DatePicker;
     const [applymentType, setApplymentType] = useState<{ error: boolean, tags: number[] }>({ error: false, tags: [] });
     const [allCourse, setAllCourse] = useState<{ value: number, label: string }[]>([])
+    const { data: session, status } = useSession();
+
 
     useEffect(() => {
         if (editingCamnpaign) {
@@ -66,6 +69,13 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
         if (editingCamnpaign?.startTime && editingCamnpaign?.endTime) {
             setDates([editingCamnpaign.startTime, editingCamnpaign.endTime]);
         }
+        if (editingCamnpaign?.courses) {
+            setApplymentType({
+                error: false,
+                tags: editingCamnpaign.courses.map(course => course.courseId)
+            });
+        }
+
 
     }, [editingCamnpaign]);
 
@@ -79,8 +89,8 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
     const handleChange = (values: [Dayjs | null, Dayjs | null] | null) => {
         if (values && values[0] && values[1]) {
             setDates([
-                values[0].format("YYYY-MM-DDTHH:mm:ssZ"),
-                values[1].format("YYYY-MM-DDTHH:mm:ssZ"),
+                values[0].format("YYYY-MM-DD HH:mm:ss"),
+                values[1].format("YYYY-MM-DD HH:mm:ss"),
             ]);
         } else {
             setDates(null);
@@ -133,13 +143,11 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
                 url: `${apiUrl}/campaigns`,
                 method: 'PATCH',
                 headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
                     'Content-Type': 'application/json'
                 },
                 body: campaignRequest
             });
-            console.log(">>>réquest", campaignRequest)
-
-            console.log(">>>ré", updateResponse)
 
             if (updateResponse.status === 200) {
                 handleCancel();
@@ -282,7 +290,7 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
                             onChange={handleOnChangeReduceType}
                             value={reduceType}
                             options={[
-                                { value: 'FIXED', label: 'Tiền tươi' },
+                                { value: 'FIXED', label: 'Giá cố định' },
                                 { value: 'PERCENTAGE', label: 'Phần trăm' },
                             ]}
                         />
@@ -409,21 +417,23 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
                 <Row gutter={24} className="mb-2">
                     <Col span={24} className="!p-0">
                         <span className="text-red-500 mr-2">*</span>Ảnh:
-                        <div>
-                            <div className="flex items-end w-full">
-                                <div className="h-[120px] w-[210px]">
+                        <div className="rounded-lg">
+                            <div className="flex items-end">
+                                <div className="h-[120px] w-[120px]">
                                     <Image
-                                        className="h-full w-full object-contain"
+                                        className={`${errThumbnail !== "" ? "border-red-500 border-2 w-fit rounded-lg" : "h-full w-full object-contain"}`}
+                                        width="100%"
+                                        height="100%"
                                         preview={{
                                             visible: isPreviewVisible,
                                             mask: <span><EyeOutlined className='mr-2' />Xem</span>,
                                             onVisibleChange: (visible) => setIsPreviewVisible(visible),
                                         }}
                                         src={`${storageUrl}/campaign/${urlThumbnail}`}
-                                        alt="Preview"
+
+                                        alt="Xem trước"
                                     />
                                 </div>
-
                                 <Tooltip title='Thay đổi ảnh' color="blue" placement="topLeft">
                                     <UploadOutlined
                                         style={{ color: 'blue' }}

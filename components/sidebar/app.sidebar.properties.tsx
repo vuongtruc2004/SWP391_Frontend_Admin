@@ -23,55 +23,55 @@ export const sidebarItems: MenuItem[] = [
         ]
     },
     {
-        label: 'Quản lí',
+        label: 'Quản lý',
         type: 'group',
         children: [
             {
                 key: 'user',
-                label: <Link href="/user">Quản lí tài khoản</Link>,
+                label: <Link href="/user">Quản lý tài khoản</Link>,
                 icon: <TeamOutlined />
             },
             {
                 key: 'blog',
-                label: <Link href="/blog">Quản lí bài viết</Link>,
+                label: <Link href="/blog">Quản lý bài viết</Link>,
                 icon: <FaRegPaperPlane />
             },
             {
                 key: 'subject',
-                label: <Link href="/subject">Quản lí lĩnh vực</Link>,
+                label: <Link href="/subject">Quản lý lĩnh vực</Link>,
                 icon: <CodeOutlined />
 
             },
             {
                 key: 'order',
-                label: <Link href="/order">Quản lí hóa đơn</Link>,
+                label: <Link href="/order">Quản lý hóa đơn</Link>,
                 icon: <BarChartOutlined />
 
             },
             {
                 key: 'notification',
-                label: <Link href="/notification">Quản lí thông báo</Link>,
+                label: <Link href="/notification">Quản lý thông báo</Link>,
                 icon: <NotificationOutlined />
 
             },
             {
                 key: 'course',
-                label: <Link href="/course">Quản lí khóa học</Link>,
+                label: <Link href="/course">Quản lý khóa học</Link>,
                 icon: <BiBookReader />,
             },
             {
                 key: 'coupon',
-                label: <Link href="/coupon">Quản lí coupon</Link>,
+                label: <Link href="/coupon">Quản lý coupon</Link>,
                 icon: <IoTicketOutline />,
             },
             {
                 key: 'quiz',
-                label: <Link href="/quiz">Quản lí bài kiểm tra</Link>,
+                label: <Link href="/quiz">Quản lý bài kiểm tra</Link>,
                 icon: <LuNewspaper />,
             },
             {
                 key: 'campaign',
-                label: <Link href="/campaign">Quản lí chiến dịch</Link>,
+                label: <Link href="/campaign">Quản lý chiến dịch</Link>,
                 icon: <BsClipboardData />,
             },
         ]
@@ -91,50 +91,50 @@ export const sidebarItemsExpert: MenuItem[] = [
         ]
     },
     {
-        label: 'Quản lí',
+        label: 'Quản lý',
         type: 'group',
         children: [
             {
                 key: 'blog',
-                label: <Link href="/blog">Quản lí bài viết</Link>,
+                label: <Link href="/blog">Quản lý bài viết</Link>,
                 icon: <FaRegPaperPlane />
             },
             {
                 key: 'subject',
-                label: <Link href="/subject">Quản lí lĩnh vực</Link>,
+                label: <Link href="/subject">Quản lý lĩnh vực</Link>,
                 icon: <CodeOutlined />
 
             },
             {
                 key: 'order',
-                label: <Link href="/order">Quản lí hóa đơn</Link>,
+                label: <Link href="/order">Quản lý hóa đơn</Link>,
                 icon: <BarChartOutlined />
 
             },
             {
                 key: 'notification',
-                label: <Link href="/notification">Quản lí thông báo</Link>,
+                label: <Link href="/notification">Quản lý thông báo</Link>,
                 icon: <NotificationOutlined />
 
             },
             {
                 key: 'course',
-                label: <Link href="/course">Quản lí khóa học</Link>,
+                label: <Link href="/course">Quản lý khóa học</Link>,
                 icon: <BiBookReader />,
             },
             {
                 key: 'coupon',
-                label: <Link href="/coupon">Quản lí coupon</Link>,
+                label: <Link href="/coupon">Quản lý coupon</Link>,
                 icon: <IoTicketOutline />,
             },
             {
                 key: 'quiz',
-                label: <Link href="/quiz">Quản lí bài kiểm tra</Link>,
+                label: <Link href="/quiz">Quản lý bài kiểm tra</Link>,
                 icon: <LuNewspaper />,
             },
             {
                 key: 'campaign',
-                label: <Link href="/campaign">Quản lí chiến dịch</Link>,
+                label: <Link href="/campaign">Quản lý chiến dịch</Link>,
                 icon: <BsClipboardData />,
             },
         ]

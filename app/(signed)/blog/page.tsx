@@ -8,7 +8,7 @@ import { Metadata } from "next";
 import { getServerSession } from "next-auth";
 
 export const metadata: Metadata = {
-    title: "Quản lí bài viết",
+    title: "Quản lý bài viết",
 };
 
 const BlogPage = async (props: {

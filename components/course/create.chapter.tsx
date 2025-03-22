@@ -78,7 +78,6 @@ const CreateChapter = ({ course }: {
     };
 
 
-    console.log("check mark", inputMarkdown)
     const customCommands = [...getCommands(), uploadDocument];
 
     const onFinish = async (values: FormValues) => {

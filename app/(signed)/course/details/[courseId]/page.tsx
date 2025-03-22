@@ -6,7 +6,7 @@ import { Metadata } from "next";
 
 
 export const metadata: Metadata = {
-    title: "Quản lí khóa học",
+    title: "Quản lý khóa học",
 };
 const CourseDetailsPage = async (props: {
     params: Promise<{
@@ -31,9 +31,6 @@ const CourseDetailsPage = async (props: {
             'Content-Type': 'application/json'
         }
     })
-
-    console.log("course, ", courseDetail);
-
 
 
     return (

@@ -120,7 +120,6 @@ const BlogUpdate = (props: IProps) => {
                     url: `${apiUrl}/hashtags/all`,
                     method: 'GET',
                 });
-                console.log(getAllSub.data);
                 if (getAllSub.data && Array.isArray(getAllSub.data)) {
                     setListTag(getAllSub.data.map((hashTag: { tagName: string }) => hashTag.tagName));
                 }
@@ -171,9 +170,7 @@ const BlogUpdate = (props: IProps) => {
 
         const htmlTextContent = marked(inputMarkdown);
         setPlainContent(stripHtml(htmlTextContent.toString()));
-        console.log("check html text: ", htmlTextContent)
         // setPlainContent(content.value);
-        // console.log(plainContent)
         const blogRequest: BlogRequest = {
             title: title.value,
             content: htmlTextContent.toString(),
@@ -199,7 +196,6 @@ const BlogUpdate = (props: IProps) => {
             body: blogRequest,
         })
 
-        console.log("check updateBlog: ", updateBlog)
 
         if (updateBlog.status === 200) {
             handleCancle();
@@ -221,7 +217,6 @@ const BlogUpdate = (props: IProps) => {
 
     const handleUploadFile = async (e: ChangeEvent<HTMLInputElement>) => {
         setErrThumbnail("")
-        console.log("vao")
 
         if (e.target.files && e.target.files[0]) {
             const formData = new FormData();
@@ -234,7 +229,6 @@ const BlogUpdate = (props: IProps) => {
                 headers: {},
                 body: formData
             });
-            console.log("check thumb", imageResponse.data)
             if (imageResponse.status === 200) {
                 setUrlThumbnail(imageResponse.data)
 
@@ -276,7 +270,6 @@ const BlogUpdate = (props: IProps) => {
                                         ...title,
                                         value: e.target.value
                                     })
-                                    console.log(title.value)
                                 }}
                             />
                             {title.error && title.value === "" && (
@@ -362,7 +355,6 @@ const BlogUpdate = (props: IProps) => {
                                         ...content,
                                         value: event ? event : ""
                                     })
-                                    console.log(event)
                                 }}
                                 preview="edit"
                                 commandsFilter={(cmd) => (cmd.name && ["preview", "live", "fullscreen"].includes(cmd.name)) ? false : cmd}

@@ -25,7 +25,6 @@ const UpdateQuizPage = () => {
                     Authorization: `Bearer ${session.accessToken}`
                 }
             });
-            console.log("response>>", response);
 
             if (response.status === 200) {
                 setCourses(response.data);

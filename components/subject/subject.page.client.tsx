@@ -14,7 +14,7 @@ const SubjectPageClient = ({ keyword, subjectPageResponse, allSubjects }: {
 
     useEffect(() => {
         if (allSubjects.length > 0) {
-            setSheetData([...allSubjects]); // Sao chép dữ liệu, tránh lỗi reference
+            setSheetData([...allSubjects]);
         }
     }, [allSubjects]);
 

@@ -1,14 +1,12 @@
-import SubjectCreateBtn from "@/components/subject/subject.create.btn."
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import SubjectPageClient from "@/components/subject/subject.page.client"
-import SubjectSearch from "@/components/subject/subject.search"
-import SubjectTable from "@/components/subject/subject.table"
-import { isFullNumber } from "@/helper/subject.helper"
 import { sendRequest } from "@/utils/fetch.api"
 import { apiUrl } from "@/utils/url"
 import { Metadata } from "next";
+import { getServerSession } from "next-auth"
 
 export const metadata: Metadata = {
-    title: "Quản lí Lĩnh vực",
+    title: "Quản lý lĩnh vực",
 };
 const SubjectPage = async (props: {
     searchParams: Promise<{
@@ -21,8 +19,17 @@ const SubjectPage = async (props: {
     const keyword = searchParams.keyword || ""
     const page = searchParams.page || 1;
     const filter = `subjectName ~ '${keyword}' or description ~ '${keyword}'`
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+        return null;
+    }
+
     const subjectResponse = await sendRequest<ApiResponse<PageDetailsResponse<SubjectResponse[]>>>({
         url: `${apiUrl}/subjects/all`,
+        headers: {
+            Authorization: `Bearer ${session.accessToken}`
+        },
         queryParams: {
             page: page,
             size: 10,
@@ -40,6 +47,9 @@ const SubjectPage = async (props: {
         do {
             const response = await sendRequest<ApiResponse<PageDetailsResponse<SubjectResponse[]>>>({
                 url: `${apiUrl}/subjects/all`,
+                headers: {
+                    Authorization: `Bearer ${session.accessToken}`
+                },
                 queryParams: {
                     page: currentPage,
                     size: 10,

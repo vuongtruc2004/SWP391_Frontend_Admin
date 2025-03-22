@@ -46,6 +46,7 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             url: `${apiUrl}/subjects/delete/${subjectId}`,
             method: 'DELETE',
             headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
                 'Content-Type': 'application/json'
             }
         });

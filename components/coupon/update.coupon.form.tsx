@@ -174,7 +174,6 @@ const UpdateCouponForm = (props: {
             endTime: endTime.value,
             courses: selectedCourses!,
         };
-        console.log(">>> check coupon request", couponRequest);
         const createResponse = await sendRequest<ApiResponse<CouponResponse>>({
             url: `${apiUrl}/coupons`,
             method: 'PUT',
@@ -184,7 +183,6 @@ const UpdateCouponForm = (props: {
             },
             body: couponRequest
         });
-        console.log("Check response", createResponse)
         if (createResponse.status === 200) {
             handleCancel();
             router.refresh();

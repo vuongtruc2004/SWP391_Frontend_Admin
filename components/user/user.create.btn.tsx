@@ -78,7 +78,6 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
                 headers: {},
                 body: formData
             });
-            console.log('>>> handleOk >>>', uploadResponse)
             if (uploadResponse.status === 200 && uploadResponse.data?.avatar) {
                 setUrlAvatar({ ...urlAvatar, value: uploadResponse.data.avatar })
             } else {
@@ -112,7 +111,6 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
             },
             body: userRequest
         });
-        console.log("check createResponse>>>", createResponse)
         if (createResponse.status === 201) {
             handleCancel();
             router.refresh();
@@ -175,7 +173,6 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
                 body: formData
             });
 
-            console.log('handleUploadFile >>>>', imageResponse)
             if (imageResponse.status === 200 && imageResponse.data?.avatar) {
                 setUrlAvatar({ ...urlAvatar, value: imageResponse.data.avatar });
                 setErrorMessage("")

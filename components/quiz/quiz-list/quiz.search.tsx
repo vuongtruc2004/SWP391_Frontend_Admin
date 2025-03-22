@@ -31,7 +31,6 @@ const QuizSearch = (props: {
 
     const onFinish = (values: any) => {
         const { keyword, published, allowSeeAnswers } = values;
-        console.log("allowSeeAnswers>>", allowSeeAnswers)
         const newSearchParam = new URLSearchParams(searchParam);
 
         newSearchParam.set("keyword", keyword);

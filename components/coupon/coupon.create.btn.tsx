@@ -120,7 +120,6 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
             endTime: endTime.value,
             courses: selectedCourses,
         };
-        console.log(">>> check coupon request", couponRequest);
         const createResponse = await sendRequest<ApiResponse<CouponResponse>>({
             url: `${apiUrl}/coupons`,
             method: 'POST',
@@ -130,7 +129,6 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
             },
             body: couponRequest
         });
-        console.log("Check response", createResponse)
         if (createResponse.status === 200) {
             handleCancel();
             router.refresh();

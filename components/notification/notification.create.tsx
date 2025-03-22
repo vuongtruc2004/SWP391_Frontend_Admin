@@ -49,8 +49,6 @@ const NotificationCreate = (props: {
         })
     };
 
-    console.log("set date: ", dateSet);
-
     useEffect(() => {
         if (!openCreate) return;
 
@@ -61,7 +59,6 @@ const NotificationCreate = (props: {
                 headers: { 'content-type': 'application/json' },
             });
 
-            console.log("Dữ liệu API nhận được:", dataRes);
             const users = Array.isArray(dataRes?.data) ? dataRes.data.map((user: UserResponse) => ({
                 key: user.userId,
                 value: user.email,
@@ -182,7 +179,6 @@ const NotificationCreate = (props: {
                                         ...content,
                                         value: event.target.value
                                     });
-                                    console.log(event.target.value)
                                 }}
                                 placeholder="Nội dung thông báo"
                                 style={{ height: 120, resize: 'none' }}

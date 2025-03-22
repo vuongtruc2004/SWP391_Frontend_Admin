@@ -18,7 +18,6 @@ const ViewQuizDetail = (props: {
     const handleToggle = (index: number) => {
         setActiveQuestion(activeQuestion === index ? null : index);
     };
-    console.log("quizDetail>>>", quizDetail);
     return (
         <>
             <div className="ml-3 mt-3">

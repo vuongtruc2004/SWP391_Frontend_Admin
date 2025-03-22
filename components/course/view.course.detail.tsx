@@ -38,11 +38,9 @@ const ViewCourseDetail = (props: { courseDetail: CourseDetailsResponse, expertDe
     const { courseDetail, expertDetail } = props;
     const { collapsed, setCollapsed } = useCollapseContext();
 
-    console.log("before", collapsed);
     useEffect(() => {
         if (!collapsed) {
             setCollapsed(true);
-            console.log("after", collapsed)
         }
     }, []);
 

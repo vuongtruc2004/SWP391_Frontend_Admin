@@ -9,6 +9,7 @@ import { apiUrl, storageUrl } from '@/utils/url';
 import { validDescription, validSubjectName } from '@/helper/create.subject.helper';
 import TextArea from 'antd/es/input/TextArea';
 import { FiUpload } from 'react-icons/fi';
+import { useSession } from 'next-auth/react';
 
 const initState: ErrorResponse = {
     error: false,
@@ -29,6 +30,8 @@ const UpdateSubjectForm = (props: {
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [loading, setLoading] = useState<boolean>(false);
     const router = useRouter();
+    const { data: session, status } = useSession();
+
     useEffect(() => {
         if (editingSubject) {
             setSubjectName({
@@ -49,7 +52,7 @@ const UpdateSubjectForm = (props: {
         setLoading(true);
 
         setTimeout(async () => {
-            // Kiểm tra tất cả các giá trị
+
             const isSubjectNameValid = validSubjectName(subjectName, setSubjectName);
             const isDescriptionValid = validDescription(description, setDescription);
 
@@ -89,6 +92,7 @@ const UpdateSubjectForm = (props: {
                 url: `${apiUrl}/subjects/update`,
                 method: 'PATCH',
                 headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
                     'Content-Type': 'application/json'
                 },
                 body: subjectRequest

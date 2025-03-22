@@ -2,6 +2,7 @@
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import { Column } from '@ant-design/plots';
+import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react'
 
 
@@ -14,12 +15,15 @@ const AgeRangeColumns = () => {
     const [fourthtyToFifthtynine, setFourthtyToFifthtynine] = useState<number>(0)
     const [overSixty, setOverSixty] = useState<number>(0)
     const [unknown, setUnknown] = useState<number>(0)
+    const { data: session, status } = useSession();
+
     useEffect(() => {
         const fetchData = async () => {
             const response = await sendRequest<ApiResponse<AgeRangeResponse>>({
                 url: `${apiUrl}/users/age_count`,
                 method: 'GET',
                 headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
                     'Content-Type': 'application/json'
                 }
             });

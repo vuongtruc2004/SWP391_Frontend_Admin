@@ -51,7 +51,6 @@ const QuizUpdateForm = ({ courses, quizId }: {
         });
 
         setCreateQuestions(updatedQuestions);
-        console.log("updatedQuestions>>", updatedQuestions)
 
         if (selectQuestions.length > 0 && createQuestions[0].title === '') {
             // TH1: Có chọn từ ngân hàng nhưng không tạo mới, tiếp tục xử lý
@@ -78,9 +77,6 @@ const QuizUpdateForm = ({ courses, quizId }: {
 
             if (hasDuplicateError) return;
 
-
-
-            console.log("values>>", values);
             const quizRequest: QuizRequest = {
                 quizId: quizId,
                 title: values.title,
@@ -104,8 +100,6 @@ const QuizUpdateForm = ({ courses, quizId }: {
                 },
             });
 
-
-            console.log("quizResponse>>", quizResponse)
             if (quizResponse.status == 200) {
 
                 notification.success({
@@ -199,7 +193,6 @@ const QuizUpdateForm = ({ courses, quizId }: {
                             Authorization: `Bearer ${session?.accessToken}`
                         }
                     });
-                    console.log("response>>> ne", response);
                     if (response.status === 200) {
                         form.setFieldsValue({
                             title: response.data.title,

@@ -55,7 +55,6 @@ const QuizTableButton = (props: {
             const questionResponse = await sendRequest<ApiResponse<QuestionResponse[]>>({
                 url: `${apiUrl}/questions/all-inpagination`,
             });
-            console.log("questionResponse>>>", questionResponse)
             if (questionResponse && questionResponse.data) {
                 // Kiểm tra xem có dữ liệu không
                 const questionTitles = questionResponse.data.map((question) => question.title);
@@ -139,7 +138,6 @@ const QuizTableButton = (props: {
         if (hasError || !isValidTitle || !isValidMaxAttempts || !isValidDate) {
             return;
         }
-        console.log("co loi>>>>>>", hasError);
 
         try {
             // Gửi từng câu trả lời lên API
@@ -160,7 +158,6 @@ const QuizTableButton = (props: {
                 )
             );
 
-            console.log("Danh sách answerId:", createAnswerResponses);
 
             let hasDuplicateError = false;
 

@@ -82,7 +82,6 @@ const UpdateCourseForm = (props: {
                 const response = await fetch(`${apiUrl}/subjects/all-inpagination`);
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("data", data)
                     if (data.data && Array.isArray(data.data)) {
                         setSubjects(data.data.map((subject: { subjectName: string }) => subject.subjectName));
                     }

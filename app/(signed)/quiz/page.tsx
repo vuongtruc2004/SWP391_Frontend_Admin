@@ -5,7 +5,7 @@ import { apiUrl } from "@/utils/url";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Quản lí bài kiểm tra",
+    title: "Quản lý bài kiểm tra",
 };
 
 const QuizPage = async (props: {
@@ -38,7 +38,6 @@ const QuizPage = async (props: {
     if (published !== 'ALL') {
         filters.push(`published : ${published === 'open' ? true : false}`);
     }
-    console.log("quizPage>>>allowSeeAnswers ", allowSeeAnswers);
     if (allowSeeAnswers !== 'ALL') {
         filters.push(` allowSeeAnswers : ${allowSeeAnswers === 'open' ? true : false}`)
     }
@@ -71,7 +70,6 @@ const QuizPage = async (props: {
     })
 
 
-    console.log("quizResponse>>", quizResponse);
     const fetchAllQuiz = async () => {
         let allQuiz: QuizResponse[] = [];
         let currentPage = 1;

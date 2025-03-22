@@ -7,7 +7,7 @@ import { apiUrl } from "@/utils/url";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Quản lí câu hỏi",
+    title: "Quản lý câu hỏi",
 };
 
 const QuestionPage = async (props: {

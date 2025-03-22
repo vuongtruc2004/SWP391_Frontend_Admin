@@ -3,6 +3,7 @@ import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import { DollarCircleFilled, DoubleRightOutlined, ReconciliationFilled, SmileFilled } from '@ant-design/icons';
 import { Card, Col, Row, Select, Tooltip } from 'antd';
+import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 import CountUp from 'react-countup';
 
@@ -40,6 +41,7 @@ const TotalRevenueCard = () => {
     const [totalCoursesSellToday, setTotalCoursesSellToday] = useState<number>(0)
     const [totalCoursesSellYesterday, setTotalCoursesSellYesterday] = useState<number>(0)
     const [currentText, setCurrentText] = useState<string>("");
+    const { data: session, status } = useSession();
 
     const formatNumber = (num: number): string => {
         return new Intl.NumberFormat("vi-VN").format(num);
@@ -51,6 +53,7 @@ const TotalRevenueCard = () => {
                 url: `${apiUrl}/orders/dashboard-statistics/${type}`,
                 method: 'GET',
                 headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
                     'Content-Type': 'application/json'
                 }
             });

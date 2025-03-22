@@ -112,7 +112,6 @@ const UpdateUserForm = (props: IProps) => {
                 headers: {},
                 body: formData
             });
-            console.log('>>> handleOk >>>', uploadResponse)
             if (uploadResponse.status === 200 && uploadResponse.data?.avatar) {
                 setUrlAvatar({ ...urlAvatar, value: uploadResponse.data.avatar }) // Lấy avatar từ API response
             }
@@ -150,7 +149,6 @@ const UpdateUserForm = (props: IProps) => {
             body: userRequest
         });
 
-        console.log('>>>> check updateResponse', updateResponse)
         if (updateResponse.status === 201) {
             handleCancel();
             router.refresh();
@@ -159,7 +157,6 @@ const UpdateUserForm = (props: IProps) => {
                 description: updateResponse.message.toString(),
             });
         } else {
-            console.log("loi cmnr")
             setErrorMessage(updateResponse.message.toString());
         }
     };
@@ -185,7 +182,6 @@ const UpdateUserForm = (props: IProps) => {
                 headers: {},
                 body: formData
             });
-            // console.log("imageRes>>>>>.", imageResponse);
             if (imageResponse.status === 200 && imageResponse.data?.avatar) {
                 setUrlAvatar({ ...urlAvatar, value: imageResponse.data.avatar });
                 setErrorMessage("")

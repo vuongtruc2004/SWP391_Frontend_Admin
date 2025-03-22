@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Pie } from '@ant-design/plots';
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
+import { useSession } from 'next-auth/react';
 
 
 
@@ -12,6 +13,7 @@ const GenderPieChart = () => {
     const [maleCount, setMaleCount] = useState<number>(0)
     const [femaleCount, setFemaleCount] = useState<number>(0)
     const [unkhownCount, setUnkhownCount] = useState<number>(0)
+    const { data: session, status } = useSession();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -19,6 +21,7 @@ const GenderPieChart = () => {
                 url: `${apiUrl}/users/gender_count`,
                 method: 'GET',
                 headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
                     'Content-Type': 'application/json'
                 }
             });

@@ -14,7 +14,6 @@ const NotificationDetail = (props: {
     const { openModal, setOpenModal, recordNotification } = props;
     const [usersReceiver, setUsersReceiver] = useState<UserNotificationResponse[]>([]);
     const router = useRouter()
-    console.log(recordNotification)
 
     useEffect(() => {
         if (openModal) {
@@ -25,7 +24,6 @@ const NotificationDetail = (props: {
     // Khi dữ liệu trong state (usersReceiver) phụ thuộc vào một prop (recordNotification) và prop này có thể thay đổi.
     // Khi muốn cập nhật state mỗi khi một giá trị bên ngoài thay đổi (thường là dữ liệu từ API hoặc Redux).
 
-    console.log("check user receiver: ", usersReceiver);
     const handleDeleteNotification = async (userNotificationId: number) => {
         const deleteNotification = await sendRequest<ApiResponse<UserNotificationResponse>>({
             url: `${apiUrl}/notifications/delete-user/${userNotificationId}`,

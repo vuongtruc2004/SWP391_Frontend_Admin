@@ -214,7 +214,6 @@ const UpdateQuizForm = (props: {
             let createQuestionResponses: (string | null)[] = [];
 
             if (questionRequests.length > 0) {
-                console.log("questionRequest>>>>>>>>", questionRequests);
                 createQuestionResponses = await Promise.all(
                     questionRequests.map(async (questionRequest, index) => {
                         const response = await sendRequest<ApiResponse<QuestionResponse>>({
@@ -253,9 +252,7 @@ const UpdateQuizForm = (props: {
                 questions: [...checkedList, ...createQuestionResponses.filter(q => q !== null) as string[]]
             }
 
-            console.log("quizRequest>>", quizRequest)
-            console.log("initQuiz>>", initialQuiz)
-            console.log("so sanh", JSON.stringify(quizRequest) === JSON.stringify(initialQuiz))
+
             if (JSON.stringify(quizRequest) === JSON.stringify(initialQuiz)) {
                 notification.info({
                     message: "Không có thay đổi",
@@ -274,7 +271,6 @@ const UpdateQuizForm = (props: {
                 body: quizRequest
             });
 
-            console.log("createQuizResponse>>", createQuizResponse);
 
             if (createQuizResponse.status === 200) {
                 handleCancel();

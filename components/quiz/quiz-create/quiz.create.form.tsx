@@ -46,7 +46,6 @@ const QuizCreateForm = ({ courses }: {
         });
 
         setCreateQuestions(updatedQuestions);
-        console.log("updatedQuestions>>", updatedQuestions)
 
         if (selectQuestions.length > 0 && createQuestions[0].title === '') {
             // TH1: Có chọn từ ngân hàng nhưng không tạo mới, tiếp tục xử lý
@@ -101,7 +100,6 @@ const QuizCreateForm = ({ courses }: {
             });
 
 
-            console.log("quizResponse>>", quizResponse)
             if (quizResponse.status == 201) {
 
                 notification.success({

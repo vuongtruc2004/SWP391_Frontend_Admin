@@ -13,7 +13,6 @@ const CourseTrendingChart = () => {
     const { data: session, status } = useSession();
     const [cachedSession, setCachedSession] = useState<any>(null);
 
-    // Lưu session vào localStorage để không mất khi reload
     useEffect(() => {
         if (session && typeof window !== "undefined") {
             localStorage.setItem("sessionData", JSON.stringify(session));

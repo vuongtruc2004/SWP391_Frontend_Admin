@@ -196,7 +196,6 @@ const BlogCreate = (props: IProps) => {
                     url: `${apiUrl}/hashtags/all`,
                     method: 'GET',
                 });
-                console.log(getAllSub.data);
                 if (getAllSub.data && Array.isArray(getAllSub.data)) {
                     setGetSubjects(getAllSub.data.map((hashTag: { tagName: string }) => hashTag.tagName));
                 }

@@ -1,17 +1,16 @@
 'use client'
 import { sendRequest } from '@/utils/fetch.api';
-import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, EyeOutlined, InfoCircleOutlined, PictureOutlined, UserOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
-import { Image, notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
-import Link from 'next/link';
+import { notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
-
-import { apiUrl, storageUrl } from '@/utils/url';
-import { useSession } from 'next-auth/react';
+import { apiUrl } from '@/utils/url';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import dayjs from 'dayjs';
 import ViewCampaignDetail from './view.campaign.detail';
 import UpdateCampaignForm from './update.campaign.form';
+import { Client } from '@stomp/stompjs';
+import { useSession } from 'next-auth/react';
 
 
 export const init = {
@@ -35,13 +34,37 @@ const CampaignTable = ({ campaignResponse }: { campaignResponse: PageDetailsResp
     const [currentCampaign, setCurrentCampaign] = useState<CampaignResponse>()
     const [openEditForm, setOpenEditForm] = useState(false);
     const [editingCampaign, setEditingCampaign] = useState<CampaignResponse | null>(null)
+    const [stompClient, setStompClient] = useState<Client | null>(null);
+    const { data: session, status } = useSession();
 
+    useEffect(() => {
+        const client = new Client({
+            brokerURL: "ws://localhost:8386/ws/websocket",
+            reconnectDelay: 5000, // Tự động kết nối lại sau 5s nếu bị mất
+            onConnect: () => {
+                client.subscribe("/topic/campaigns", (message) => {
+                    router.refresh();
+                });
+            },
+            onStompError: (error) => {
+                console.error("WebSocket lỗi:", error);
+            }
+        });
+
+        client.activate();
+        setStompClient(client);
+
+        return () => {
+            client.deactivate();
+        };
+    }, [])
 
     const deleteCampaign = async (campaignId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<string>>({
             url: `${apiUrl}/campaigns/${campaignId}`,
             method: 'DELETE',
             headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -86,7 +109,7 @@ const CampaignTable = ({ campaignResponse }: { campaignResponse: PageDetailsResp
             width: '15%',
             align: 'center',
             sorter: (a, b) => a.discountType.localeCompare(b.discountType),
-            render: (discountType) => discountType === 'FIXED' ? 'Tiền tươi' : 'Phần trăm'
+            render: (discountType) => discountType === 'FIXED' ? 'Giá cố định' : 'Phần trăm'
         },
         {
             title: 'Số lượng giảm',

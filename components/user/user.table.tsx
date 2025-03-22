@@ -38,7 +38,6 @@ const UserTable = (props: {
                 'Content-Type': 'application/json'
             }
         });
-        console.log(">>> check", deleteResponse)
 
         if (deleteResponse.status === 200) {
             notification.success({
@@ -47,7 +46,6 @@ const UserTable = (props: {
             });
             router.refresh();
         } else {
-            console.log("chay vao day kh");
             notification.error({
                 message: "Thất bại",
                 description: String(deleteResponse.message),

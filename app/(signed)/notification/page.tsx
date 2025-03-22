@@ -5,7 +5,7 @@ import { Metadata } from "next";
 
 
 export const metadata: Metadata = {
-    title: "Quản lí thông báo",
+    title: "Quản lý thông báo",
 };
 
 const NotificationPage = async (props: {

@@ -67,7 +67,6 @@ const UpdateChapterModal = ({ openUpdateChapter, setOpenUpdateChapter, selectedC
         const payload = await Promise.all(formValues.chapter.map(async (chapter: any) => {
             const videosWithDurations = await Promise.all((chapter.videos || []).map(async (video: any) => {
                 const duration = await getYouTubeDuration(extractVideoId(video.videoUrl));  // Chờ kết quả duration
-                console.log(duration);
                 return {
                     title: video.videoTitle,
                     //@ts-ignore
@@ -91,7 +90,6 @@ const UpdateChapterModal = ({ openUpdateChapter, setOpenUpdateChapter, selectedC
             };
         }));
 
-        console.log("Payload:", payload);  // Kiểm tra payload
         try {
             const response = await sendRequest<ApiResponse<ChapterResponse[]>>({
                 url: `${apiUrl}/chapter`,
@@ -275,7 +273,6 @@ const UpdateChapterModal = ({ openUpdateChapter, setOpenUpdateChapter, selectedC
                                                                                             ...content,
                                                                                             value: event ? event : ""
                                                                                         })
-                                                                                        console.log(event)
                                                                                     }}
                                                                                     preview="edit"
                                                                                     commandsFilter={(cmd) => (cmd.name && ["preview", "live", "fullscreen"].includes(cmd.name)) ? false : cmd}

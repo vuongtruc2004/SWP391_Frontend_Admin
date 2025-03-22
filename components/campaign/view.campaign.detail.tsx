@@ -1,8 +1,9 @@
 import { storageUrl } from '@/utils/url'
 import { DoubleRightOutlined } from '@ant-design/icons'
-import { Collapse, Drawer, theme } from 'antd'
+import { Collapse, Drawer, theme, Tooltip } from 'antd'
 import dayjs from 'dayjs'
-import React, { Dispatch, SetStateAction } from 'react'
+import Link from 'next/link'
+import React, { Dispatch, SetStateAction, useState } from 'react'
 
 
 const ViewCampaignDetail = ({ campaign, openViewDraw, setOpenViewDraw }: {
@@ -11,11 +12,16 @@ const ViewCampaignDetail = ({ campaign, openViewDraw, setOpenViewDraw }: {
     setOpenViewDraw: Dispatch<SetStateAction<boolean>>
 }) => {
 
+    const [openCollapse, setOpenCollapse] = useState(['0']);
+
     const onClose = () => {
+        setOpenCollapse([]);
         setOpenViewDraw(false);
     };
-    const { token } = theme.useToken();
 
+    const convertToPlusSeparated = (input: string): string => {
+        return input.replaceAll(" ", "+");
+    }
 
     return (
         <>
@@ -33,7 +39,7 @@ const ViewCampaignDetail = ({ campaign, openViewDraw, setOpenViewDraw }: {
                             </tr>
                             <tr>
                                 <td className='text-blue-500 text-base mr-2 font-bold'>Loại giảm giá:</td>
-                                <td>{campaign.discountType === 'FIXED' ? 'Tiền tươi' : 'Phần trăm'}</td>
+                                <td>{campaign.discountType === 'FIXED' ? 'Giá cố định' : 'Phần trăm'}</td>
                             </tr>
                             <tr>
                                 <td className='text-blue-500 text-base mr-2 font-bold'>Số lượng giảm giá: </td>
@@ -43,14 +49,7 @@ const ViewCampaignDetail = ({ campaign, openViewDraw, setOpenViewDraw }: {
                                 <td className='text-blue-500 text-base mr-2 font-bold'>Ngày tạo:</td>
                                 <td>{dayjs(campaign.createdAt).format('DD/MM/YYYY HH:mm:ss')}</td>
                             </tr>
-                            <tr>
-                                <td className='text-blue-500 text-base mr-2 font-bold'>Ngày chỉnh sửa:</td>
-                                <td>{dayjs(campaign.updatedAt).format('DD/MM/YYYY HH:mm:ss')}</td>
-                            </tr>
-                            <tr>
-                                <td className='text-blue-500 text-base mr-2 font-bold'>Ngày bắt đầu:</td>
-                                <td>{dayjs(campaign.startTime).format('DD/MM/YYYY HH:mm:ss')}</td>
-                            </tr>
+
                             <tr>
                                 <td className='text-blue-500 text-base mr-2 font-bold'>Ngày chỉnh sửa:</td>
                                 <td>{dayjs(campaign.updatedAt).format('DD/MM/YYYY HH:mm:ss')}</td>
@@ -71,19 +70,24 @@ const ViewCampaignDetail = ({ campaign, openViewDraw, setOpenViewDraw }: {
 
                     </table>
 
-                    {campaign.discountRange !== 'ALL' &&
-                        <Collapse
-                            items={[{
-                                label: 'Xem chi tiết',
-                                children:
-                                    <ul className='ml-4'>
-                                        {[...campaign.courses].map((course, index) => (
-                                            <ol key={index}><span className='gap-2 mr-2'><DoubleRightOutlined className='text-green-500' /></span>{course.courseName}</ol>
-                                        ))}
-                                    </ul>
-                            }]}
-                        />
-                    }
+                    <Collapse
+                        activeKey={openCollapse}
+                        onChange={setOpenCollapse}
+                        items={[{
+                            key: '0',
+                            label: 'Xem chi tiết',
+                            children:
+                                <ul className='ml-4'>
+                                    {[...campaign.courses].map((course, index) => (
+                                        <Link key={index} href={`http://localhost:5173/course?keyword=${convertToPlusSeparated(course.courseName)}&page=1`}>
+                                            <Tooltip title="Thông tin khóa học" placement='rightTop'>
+                                                <ol ><span className='gap-2 mr-2'><DoubleRightOutlined style={{ color: 'green' }} /></span>{course.courseName}</ol>
+                                            </Tooltip>
+                                        </Link>
+                                    ))}
+                                </ul>
+                        }]}
+                    />
 
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ảnh:</span> </div><br />
                     <div className="flex justify-center items-center">

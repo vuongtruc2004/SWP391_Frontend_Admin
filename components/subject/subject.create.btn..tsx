@@ -81,6 +81,7 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                 url: `${apiUrl}/subjects`,
                 method: 'POST',
                 headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
                     'Content-Type': 'application/json'
                 },
                 body: subjectRequest

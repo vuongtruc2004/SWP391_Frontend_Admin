@@ -6,7 +6,7 @@ import { apiUrl } from "@/utils/url";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Quản lí coupon",
+    title: "Quản lý coupon",
 };
 
 const CouponPage = async (props: {
@@ -43,7 +43,6 @@ const CouponPage = async (props: {
         }
     });
 
-    console.log(">>> check coupon", couponResponse.data);
 
     return (
         <div className="border w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">

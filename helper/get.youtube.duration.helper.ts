@@ -30,7 +30,6 @@ export const getYouTubeDuration = async (videoId: number) => {
         const response = await fetch(url);
         const data = await response.json();
 
-        console.log(">>>", data);
         if (data.items.length > 0) {
             const duration = data.items[0].contentDetails.duration;
 

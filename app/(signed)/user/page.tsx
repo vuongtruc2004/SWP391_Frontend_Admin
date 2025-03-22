@@ -9,7 +9,7 @@ import UserPageClient from "@/components/user/user.page.client";
 import { getGender, getLocked, getRoleName } from "@/helper/create.user.helper";
 
 export const metadata: Metadata = {
-    title: "Quản lí người dùng",
+    title: "Quản lý người dùng",
 };
 
 const UserPage = async (props: {

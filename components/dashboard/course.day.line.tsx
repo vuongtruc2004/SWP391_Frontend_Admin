@@ -7,6 +7,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import React, { useEffect, useState } from 'react'
 import isoWeek from "dayjs/plugin/isoWeek";
 import { DoubleRightOutlined } from '@ant-design/icons';
+import { useSession } from 'next-auth/react';
 
 
 dayjs.extend(isoWeek);
@@ -40,6 +41,7 @@ const CourseDayLine = () => {
     const [friday, setFriday] = useState<number>(0);
     const [saturday, setSaturday] = useState<number>(0);
     const [sunday, setSunday] = useState<number>(0);
+    const { data: session, status } = useSession();
 
     useEffect(() => {
         fetchData(firstDayOfWeek, endDayOfWeek);
@@ -50,7 +52,10 @@ const CourseDayLine = () => {
         const response = await sendRequest<ApiResponse<CourseWeekResponse>>({
             url: `${apiUrl}/orders/course_sell_in_week?startDate=${startDate}&endDate=${endDate}`,
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+                'Content-Type': 'application/json'
+            }
         });
 
         if (response.status === 200) {
