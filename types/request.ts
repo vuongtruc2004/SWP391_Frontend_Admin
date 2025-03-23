@@ -77,6 +77,7 @@ declare global {
         content: string;
         plainContent: string;
         thumbnail: string;
+        pinned: boolean;
         hashtags: string[];
     }
 
@@ -85,7 +86,7 @@ declare global {
         content: string;
         status?: string;
         global: boolean;
-        emails: string[];
+        userIds: number[];
         setDate: string;
     }
 

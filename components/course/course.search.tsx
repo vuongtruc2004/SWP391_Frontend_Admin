@@ -1,6 +1,6 @@
 "use client"
-import { SearchOutlined } from '@ant-design/icons'
-import { Button, Col, DatePicker, DatePickerProps, Form, Input, InputNumber, Row, Select, Slider } from 'antd'
+import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { Button, Col, DatePicker, DatePickerProps, Form, Input, InputNumber, Row, Select, Slider, Tooltip } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import dayjs from 'dayjs'
 import { useSession } from 'next-auth/react'
@@ -122,20 +122,31 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
 
     const dateFormat = 'DD/MM/YYYY'
     return (
-        <div className="flex flex-col gap-2 ml-10 mt-5">
+        <div className=" w- full flex flex-col gap-2 ml-10 mt-5">
             <Form
-                className='w-[90%]'
+                className='!w-[100%]'
                 onFinish={onFinish}
                 form={form}
                 initialValues={{ keyword: keyword, accepted: accepted, inputValue: inputValue }}
             >
-                <Form.Item name="keyword" className="mb-0 w-[50%]">
-                    <Input
-                        placeholder="Tìm kiếm tên lĩnh vực, mô tả"
-                        prefix={<SearchOutlined />}
-                        className='!p-[10px]'
-                    />
-                </Form.Item>
+                <div className='w-full flex gap-2'>
+                    <div className='w-[40%]'>
+                        <Form.Item name="keyword" className="mb-0 w-full">
+                            <Input
+                                placeholder="Tìm kiếm tên khóa học"
+                                prefix={<SearchOutlined />}
+                                className='!p-[10px]'
+                                onChange={() => form.submit()}
+                            />
+                        </Form.Item>
+                    </div>
+                    <div>
+                        <Tooltip placement="bottom" title='Tải lại trang'>
+                            <Button onClick={handleReset} className='!p-[20px] !bg-blue-600' size='large'><ReloadOutlined className='!text-white' /></Button>
+                        </Tooltip>
+                    </div>
+                </div>
+
                 <div className='w-full flex items-center gap-5'>
                     <Form.Item name="accepted" className="mb-0" label="Trạng Thái">
                         <Select
@@ -209,11 +220,6 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
                             </Row>
                         </Form.Item>
                     </div>
-                </div>
-
-                <div className={`flex gap-4 ${session?.user.roleName !== "EXPERT" ? 'mb-10' : ''}`}>
-                    <Button type="primary" htmlType="submit" className='!p-[10px]'>Tìm kiếm</Button>
-                    <Button onClick={handleReset} className='!p-[10px]'>Làm mới</Button>
                 </div>
             </Form>
         </div>

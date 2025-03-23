@@ -1,5 +1,5 @@
 'use client'
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { PlusOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { Button, DatePicker, DatePickerProps, Form, Input, Select } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -93,9 +93,23 @@ const BlogSearch = (props: {
                     onFinish={handleOnFinish}
                     initialValues={{ keyword: keyword, published: published }}
                 >
-                    <Form.Item className="w-[50%]" name="keyword">
-                        <Input prefix={<SearchOutlined />} placeholder="Tìm kiếm theo tiêu đề, tên tác giả,...." />
-                    </Form.Item>
+                    <div className="w-full flex gap-2">
+                        <div className="w-[50%]">
+                            <Form.Item className="w-[100%]" name="keyword">
+                                <Input
+                                    prefix={<SearchOutlined />}
+                                    placeholder="Tìm kiếm theo tiêu đề, tên tác giả,...."
+                                    onChange={() => form.submit()}
+                                    className="!w-full"
+                                    size="large"
+                                />
+                            </Form.Item>
+                        </div>
+                        <div>
+                            <Button onClick={handleOnReset} className="!bg-blue-500 !text-white !p-[20px]" size="large"><ReloadOutlined /></Button>
+                        </div>
+                    </div>
+
                     <div className="flex gap-7">
                         <div className="w-[15%]">
                             <Form.Item className="w-[100%]" name="published" label="Trạng Thái:">
@@ -124,17 +138,8 @@ const BlogSearch = (props: {
 
 
 
-                    <div className="w-full flex justify-between">
-                        <div className="flex gap-2">
-                            <Button type="primary" icon={<SearchOutlined />} htmlType="submit">
-                                Tìm kiếm
-                            </Button>
-                            <Button onClick={handleOnReset}>Làm mới</Button>
-                        </div>
-                        {session?.user.roleName === "MARKETING" && (
-                            <Button type="primary" icon={<PlusOutlined />} onClick={handleOnClickButton}>Tạo bài viết </Button>
-                        )}
-
+                    <div className="float-right">
+                        <Button type="primary" icon={<PlusOutlined />} onClick={handleOnClickButton}>Tạo bài viết </Button>
                     </div>
                 </Form>
             </div>

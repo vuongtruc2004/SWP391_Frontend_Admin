@@ -2,9 +2,9 @@
 import { validContent, validTitle } from "@/helper/create.blog.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
-import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
+import { EyeOutlined, PlusOutlined, SyncOutlined, UploadOutlined, WarningOutlined } from "@ant-design/icons";
 import MDEditor, { getCommands, ICommand } from "@uiw/react-md-editor";
-import { Avatar, Checkbox, Form, Image, Input, Modal, notification, Tooltip } from "antd";
+import { Avatar, Checkbox, Form, Image, Input, Modal, notification, Select, Tooltip } from "antd";
 import { marked } from "marked";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -26,14 +26,13 @@ const BlogUpdate = (props: IProps) => {
     const { openUpdate, setOpenUpdate, selectRecord, setSelectRecord } = props;
     const CheckboxGroup = Checkbox.Group;
     const router = useRouter();
-    const [value, setValue] = useState("");
+    const [pinned, setPinned] = useState<boolean>(false);
     const [inputMarkdown, setInputMarkdown] = useState("");
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
     const [errThumbnail, setErrThumbnail] = useState("");
     const [urlThumbnail, setUrlThumbnail] = useState("");
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [content, setContent] = useState<ErrorResponse>(initState);
-    // const [checkList, setCheckList] = useState<string[]>(selectRecord?.hashtags.map((tag) => tag.tagName) || []);
     const [checkList, setCheckList] = useState<{ error: boolean, value: string[] }>({ error: false, value: selectRecord ? selectRecord?.hashtags.map((tag) => tag.tagName) : [] });
     const [listTag, setListTag] = useState<string[]>();
     const [plainContent, setPlainContent] = useState("");
@@ -105,6 +104,8 @@ const BlogUpdate = (props: IProps) => {
                 value: selectRecord.content
             });
 
+            setPinned(selectRecord.pinned);
+
             if (selectRecord?.thumbnail) {
                 setUrlThumbnail(selectRecord?.thumbnail);
             }
@@ -120,6 +121,7 @@ const BlogUpdate = (props: IProps) => {
                     url: `${apiUrl}/hashtags/all`,
                     method: 'GET',
                 });
+                console.log(getAllSub.data);
                 if (getAllSub.data && Array.isArray(getAllSub.data)) {
                     setListTag(getAllSub.data.map((hashTag: { tagName: string }) => hashTag.tagName));
                 }
@@ -134,6 +136,10 @@ const BlogUpdate = (props: IProps) => {
     const stripHtml = (html: string) => {
         let doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || "";
+    }
+
+    const handleChangePinned = (pinned: boolean) => {
+        setPinned(pinned);
     }
 
     const handleCancle = () => {
@@ -170,13 +176,16 @@ const BlogUpdate = (props: IProps) => {
 
         const htmlTextContent = marked(inputMarkdown);
         setPlainContent(stripHtml(htmlTextContent.toString()));
+        console.log("check html text: ", htmlTextContent)
         // setPlainContent(content.value);
+        // console.log(plainContent)
         const blogRequest: BlogRequest = {
             title: title.value,
             content: htmlTextContent.toString(),
             plainContent: stripHtml(htmlTextContent.toString()),
             thumbnail: urlThumbnail,
             hashtags: checkList.value,
+            pinned: pinned,
         }
 
 
@@ -196,6 +205,7 @@ const BlogUpdate = (props: IProps) => {
             body: blogRequest,
         })
 
+        console.log("check updateBlog: ", updateBlog)
 
         if (updateBlog.status === 200) {
             handleCancle();
@@ -217,6 +227,7 @@ const BlogUpdate = (props: IProps) => {
 
     const handleUploadFile = async (e: ChangeEvent<HTMLInputElement>) => {
         setErrThumbnail("")
+        console.log("vao")
 
         if (e.target.files && e.target.files[0]) {
             const formData = new FormData();
@@ -229,6 +240,7 @@ const BlogUpdate = (props: IProps) => {
                 headers: {},
                 body: formData
             });
+            console.log("check thumb", imageResponse.data)
             if (imageResponse.status === 200) {
                 setUrlThumbnail(imageResponse.data)
 
@@ -265,11 +277,13 @@ const BlogUpdate = (props: IProps) => {
                             <Input placeholder="Tiêu đề" value={title.value}
                                 status={title.error && title.value === "" ? "error" : ""}
                                 type="text"
+                                maxLength={100}
                                 onChange={(e) => {
                                     setTitle({
                                         ...title,
                                         value: e.target.value
                                     })
+                                    console.log(title.value)
                                 }}
                             />
                             {title.error && title.value === "" && (
@@ -282,70 +296,6 @@ const BlogUpdate = (props: IProps) => {
                     </div>
                     <div>
                         <Form.Item>
-                            {/* Chọn một file trong máy tính rồi gắn vào */}
-                            {/* <MDEditor
-                                value={inputMarkdown}
-                                onChange={(event) => {
-                                    setInputMarkdown(event ? event : "")
-
-                                    // setPlainContent(event ? event : "")
-                                    console.log(event)
-                                }}
-                                preview="edit"
-                                commandsFilter={(cmd) => {
-                                    if (cmd.name && ["preview", "live"].includes(cmd.name)) {
-                                        return false;
-                                    }
-
-                                    if (cmd.name === "image") {
-
-                                        cmd.execute = () => {
-                                            const input = document.createElement("input");
-                                            input.type = "file";
-                                            input.accept = "image/jpg, image/jpeg, image/png";
-                                            input.onchange = async (event) => {
-                                                const file = (event.target as HTMLInputElement);
-                                                if (file.files && file.files[0]) {
-                                                    const formData = new FormData();
-                                                    formData.set('file', file.files[0]);
-                                                    formData.set('folder', 'blog');
-
-                                                    const imageRes = await sendRequest<ApiResponse<string>>({
-                                                        url: `${apiUrl}/blogs/up-thumbnail`,
-                                                        method: 'POST',
-                                                        headers: {},
-                                                        body: formData
-                                                    });
-
-                                                    const fileExtension = file.name.split('.').pop()?.toLowerCase();
-                                                    const imageMarkdown = `![image](${storageUrl}/blog/${imageRes.data})`
-                                                    setInputMarkdown((prev) => prev + "\n </br>" + imageMarkdown + "</br>")
-                                                    console.log(imageRes)
-
-
-                                                }
-                                            };
-
-                                            input.click();
-
-                                        }
-                                    }
-
-                                    return cmd;
-
-                                }
-                                    // cmd.name && ["preview", "live"].includes(cmd.name)) ? false : cmd
-
-
-                                }
-
-                                style={{
-                                    background: '#e9ecef',
-                                    color: 'black'
-                                }}
-                            /> */}
-
-                            {/* Ở dưới: Copy url của ảnh trên mạng gắn vào */}
                             <h4><span className="text-red-600">*</span>Nội dung bài viết</h4>
                             <MDEditor
                                 value={inputMarkdown}
@@ -355,6 +305,7 @@ const BlogUpdate = (props: IProps) => {
                                         ...content,
                                         value: event ? event : ""
                                     })
+                                    console.log(event)
                                 }}
                                 preview="edit"
                                 commandsFilter={(cmd) => (cmd.name && ["preview", "live", "fullscreen"].includes(cmd.name)) ? false : cmd}
@@ -397,6 +348,20 @@ const BlogUpdate = (props: IProps) => {
                         )}
                     </div>
                     <div>
+                        <p><span className='text-red-600'>*</span>Ghim bài viết:</p>
+                        <Form.Item>
+                            <Select
+                                value={pinned}
+                                style={{ width: 470 }}
+                                onChange={handleChangePinned}
+                                options={[
+                                    { value: true, label: "Có" },
+                                    { value: false, label: "Không" },
+                                ]}
+                            />
+                        </Form.Item>
+                    </div>
+                    <div>
                         <span className="text-red-500 mr-2">*</span>Ảnh:
                         <div className={`${errThumbnail !== "" ? "border-red-500 border-2 w-fit rounded-lg" : ""}`}>
                             {urlThumbnail === "" ? (
@@ -433,7 +398,7 @@ const BlogUpdate = (props: IProps) => {
                                     </div>
 
                                     <Tooltip placement="bottom" title={"Tải lên ảnh khác"}>
-                                        <SyncOutlined className="text-blue-500 text-lg ml-6" onClick={() => document.getElementById("chooseFile")?.click()} />
+                                        <UploadOutlined className="text-blue-500 text-lg ml-6" onClick={() => document.getElementById("chooseFile")?.click()} />
                                     </Tooltip>
 
                                     <input

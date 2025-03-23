@@ -2,9 +2,9 @@ import { validContent } from "@/helper/create.blog.helper";
 import { validTitle } from "@/helper/create.question.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
-import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
+import { EyeOutlined, PlusOutlined, SyncOutlined, UploadOutlined, WarningOutlined } from "@ant-design/icons";
 import MDEditor, { getCommands, ICommand } from "@uiw/react-md-editor";
-import { Avatar, Checkbox, Form, Image, Input, Modal, notification } from "antd";
+import { Avatar, Checkbox, Form, Image, Input, Modal, notification, Select, Tooltip } from "antd";
 import { marked } from "marked";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -31,7 +31,7 @@ const BlogCreate = (props: IProps) => {
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
     const [plainContent, setPlainContent] = useState("");
     const [getSubjects, setGetSubjects] = useState<string[]>();
-    // const [checkList, setCheckList] = useState<string[]>();
+    const [pinned, setPinned] = useState<boolean>(false);
     const [checkList, setCheckList] = useState<{ error: boolean, value: string[] }>({ error: false, value: [] });
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -109,6 +109,7 @@ const BlogCreate = (props: IProps) => {
             plainContent: stripHtml(htmlText.toString()),
             thumbnail: urlThumbnail,
             hashtags: checkList.value ? checkList.value : [],
+            pinned: pinned,
         }
 
         const createBlog = await sendRequest<ApiResponse<BlogResponse>>({
@@ -196,6 +197,7 @@ const BlogCreate = (props: IProps) => {
                     url: `${apiUrl}/hashtags/all`,
                     method: 'GET',
                 });
+                console.log(getAllSub.data);
                 if (getAllSub.data && Array.isArray(getAllSub.data)) {
                     setGetSubjects(getAllSub.data.map((hashTag: { tagName: string }) => hashTag.tagName));
                 }
@@ -206,6 +208,10 @@ const BlogCreate = (props: IProps) => {
         getAllSubjects()
 
     }, []);
+
+    const handleChangePinned = (pinned: boolean) => {
+        setPinned(pinned);
+    }
 
     return (
         <>
@@ -225,6 +231,7 @@ const BlogCreate = (props: IProps) => {
                                 placeholder="Tiêu đề"
                                 status={title.error ? "error" : ""}
                                 type="text"
+                                maxLength={100}
                                 onChange={(e) => {
                                     setTitle((prev) => ({
                                         ...prev,
@@ -291,6 +298,20 @@ const BlogCreate = (props: IProps) => {
                         )}
                     </div>
                     <div>
+                        <p><span className='text-red-600'>*</span>Ghim bài viết:</p>
+                        <Form.Item>
+                            <Select
+                                value={pinned}
+                                style={{ width: 470 }}
+                                onChange={handleChangePinned}
+                                options={[
+                                    { value: true, label: "Có" },
+                                    { value: false, label: "Không" },
+                                ]}
+                            />
+                        </Form.Item>
+                    </div>
+                    <div>
                         <span className="text-red-500 mr-2 mb-3">*</span>Ảnh:
                         <div className={`${errThumbnail !== "" ? "border-red-500 border-2 w-fit rounded-lg" : ""}`}>
                             {urlThumbnail === "" ? (
@@ -325,9 +346,9 @@ const BlogCreate = (props: IProps) => {
                                             alt="Preview"
                                         />
                                     </div>
-
-                                    <SyncOutlined className="text-blue-500 text-lg ml-6" onClick={() => document.getElementById("chooseFile")?.click()} />
-
+                                    <Tooltip placement="bottom" title={"Tải lên ảnh khác"}>
+                                        <UploadOutlined className="text-blue-500 text-lg ml-6" onClick={() => document.getElementById("chooseFile")?.click()} />
+                                    </Tooltip>
                                     <input
                                         type="file"
                                         id="chooseFile"

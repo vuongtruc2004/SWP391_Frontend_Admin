@@ -1,5 +1,5 @@
 'use client'
-import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, LikeOutlined, MessageOutlined, StarOutlined, ToTopOutlined } from "@ant-design/icons"
+import { CheckOutlined, CloseOutlined, CommentOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, LikeOutlined, MessageOutlined, StarOutlined, ToTopOutlined } from "@ant-design/icons"
 import { Avatar, Button, Descriptions, DescriptionsProps, Empty, Flex, List, Modal, notification, Pagination, Popconfirm, Space, Table, TableProps, Tag, Tooltip, Tree, TreeDataNode, TreeProps, Typography } from "antd"
 import dayjs from "dayjs"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -9,6 +9,8 @@ import './overwrite.style.scss'
 import { apiUrl, storageUrl } from "@/utils/url"
 import { sendRequest } from "@/utils/fetch.api"
 import { useSession } from "next-auth/react"
+import ListComment from "../comment/list.comment"
+import DisplayBlog from "@/features/blog-display/display.blog"
 
 type CommentDisplay = {
     comment: CommentResponse,
@@ -30,8 +32,8 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
     const [expendKey, setExpendKey] = useState<string[]>([])
     const [currentPage, setCurrentPage] = useState(1);
     const { data: session, status } = useSession();
-    // const [replies, setReplies] = useState<CommentResponse[]>([]);
-
+    const [comments, setComments] = useState<CommentResponse[]>([]);
+    const [contentBlog, setContentBlog] = useState<string>("")
 
     const indexOfLastComment = currentPage * pageSize;
     const indexOfFirstComment = indexOfLastComment - pageSize;
@@ -269,11 +271,11 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
         .map((item) => ({
             key: String(item.commentId),
             title: (
-                <Flex align="start" gap={10}>
+                <Flex align="start" gap={10} className="w-full">
                     <Avatar src={`${storageUrl}/avatar/${item.user.avatar}`} alt={item.user.fullname} />
                     <Space direction="vertical" size="small">
                         <Typography.Text strong>{item.user.fullname}</Typography.Text>
-                        <span>{item.createdAt}</span>
+                        <span>{dayjs(item.createdAt).format("DD/MM/YYYY HH:MM")}</span>
                         <Typography.Text>{item.content}</Typography.Text>
                         <div className="flex gap-5">
                             <IconText icon={LikeOutlined} text="156" key="list-vertical-like-o" />
@@ -316,7 +318,7 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
                         <h1 className="mb-4 text-[25px]"><strong>{selectRecord.title}</strong></h1>
                         <Descriptions items={items} />
                         <img src={selectRecord?.thumbnail ? `${storageUrl}/blog/${selectRecord.thumbnail}` : undefined} alt="" className="mt-5" />
-                        <div dangerouslySetInnerHTML={{ __html: selectRecord.content }} className="my-10"></div>
+                        <DisplayBlog content={selectRecord.content} />
                         <div>
                             <h1 className="mb-2 font-semibold">Tags:</h1>
                             <Flex gap="4px 0" wrap>
@@ -326,19 +328,20 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
                             </Flex>
                         </div>
                         <hr className="my-9" />
-                        <h1 className="font-[600] text-[20px]">
-                            <strong>Bình luận:<Avatar size={30} style={{ marginLeft: "10px" }}>{selectRecord.totalComments}</Avatar></strong>
+                        <h1 className="font-[600] text-[20px] flex gap-3">
+                            <CommentOutlined className="!text-blue-500" /> {selectRecord.totalComments}
+                            <LikeOutlined className="!text-blue-500" />{selectRecord.totalLikes}
                         </h1>
                         <div className="mt-5">
-                            <Tree
-                                showLine
-                                onSelect={handleOnSelect}
-                                treeData={currentComments}
-                                showIcon={false}
-                                switcherIcon={null}
-                                expandedKeys={expendKey}
-                                onExpand={(keys) => { console.log("Các key đang mở:", keys); setExpendKey(keys as string[]) }}
-                            />
+                            {selectRecord.comments !== null && (
+                                <ListComment
+                                    blog={selectRecord}
+                                    comments={comments}
+                                    setComments={setComments}
+                                    hasParent={-1}
+                                />
+                            )}
+
                             <Pagination
                                 current={currentPage}
                                 pageSize={pageSize}
