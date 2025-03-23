@@ -13,6 +13,7 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -32,8 +33,8 @@ const CampaignCreateBtn = () => {
     const [description, setDescription] = useState<ErrorResponse>(initState);
     const [reduceValue, setReduceValue] = useState<ErrorResponse>(initState);
     const { RangePicker } = DatePicker;
-    const [global, setGlobal] = useState<string>("ALL");
-    const [reduceType, setReduceType] = useState<string>("FIXED");
+
+    const [global, setGlobal] = useState<"ALL" | "COURSES">("ALL");
     const [dates, setDates] = useState<[string | null, string | null] | null>(null);
     const router = useRouter()
     const [allCourse, setAllCourse] = useState<{ value: number, label: string }[]>([])
@@ -46,12 +47,9 @@ const CampaignCreateBtn = () => {
     };
 
     const handleOnChangeGlobal = (value: string) => {
-        setGlobal(value);
+        setGlobal(value as "ALL" | "COURSES");
     }
 
-    const handleOnChangeReduceType = (value: string) => {
-        setReduceType(value);
-    }
     const handleChange = (values: [Dayjs | null, Dayjs | null] | null) => {
         if (values && values[0] && values[1]) {
             setDates([
@@ -62,8 +60,6 @@ const CampaignCreateBtn = () => {
             setDates(null);
         }
     };
-
-
 
     const handleOk = async () => {
         setLoading(true);
@@ -89,11 +85,6 @@ const CampaignCreateBtn = () => {
                 }
                 setLoading(false);
                 return
-            }
-
-            if (dates && dates[0] && dayjs(dates[0]).isBefore(dayjs())) {
-                setLoading(false);
-                return;
             }
 
 
@@ -123,11 +114,15 @@ const CampaignCreateBtn = () => {
                 return;
             }
 
+            if ((Number(reduceValue?.value) > 99 || Number(reduceValue?.value) < 0)) {
+                setLoading(false)
+                return;
+            }
+
             const campaignRequest: CampaignRequest = {
                 campaignName: campaigntName.value.trim(),
                 campaignDescription: description.value.trim(),
-                thumbnail: urlThumbnail,
-                discountType: reduceType,
+                thumbnailUrl: urlThumbnail,
                 discountRange: global,
                 startTime: dates[0]!,
                 endTime: dates[1]!,
@@ -174,7 +169,6 @@ const CampaignCreateBtn = () => {
         setReduceValue(initState);
         setIsModalOpen(false);
         setErrThumbnail("");
-        setReduceType("FIXED");
         setUrlThumbnail("");
         setEmptyDate("");
         setDates(null);
@@ -305,51 +299,28 @@ const CampaignCreateBtn = () => {
                     </Row>
 
                     <Row gutter={24} className="mb-2">
-                        <Col span={12} className="!pl-0">
-                            <span className="text-red-500 mr-2">*</span>Loại giảm giá:
-                            <br />
-                            <Select
-                                className="w-full !mt-1"
-                                onChange={handleOnChangeReduceType}
-                                value={reduceType}
-                                options={[
-                                    { value: 'FIXED', label: 'Giá cố định' },
-                                    { value: 'PERCENTAGE', label: 'Phần trăm' },
-                                ]}
-                            />
-                        </Col>
+                        <span className="text-red-500 mr-2">*</span>Phần trăm giảm giá:
+                        <Input
+                            status={reduceValue.error ? 'error' : ''}
+                            className="mt-1"
+                            placeholder="Nhập phần trăm giảm giá"
+                            value={reduceValue.value}
+                            suffix={'%'}
+                            onChange={(e) => {
+                                setReduceValue({
+                                    ...reduceValue,
+                                    value: e.target.value,
+                                    error: false
+                                })
+                            }}
+                        />
 
-                        <Col span={12} className="!p-0">
-                            <span className="text-red-500 mr-2">*</span>Giá trị giảm:
-                            <Input
-                                status={reduceValue.error ? 'error' : ''}
-                                className="mt-1"
-                                placeholder="Nhập giá trị giảm"
-                                suffix={<span>{reduceType === 'FIXED' ? 'VND' : '%'}</span>}
-                                value={reduceValue.value}
-                                onChange={(e) => {
-                                    setReduceValue({
-                                        ...reduceValue,
-                                        value: e.target.value,
-                                        error: false
-                                    })
-                                }}
-                            />
-                            {reduceValue.error && (
-                                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                    <WarningOutlined />
-                                    {reduceValue.message}
-                                </p>
-                            )}
-
-                            {reduceType === 'PERCENTAGE' && (Number(reduceValue?.value) > 99 || Number(reduceValue?.value) < 0) && (
-                                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                    <WarningOutlined />
-                                    Phần trăm giảm giá phải trong khoảng từ 0% đến 99%
-                                </p>
-                            )}
-
-                        </Col>
+                        {(Number(reduceValue?.value) > 99 || Number(reduceValue?.value) < 0) && (
+                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                <WarningOutlined />
+                                Phần trăm giảm giá phải trong khoảng từ 0% đến 99%
+                            </p>
+                        )}
 
                     </Row>
 
@@ -362,30 +333,9 @@ const CampaignCreateBtn = () => {
                                 value={dates ? [dates[0] ? dayjs(dates[0]) : null, dates[1] ? dayjs(dates[1]) : null] : null}
                                 onChange={handleChange}
                                 className={`${emptyDate !== "" ? "!border-red-500 w-full" : " w-full"}`}
-                                disabledDate={(current) => current && current.isBefore(dayjs(), 'day')}
-                                disabledTime={(current) => {
-                                    const now = dayjs();
-                                    if (!current) return {};
-                                    if (current.isSame(now, "day")) {
-                                        return {
-                                            disabledHours: () =>
-                                                Array.from({ length: now.hour() }, (_, i) => i),
-                                            disabledMinutes: (hour) =>
-                                                hour === now.hour()
-                                                    ? Array.from({ length: now.minute() }, (_, i) => i)
-                                                    : [],
-                                        };
-                                    }
-                                    return {};
-                                }}
                             />
                         </Col>
-                        {dates && dates[0] && dayjs(dates[0]).isBefore(dayjs()) && (
-                            <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
-                                <WarningOutlined />
-                                Thời gian chiến dịch phải lớn hơn hoặc bằng thời gian hiện tại!
-                            </p>
-                        )}
+
 
                         {emptyDate !== "" && !dates && (
                             <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
@@ -417,6 +367,7 @@ const CampaignCreateBtn = () => {
                             <Col span={24}>
                                 <p><span className='text-red-600 mr-2'>*</span>Khóa học:</p>
                                 <Select
+                                    className={`${applymentType.error && applymentType.tags.length === 0 ? "!border-red-600 !border !rounded-md" : ""}`}
                                     value={applymentType.tags.map(String)}
                                     mode="tags"
                                     style={{ width: "100%" }}
@@ -433,7 +384,7 @@ const CampaignCreateBtn = () => {
                                         value: String(course.value),
                                         label: course.label,
                                     }))} />
-                                {applymentType.error === true && (
+                                {applymentType.error === true && applymentType.tags.length === 0 && (
                                     <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
                                         <WarningOutlined />
                                         Vui lòng thêm khóa học áp dụng chiến dịch

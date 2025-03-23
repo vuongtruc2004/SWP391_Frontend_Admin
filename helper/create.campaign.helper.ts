@@ -69,17 +69,6 @@ export const getDiscountRange = (value: string | undefined | null) => {
 
 }
 
-export const getDiscountType = (value: string | undefined | null) => {
-
-    if (!value || (value !== 'FIXED' && value !== 'PERCENTAGE')) {
-        return 'ALL';
-    }
-    else {
-        return value;
-    }
-
-}
-
 export const getReducePrice = (value: string | null | undefined): string | number => {
     if (!value || !/^\d+(\.\d+)?$/.test(value.trim())) {
         return '';

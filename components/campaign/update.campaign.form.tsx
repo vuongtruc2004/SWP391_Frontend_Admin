@@ -1,7 +1,7 @@
 'use client'
-import { ChangeEvent, useActionState, useEffect, useRef, useState } from 'react';
-import { Avatar, Button, Col, DatePicker, Image, Input, Modal, notification, Row, Select, Spin, Tooltip } from 'antd';
-import { EyeOutlined, SyncOutlined, UploadOutlined, WarningOutlined } from '@ant-design/icons';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { Button, Col, DatePicker, Image, Input, Modal, notification, Row, Select, Spin, Tooltip } from 'antd';
+import { EyeOutlined, UploadOutlined, WarningOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import '@ant-design/v5-patch-for-react-19';
 import { sendRequest } from '@/utils/fetch.api';
@@ -29,7 +29,7 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
     const [errThumbnail, setErrThumbnail] = useState("")
     const [urlThumbnail, setUrlThumbnail] = useState("");
     const [emptyDate, setEmptyDate] = useState("");
-    const [global, setGlobal] = useState<string>("");
+    const [global, setGlobal] = useState<"ALL" | "COURSES">("ALL");
     const [loading, setLoading] = useState<boolean>(false);
     const router = useRouter();
     const [reduceType, setReduceType] = useState<string>("");
@@ -38,7 +38,6 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
     const [applymentType, setApplymentType] = useState<{ error: boolean, tags: number[] }>({ error: false, tags: [] });
     const [allCourse, setAllCourse] = useState<{ value: number, label: string }[]>([])
     const { data: session, status } = useSession();
-
 
     useEffect(() => {
         if (editingCamnpaign) {
@@ -60,11 +59,8 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
         if (editingCamnpaign?.thumbnail) {
             setUrlThumbnail(editingCamnpaign.thumbnail);
         }
-        if (editingCamnpaign?.discountRange) {
+        if (editingCamnpaign?.discountRange === "ALL" || editingCamnpaign?.discountRange === "COURSES") {
             setGlobal(editingCamnpaign.discountRange);
-        }
-        if (editingCamnpaign?.discountType) {
-            setReduceType(editingCamnpaign.discountType);
         }
         if (editingCamnpaign?.startTime && editingCamnpaign?.endTime) {
             setDates([editingCamnpaign.startTime, editingCamnpaign.endTime]);
@@ -80,12 +76,9 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
     }, [editingCamnpaign]);
 
     const handleOnChangeGlobal = (value: string) => {
-        setGlobal(value);
+        setGlobal(value as "ALL" | "COURSES");
     }
 
-    const handleOnChangeReduceType = (value: string) => {
-        setReduceType(value);
-    }
     const handleChange = (values: [Dayjs | null, Dayjs | null] | null) => {
         if (values && values[0] && values[1]) {
             setDates([
@@ -116,8 +109,33 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
                 return
             }
 
+            if (campaignName.value.split(/\s+/).length > 50) {
+                notification.error({
+                    message: "Thất bại",
+                    description: "Tên chiến dịch không được quá 50 từ!",
+                    showProgress: true
+                });
+                setLoading(false)
+                return
+            }
+
+            if (description.value.split(/\s+/).length > 1000) {
+                notification.error({
+                    message: "Thất bại",
+                    description: "Mô tả không được quá 1000 từ!",
+                    showProgress: true
+                });
+                setLoading(false)
+                return
+            }
+
             if (global !== 'ALL' && applymentType.tags.length === 0) {
                 setApplymentType(prev => ({ ...prev, error: true }))
+                setLoading(false)
+                return;
+            }
+
+            if ((Number(reduceValue?.value) > 99 || Number(reduceValue?.value) < 0)) {
                 setLoading(false)
                 return;
             }
@@ -126,8 +144,7 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
                 campaignId: editingCamnpaign?.campaignId,
                 campaignName: campaignName.value.trim(),
                 campaignDescription: description.value.trim(),
-                thumbnail: urlThumbnail,
-                discountType: reduceType,
+                thumbnailUrl: urlThumbnail,
                 discountRange: global,
                 startTime: dates?.[0]! ?? null,
                 endTime: dates?.[1]! ?? null,
@@ -282,51 +299,27 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
                 </Row>
 
                 <Row gutter={24} className="mb-2">
-                    <Col span={12} className="!pl-0">
-                        <span className="text-red-500 mr-2">*</span>Loại giảm giá:
-                        <br />
-                        <Select
-                            className="w-full !mt-1"
-                            onChange={handleOnChangeReduceType}
-                            value={reduceType}
-                            options={[
-                                { value: 'FIXED', label: 'Giá cố định' },
-                                { value: 'PERCENTAGE', label: 'Phần trăm' },
-                            ]}
-                        />
-                    </Col>
-
-                    <Col span={12} className="!p-0">
-                        <span className="text-red-500 mr-2">*</span>Giá trị giảm:
-                        <Input
-                            status={reduceValue.error ? 'error' : ''}
-                            className="mt-1"
-                            placeholder="Nhập giá trị giảm"
-                            suffix={<span>{reduceType === 'FIXED' ? 'VND' : '%'}</span>}
-                            value={reduceValue.value}
-                            onChange={(e) => {
-                                setReduceValue({
-                                    ...reduceValue,
-                                    value: e.target.value,
-                                    error: false
-                                })
-                            }}
-                        />
-                        {reduceValue.error && (
-                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                <WarningOutlined />
-                                {reduceValue.message}
-                            </p>
-                        )}
-
-                        {reduceType === 'PERCENTAGE' && (Number(reduceValue?.value) > 100 || Number(reduceValue?.value) < 0) && (
-                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                <WarningOutlined />
-                                Phần trăm giảm giá phải trong khoảng từ 0% đến 100%
-                            </p>
-                        )}
-
-                    </Col>
+                    <span className="text-red-500 mr-2">*</span>Phần trăm giảm giá:
+                    <Input
+                        status={reduceValue.error ? 'error' : ''}
+                        className="mt-1"
+                        placeholder="Nhập giá trị giảm"
+                        suffix={'%'}
+                        value={reduceValue.value}
+                        onChange={(e) => {
+                            setReduceValue({
+                                ...reduceValue,
+                                value: e.target.value,
+                                error: false
+                            })
+                        }}
+                    />
+                    {(Number(reduceValue?.value) > 99 || Number(reduceValue?.value) < 0) && (
+                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                            <WarningOutlined />
+                            Phần trăm giảm giá phải trong khoảng từ 0% đến 99%
+                        </p>
+                    )}
 
                 </Row>
 
@@ -339,22 +332,6 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
                             value={dates ? [dates[0] ? dayjs(dates[0]) : null, dates[1] ? dayjs(dates[1]) : null] : null}
                             onChange={handleChange}
                             className={`${emptyDate !== "" ? "!border-red-500 w-full" : " w-full"}`}
-                            disabledDate={(current) => current && current.isBefore(dayjs(), 'day')}
-                            disabledTime={(current) => {
-                                const now = dayjs();
-                                if (!current) return {};
-                                if (current.isSame(now, "day")) {
-                                    return {
-                                        disabledHours: () =>
-                                            Array.from({ length: now.hour() }, (_, i) => i),
-                                        disabledMinutes: (hour) =>
-                                            hour === now.hour()
-                                                ? Array.from({ length: now.minute() }, (_, i) => i)
-                                                : [],
-                                    };
-                                }
-                                return {};
-                            }}
                         />
                     </Col>
 
@@ -388,6 +365,7 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
                         <Col span={24}>
                             <p><span className='text-red-600 mr-2'>*</span>Khóa học:</p>
                             <Select
+                                className={`${applymentType.error && applymentType.tags.length === 0 ? "!border-red-600 !border !rounded-md" : ""}`}
                                 value={applymentType.tags.map(String)}
                                 mode="tags"
                                 style={{ width: "100%" }}
@@ -404,7 +382,7 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
                                     value: String(course.value),
                                     label: course.label,
                                 }))} />
-                            {applymentType.error === true && (
+                            {applymentType.error === true && applymentType.tags.length === 0 && (
                                 <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
                                     <WarningOutlined />
                                     Vui lòng thêm khóa học áp dụng chiến dịch

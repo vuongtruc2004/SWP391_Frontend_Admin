@@ -38,12 +38,8 @@ const ViewCampaignDetail = ({ campaign, openViewDraw, setOpenViewDraw }: {
                                 <td>{campaign.campaignDescription}</td>
                             </tr>
                             <tr>
-                                <td className='text-blue-500 text-base mr-2 font-bold'>Loại giảm giá:</td>
-                                <td>{campaign.discountType === 'FIXED' ? 'Giá cố định' : 'Phần trăm'}</td>
-                            </tr>
-                            <tr>
-                                <td className='text-blue-500 text-base mr-2 font-bold'>Số lượng giảm giá: </td>
-                                <td>{Intl.NumberFormat('vi-VN').format(campaign.discountPercentage)} {campaign.discountType === 'FIXED' ? '₫' : '%'}</td>
+                                <td className='text-blue-500 text-base mr-2 font-bold'>Phần trăm giảm giá: </td>
+                                <td>{Intl.NumberFormat('vi-VN').format(campaign.discountPercentage)} %</td>
                             </tr>
                             <tr>
                                 <td className='text-blue-500 text-base mr-2 font-bold'>Ngày tạo:</td>
@@ -70,7 +66,7 @@ const ViewCampaignDetail = ({ campaign, openViewDraw, setOpenViewDraw }: {
 
                     </table>
 
-                    <Collapse
+                    {/* <Collapse
                         activeKey={openCollapse}
                         onChange={setOpenCollapse}
                         items={[{
@@ -87,7 +83,7 @@ const ViewCampaignDetail = ({ campaign, openViewDraw, setOpenViewDraw }: {
                                     ))}
                                 </ul>
                         }]}
-                    />
+                    /> */}
 
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ảnh:</span> </div><br />
                     <div className="flex justify-center items-center">

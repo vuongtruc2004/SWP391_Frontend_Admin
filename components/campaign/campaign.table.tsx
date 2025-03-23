@@ -37,28 +37,6 @@ const CampaignTable = ({ campaignResponse }: { campaignResponse: PageDetailsResp
     const [stompClient, setStompClient] = useState<Client | null>(null);
     const { data: session, status } = useSession();
 
-    useEffect(() => {
-        const client = new Client({
-            brokerURL: "ws://localhost:8386/ws/websocket",
-            reconnectDelay: 5000, // Tự động kết nối lại sau 5s nếu bị mất
-            onConnect: () => {
-                client.subscribe("/topic/campaigns", (message) => {
-                    router.refresh();
-                });
-            },
-            onStompError: (error) => {
-                console.error("WebSocket lỗi:", error);
-            }
-        });
-
-        client.activate();
-        setStompClient(client);
-
-        return () => {
-            client.deactivate();
-        };
-    }, [])
-
     const deleteCampaign = async (campaignId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<string>>({
             url: `${apiUrl}/campaigns/${campaignId}`,
@@ -71,7 +49,7 @@ const CampaignTable = ({ campaignResponse }: { campaignResponse: PageDetailsResp
         if (deleteResponse.status === 200) {
             notification.success({
                 message: "Thành Công",
-                description: deleteResponse.data.toString(),
+                description: deleteResponse.message.toString(),
                 showProgress: true
             });
             router.refresh()
@@ -103,29 +81,23 @@ const CampaignTable = ({ campaignResponse }: { campaignResponse: PageDetailsResp
             sorter: (a, b) => a.campaignName.localeCompare(b.campaignName),
         },
         {
-            title: 'Loại giảm giá',
-            dataIndex: 'discountType',
-            key: 'discountType',
-            width: '15%',
+            title: 'Tên chiến dịch',
+            dataIndex: 'campaignName',
+            key: 'campaignName',
+            width: '30%',
             align: 'center',
-            sorter: (a, b) => a.discountType.localeCompare(b.discountType),
-            render: (discountType) => discountType === 'FIXED' ? 'Giá cố định' : 'Phần trăm'
+            sorter: (a, b) => a.campaignName.localeCompare(b.campaignName),
         },
         {
-            title: 'Số lượng giảm',
+            title: 'Phần trăm giảm giá',
             dataIndex: 'discountPercentage',
             key: 'discountPercentage',
             width: '15%',
             align: 'center',
-            sorter: (a, b) => a.discountType.localeCompare(b.discountType),
+            sorter: (a, b) => a.discountPercentage - b.discountPercentage,
             render: (text, record) => {
-                if (record.discountType === 'FIXED') {
-                    const formattedDiscount = new Intl.NumberFormat('vi-VN').format(record.discountPercentage);
-                    return `${formattedDiscount}₫`;
-                }
                 return `${record.discountPercentage}%`;
             }
-
         },
         {
             title: 'Phạm vi giảm giá',

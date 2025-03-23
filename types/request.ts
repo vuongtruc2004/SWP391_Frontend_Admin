@@ -156,10 +156,9 @@ declare global {
         campaignId?: number;
         campaignName: string;
         campaignDescription: string;
-        discountPercentage?: number;
-        discountType: string;
-        discountRange: string;
-        thumbnail: string;
+        discountPercentage: number;
+        discountRange: "ALL" | "COURSES";
+        thumbnailUrl: string;
         startTime: string;
         endTime: string;
         courseIds?: number[];

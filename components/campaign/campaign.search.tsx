@@ -1,16 +1,14 @@
 'use client'
 import { RedoOutlined, SearchOutlined } from '@ant-design/icons'
-import { Button, Col, DatePicker, DatePickerProps, Form, Grid, Input, InputNumber, Row, Select, Slider, Tooltip } from 'antd'
+import { Button, DatePicker, DatePickerProps, Form, Grid, Input, InputNumber, Row, Select, Slider, Tooltip } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import dayjs from 'dayjs'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useRef, useState } from 'react'
 
 
-const CampaignSearch = ({ keyword, discountRange, discountType, startFrom, startTo, endFrom, endTo, minPrice, maxPrice }: {
+const CampaignSearch = ({ keyword, discountRange, startFrom, startTo, endFrom, endTo, minPrice, maxPrice }: {
     keyword: string;
     discountRange: string;
-    discountType: string;
     minPrice: number;
     maxPrice: number;
     startFrom: string;
@@ -93,7 +91,7 @@ const CampaignSearch = ({ keyword, discountRange, discountType, startFrom, start
 
     return (
         <div className="flex gap-2 ml-10 mt-10">
-            <Form className='w-[50%]' onFinish={onFinish} form={form} initialValues={{ keyword: keyword, discountRange: discountRange, discountType: discountType }}>
+            <Form className='w-[50%]' onFinish={onFinish} form={form} initialValues={{ keyword: keyword, discountRange: discountRange }}>
 
                 <Form.Item name="keyword" className="mb-0">
                     <Input
@@ -148,21 +146,6 @@ const CampaignSearch = ({ keyword, discountRange, discountType, startFrom, start
                         </Form.Item>
                     </div>
 
-                    <Form.Item name="discountType" className="mb-0" label="Loại giảm giá:">
-                        <Select
-                            style={{ width: 150, marginRight: '30px' }}
-                            allowClear={false}
-                            onChange={() => {
-                                form.submit();
-                            }}
-                            options={[
-                                { value: "ALL", label: "Tất cả" },
-                                { value: "FIXED", label: 'Giá cố định' },
-                                { value: "PERCENTAGE", label: 'Phần trăm' },
-
-                            ]}
-                        />
-                    </Form.Item>
 
                 </div>
 

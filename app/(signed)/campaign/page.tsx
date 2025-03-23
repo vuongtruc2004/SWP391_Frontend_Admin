@@ -3,7 +3,7 @@ import CampaignCreateBtn from '@/components/campaign/campaign.create.btn';
 import CampaignFilter from '@/components/campaign/campaign.filter';
 import CampaignSearch from '@/components/campaign/campaign.search';
 import CampaignTable from '@/components/campaign/campaign.table'
-import { getDiscountRange, getDiscountType, getReducePrice } from '@/helper/create.campaign.helper';
+import { getDiscountRange, getReducePrice } from '@/helper/create.campaign.helper';
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import { Metadata } from 'next';
@@ -36,7 +36,6 @@ const CampaignPage = async (props: {
     const endFrom = searchParams.endFrom || '';
     const endTo = searchParams.endTo || '';
     const discountRange = getDiscountRange(searchParams.discountRange || '');
-    const discountType = getDiscountType(searchParams.discountType || '');
     const minPrice = getReducePrice(searchParams.minPrice || "");
     const maxPrice = getReducePrice(searchParams.maxPrice || "");
     const session = await getServerSession(authOptions);
@@ -51,9 +50,6 @@ const CampaignPage = async (props: {
     }
     if (discountRange !== 'ALLS') {
         filters.push(`discountRange ~ '${discountRange}'`)
-    }
-    if (discountType !== 'ALL') {
-        filters.push(`discountType ~ '${discountType}'`)
     }
 
     if (minPrice != '') {
@@ -93,7 +89,6 @@ const CampaignPage = async (props: {
             <CampaignSearch
                 keyword={keyword}
                 discountRange={discountRange}
-                discountType={discountType}
                 minPrice={priceResponse.data.minPrice} maxPrice={priceResponse.data.maxPrice}
                 startFrom={startFrom} startTo={startTo} endFrom={endFrom} endTo={endTo}
 

@@ -106,7 +106,7 @@ declare global {
         createdAt: string;
         updatedAt: string;
         objectives: string[],
-        courseStatus:string
+        courseStatus: string
     }
 
     interface CourseDetailsResponse extends CourseResponse {
@@ -280,15 +280,13 @@ declare global {
         campaignName: string;
         campaignDescription: string;
         discountPercentage: number;
-        discountType: string;
         discountRange: string;
         thumbnail: string;
         startTime: string;
         endTime: string;
         createdAt: string;
         updatedAt: string;
-        courses: CourseDetailsResponse[];
+        courses: CourseResponse[];
     }
-
 
 }
