@@ -125,6 +125,7 @@ declare global {
         title: string;
         description: string;
         lessons: LessonResponse[];
+        course: CourseResponse;
     }
 
     interface LessonResponse {

@@ -11,22 +11,16 @@ import { useParams, useRouter } from 'next/navigation';
 import { useQuizUpdate } from '@/wrapper/quiz-update/quiz.update.wrapper';
 
 
-const { Option } = Select;
-const QuizUpdateForm = ({ courses, quizId }: {
+const QuizUpdateForm = ({ quizId }: {
     quizId: number | undefined
-    courses: CourseDetailsResponse[];
 }) => {
     const { data: session } = useSession();
     const router = useRouter();
     const { form, createQuestions, setCreateQuestions, selectQuestions, setSelectQuestions, isSubmitted, setIsSubmitted } = useQuizUpdate();
-    const [selectedCourseId, setSelectedCourseId] = useState<number | undefined>(
-        courses.length > 0 ? courses[0].courseId : undefined
-    );
 
-    const [chapters, setChapters] = useState<ChapterResponse[]>([]);
-    const [selectedChapterId, setSelectedChapterId] = useState<number | null>(null);
+
     const [questionList, setQuestionList] = useState<string[]>([]);
-
+    const [chapterId, setChapterId] = useState(0);
     const onFinish: FormProps<QuizFieldType>['onFinish'] = async (values) => {
         setIsSubmitted(true);
         const questionValues = createQuestions.map(q => q.title.trim().toLowerCase());
@@ -51,6 +45,7 @@ const QuizUpdateForm = ({ courses, quizId }: {
         });
 
         setCreateQuestions(updatedQuestions);
+        console.log("updatedQuestions>>", updatedQuestions)
 
         if (selectQuestions.length > 0 && createQuestions[0].title === '') {
             // TH1: Có chọn từ ngân hàng nhưng không tạo mới, tiếp tục xử lý
@@ -77,14 +72,17 @@ const QuizUpdateForm = ({ courses, quizId }: {
 
             if (hasDuplicateError) return;
 
+
+
+            console.log("values>>", values);
             const quizRequest: QuizRequest = {
                 quizId: quizId,
                 title: values.title,
                 published: values.published,
                 allowSeeAnswers: values.allowSeeAnswers,
                 description: values.description,
-                duration: values.duration,
-                chapterId: values.chapterId,
+                duration: values.duration * 60,
+                chapterId: chapterId,
                 bankQuestionIds: selectQuestions.map(q => q.questionId),
                 newQuestions: createQuestions[0].title === '' ? [] : createQuestions
 
@@ -100,6 +98,7 @@ const QuizUpdateForm = ({ courses, quizId }: {
                 },
             });
 
+            console.log("quizResponse>>", quizResponse)
             if (quizResponse.status == 200) {
 
                 notification.success({
@@ -129,27 +128,6 @@ const QuizUpdateForm = ({ courses, quizId }: {
             });
         };
     }
-    useEffect(() => {
-        const courseChapters = courses.find(course => course.courseId === selectedCourseId)?.chapters || [];
-        setChapters(courseChapters);
-
-        if (courseChapters.length > 0) {
-            setSelectedChapterId(courseChapters[0].chapterId);
-            form.setFieldsValue({ chapterId: courseChapters[0].chapterId });
-        } else {
-            setSelectedChapterId(null);
-            form.setFieldsValue({ chapterId: null });
-        }
-    }, [selectedCourseId]);
-
-
-    useEffect(() => {
-        if (chapters.length > 0) {
-            const defaultChapterId = chapters[0].chapterId;
-            setSelectedChapterId(defaultChapterId);
-            form.setFieldsValue({ chapterId: defaultChapterId }); // Cập nhật giá trị vào Form
-        }
-    }, [chapters]);
 
     useEffect(() => {
         const fetchAllQuestions = async () => {
@@ -182,7 +160,6 @@ const QuizUpdateForm = ({ courses, quizId }: {
     }, []);
     useEffect(() => {
         if (quizId) {
-            // Gọi API lấy dữ liệu quiz khi đang ở chế độ cập nhật
             const fetchQuiz = async () => {
                 try {
                     const response = await sendRequest<ApiResponse<QuizResponse>>({
@@ -198,15 +175,12 @@ const QuizUpdateForm = ({ courses, quizId }: {
                             title: response.data.title,
                             description: response.data.description,
                             published: response.data.published,
-                            duration: response.data.duration,
-                            chapterId: response.data.chapter.chapterId,
-                            allowSeeAnswers: response.data.allowSeeAnswers,
-                            courseId: response.data.chapter.course.courseId
+                            duration: response.data.duration / 60,
+                            allowSeeAnswers: response.data.allowSeeAnswers
                         });
-                        setSelectedCourseId(response.data.chapter.course.courseId);
-                        setSelectedChapterId(response.data.chapter.chapterId);
                         setCreateQuestions([]);
                         setSelectQuestions(response.data.questions);
+                        setChapterId(response.data.chapter.chapterId);
                     }
                 } catch (error) {
                     console.error("Lỗi khi tải quiz:", error);
@@ -217,7 +191,7 @@ const QuizUpdateForm = ({ courses, quizId }: {
         }
     }, [quizId]);
     return (
-        <div className='p-5 border border-l-gray-300 h-[calc(100vh-61.6px)] sticky top-0 right-0'>
+        <div className='w-[400px] p-5 border border-l-gray-300 h-[calc(100vh-61.6px)] sticky top-0 right-0'>
             <h1 className='font-semibold text-lg mb-3'>Thông tin cơ bản</h1>
             <Form
                 form={form}
@@ -225,8 +199,6 @@ const QuizUpdateForm = ({ courses, quizId }: {
                 onFinish={onFinish}
                 initialValues={{
                     published: false,
-                    courseId: courses.length > 0 ? courses[0].courseId : undefined,
-                    chapterId: courses.length > 0 ? courses[0].chapters[0]?.chapterId : null,
                     allowSeeAnswers: false
                 }}
             >
@@ -250,41 +222,6 @@ const QuizUpdateForm = ({ courses, quizId }: {
                     rules={[{ required: true, message: 'Vui lòng không để trống mô tả!' }]}
                 >
                     <TextArea rows={4} placeholder='Nhập mô tả bài kiểm tra' />
-                </Form.Item>
-
-                <Form.Item<QuizFieldType>
-                    label="Khóa học"
-                    name='courseId'
-                    rules={[{ required: true, message: 'Vui lòng không để trống mô tả!' }]}
-                >
-                    <Select
-                        value={selectedCourseId} // Đảm bảo không bị undefined
-                        onChange={(value) => setSelectedCourseId(value)}
-                        options={courses.map(course => ({
-                            value: course.courseId,
-                            label: course.courseName
-                        }))}
-                    />
-
-                </Form.Item>
-
-                <Form.Item<QuizFieldType>
-                    label="Chương học"
-                    name='chapterId'
-                    rules={[{ required: true, message: 'Vui lòng không để trống chương học!' }]}
-                >
-                    <Select value={selectedChapterId} onChange={(value) => {
-                        setSelectedChapterId(value);
-                        form.setFieldsValue({ chapterId: value });
-                    }}>
-                        {chapters.map((chapter, index) => {
-                            return (
-                                <Option key={chapter.chapterId} value={chapter.chapterId}>
-                                    Chương {index + 1}: {chapter.title}
-                                </Option>
-                            )
-                        })}
-                    </Select>
                 </Form.Item>
 
                 <div className='grid grid-cols-[1.6fr_1fr]'>

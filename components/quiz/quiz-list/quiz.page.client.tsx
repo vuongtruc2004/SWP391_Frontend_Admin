@@ -29,8 +29,14 @@ const QuizPageClient = (props: {
                 return {
                     STT: index + 1,
                     "Tiêu đề": d.title,
-                    "Trạng thái": d.published ? 'Đang mở' : 'Bị đóng',
-                    "Danh sách câu hỏi": d.questions.map(q => q.title).join("\n") // Sử dụng xuống dòng
+                    "Trạng thái": d.published ? 'Mở' : 'Đóng',
+                    "Khóa học": d.chapter.course.courseName,
+                    "Chương học": d.chapter.title,
+                    "Mô tả": d.description,
+                    "Ngày tạo": d.createdAt,
+                    "Thời gian làm bài (phút)": d.duration / 60,
+                    "Cho xem đáp án": d.allowSeeAnswers ? 'Mở' : 'Đóng',
+                    "Danh sách câu hỏi": d.questions.map(q => q.title).join("\n")
                 };
             });
 

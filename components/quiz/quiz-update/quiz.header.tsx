@@ -25,9 +25,7 @@ const QuizHeader = () => {
                 </h1>
 
                 <div className="flex items-center gap-x-3">
-                    <Button onClick={() => setOpenBank(true)}>
-                        Chọn câu hỏi có sẵn
-                    </Button>
+
                     <Button type="primary" onClick={() => form.submit()}>
                         Cập nhật
                     </Button>

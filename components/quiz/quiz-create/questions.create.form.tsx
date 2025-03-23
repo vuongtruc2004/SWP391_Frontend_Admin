@@ -1,11 +1,13 @@
 'use client'
 import { useQuizCreate } from "@/wrapper/quiz-create/quiz.create.wrapper";
-import { DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined, WarningOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Input, Tooltip } from "antd";
+import { DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined, WarningOutlined } from "@ant-design/icons";
+import { Button, Checkbox, Drawer, Input, Tooltip } from "antd";
 import { useEffect, useState } from "react";
+import QuestionBank from "./question.bank";
 
 const QuestionsCreateForm = () => {
     const { setCreateQuestions, createQuestions, isSubmitted, selectQuestions } = useQuizCreate();
+    const [openBank, setOpenBank] = useState(false);
 
     const addQuestion = () => {
         setCreateQuestions([...createQuestions, { id: `c-${Date.now()}-${Math.random()}`, title: "", answers: [{ content: "", correct: false }], errorMessage: "" }]);
@@ -49,71 +51,77 @@ const QuestionsCreateForm = () => {
     }, [createQuestions]);
 
     return (
-        <div className="h-[calc(100vh-61.6px)] overflow-auto p-5 ">
-            {createQuestions.map((question, qIndex) => (
-                <div key={question.id} className="mb-4  p-4  rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)]">
-                    <Input
-                        status={(question.errorMessage !== '' && createQuestions[0].title != '') ? 'error' : ''}
-                        placeholder="Nhập câu hỏi"
-                        title={question.title}
-                        onChange={(e) => updateQuestion(qIndex, e.target.value)} />
+        <>
+            <div className="h-[calc(100vh-61.6px)] overflow-auto p-5 ">
+                <Button onClick={() => setOpenBank(true)} variant="outlined" color="blue" className="w-full mb-5" icon={<PlusOutlined />} iconPosition="start">
+                    Chọn câu hỏi có sẵn
+                </Button>
 
-                    {question.errorMessage && createQuestions[0].title != '' && (
-                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                            <WarningOutlined />
-                            {question.errorMessage}
-                        </p>
-                    )}
-                    {question.answers.map((answer, aIndex) => (
-                        <div key={aIndex}>
-                            <div className="flex gap-2 mt-2">
-                                <Checkbox
-                                    checked={answer.correct}
-                                    onChange={() => toggleCorrect(qIndex, aIndex)} />
+                {createQuestions.map((question, qIndex) => (
+                    <div key={question.id} className="mb-4  p-4  rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)]">
+                        <Input
+                            status={(question.errorMessage !== '' && createQuestions[0].title != '') ? 'error' : ''}
+                            placeholder="Nhập câu hỏi"
+                            title={question.title}
+                            onChange={(e) => updateQuestion(qIndex, e.target.value)} />
 
-                                <Input
-                                    status={(isSubmitted && answer.content == '' && createQuestions[0].title != '') ? 'error' : ''}
-                                    placeholder={`Câu trả lời ${aIndex + 1}`}
-                                    title={answer.content}
-                                    onChange={(e) => updateAnswer(qIndex, aIndex, e.target.value)} />
-                                <div className="flex gap-1">
-                                    {question.answers.length > 1 && <Tooltip title='Xóa câu trả lời' color="blue"><MinusCircleOutlined onClick={() => removeAnswer(qIndex, aIndex)} style={{ color: 'red', cursor: 'pointer' }} /></Tooltip>}
-                                    <Tooltip color="blue" title="Thêm câu trả lời"> <PlusCircleOutlined style={{ color: 'blue', cursor: 'pointer', marginTop: '8px' }} onClick={() => addAnswer(qIndex)} /> </Tooltip>
+                        {question.errorMessage && createQuestions[0].title != '' && (
+                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                <WarningOutlined />
+                                {question.errorMessage}
+                            </p>
+                        )}
+                        {question.answers.map((answer, aIndex) => (
+                            <div key={aIndex}>
+                                <div className="flex gap-2 mt-2">
+                                    <Checkbox
+                                        checked={answer.correct}
+                                        onChange={() => toggleCorrect(qIndex, aIndex)} />
+
+                                    <Input
+                                        status={(isSubmitted && answer.content == '' && createQuestions[0].title != '') ? 'error' : ''}
+                                        placeholder={`Câu trả lời ${aIndex + 1}`}
+                                        title={answer.content}
+                                        onChange={(e) => updateAnswer(qIndex, aIndex, e.target.value)} />
+                                    <div className="flex gap-1">
+                                        {question.answers.length > 1 && <Tooltip title='Xóa câu trả lời' color="blue"><MinusCircleOutlined onClick={() => removeAnswer(qIndex, aIndex)} style={{ color: 'red', cursor: 'pointer' }} /></Tooltip>}
+                                        <Tooltip color="blue" title="Thêm câu trả lời"> <PlusCircleOutlined style={{ color: 'blue', cursor: 'pointer', marginTop: '8px' }} onClick={() => addAnswer(qIndex)} /> </Tooltip>
+
+                                    </div>
 
                                 </div>
 
+                                {isSubmitted && answer.content == '' && createQuestions[0].title != '' && (
+                                    <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                        <WarningOutlined />
+                                        Vui lòng không để trống câu trả lời
+                                    </p>
+                                )}
                             </div>
+                        ))}
 
-                            {isSubmitted && answer.content == '' && createQuestions[0].title != '' && (
-                                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                    <WarningOutlined />
-                                    Vui lòng không để trống câu trả lời
-                                </p>
-                            )}
-                        </div>
-                    ))}
+                        {createQuestions.length > 1 &&
+                            (<Tooltip title='Xóa câu hỏi' color="blue">
+                                <Button
+                                    type="primary" style={{ width: '5%', height: '5%', marginTop: '8px' }}
+                                    icon={<DeleteOutlined />} danger onClick={() => removeQuestion(qIndex)}>
+                                </Button>
+                            </Tooltip>)}
+                        {!question.answers.some(answer => answer.correct === true) && isSubmitted && createQuestions[0].title != '' && (
+                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                <WarningOutlined />
+                                Bạn chưa chọn đáp án đúng!
+                            </p>
+                        )}
+                    </div>
+                ))}
+                <Button type="primary" style={{ width: '15%', marginBottom: '5px' }} onClick={addQuestion} >Thêm câu hỏi</Button>
 
-
-
-
-                    {createQuestions.length > 1 &&
-                        (<Tooltip title='Xóa câu hỏi' color="blue">
-                            <Button
-                                type="primary" style={{ width: '5%', height: '5%', marginTop: '8px' }}
-                                icon={<DeleteOutlined />} danger onClick={() => removeQuestion(qIndex)}>
-                            </Button>
-                        </Tooltip>)}
-                    {!question.answers.some(answer => answer.correct === true) && isSubmitted && createQuestions[0].title != '' && (
-                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                            <WarningOutlined />
-                            Bạn chưa chọn đáp án đúng!
-                        </p>
-                    )}
-                </div>
-            ))}
-            <Button type="primary" style={{ width: '15%', marginBottom: '5px' }} onClick={addQuestion} >Thêm câu hỏi</Button>
-
-        </div>
+            </div>
+            <Drawer style={{ width: '400px' }} title="Ngân hàng câu hỏi" placement="left" onClose={() => setOpenBank(false)} open={openBank}>
+                <QuestionBank />
+            </Drawer>
+        </>
 
     )
 }

@@ -1,43 +1,29 @@
 'use client'
-import { LeftOutlined } from "@ant-design/icons";
-import { Button, Drawer } from "antd"
+import { LeftOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Tooltip } from "antd"
 import Link from "next/link"
-import { useState } from "react";
-import QuestionBank from "./question.bank";
 import { useQuizCreate } from "@/wrapper/quiz-create/quiz.create.wrapper";
 
-const QuizHeader = () => {
+const QuizHeader = ({ course }: { course: CourseDetailsResponse }) => {
     const { form } = useQuizCreate();
-    const [openBank, setOpenBank] = useState(false);
 
     return (
-        <>
-            <div className="flex items-center justify-between py-3.5 px-5 border border-b-gray-300 relative">
-                <div className="flex items-center gap-x-3">
-                    <Link href={"/quiz"}>
-                        <Button shape="circle" icon={<LeftOutlined />} />
-                    </Link>
-                    <p>Trở lại</p>
-                </div>
+        <div className="flex items-center justify-between py-3.5 px-5 border border-b-gray-300 relative">
+            <Tooltip title="Quay về trang quản lí khóa học" color="blue">
+                <Link href={"/course"} className="flex items-center justify-start gap-x-3 hover:text-blue-500 transition-all duration-200">
+                    <LeftOutlined />
+                    {course.courseName}
+                </Link>
+            </Tooltip>
 
-                <h1 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex-1 text-center font-semibold text-xl">
-                    Tạo bài kiểm tra
-                </h1>
+            <h1 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex-1 text-center font-semibold text-lg">
+                Tạo bài kiểm tra
+            </h1>
 
-                <div className="flex items-center gap-x-3">
-                    <Button onClick={() => setOpenBank(true)}>
-                        Chọn câu hỏi có sẵn
-                    </Button>
-                    <Button type="primary" onClick={() => form.submit()}>
-                        Tạo
-                    </Button>
-                </div>
-            </div>
-
-            <Drawer title="Ngân hàng câu hỏi" onClose={() => setOpenBank(false)} open={openBank}>
-                <QuestionBank />
-            </Drawer>
-        </>
+            <Button type="primary" onClick={() => form.submit()} icon={<PlusOutlined />} iconPosition="start" style={{ paddingInline: '20px' }}>
+                Tạo bài kiểm tra
+            </Button>
+        </div>
     )
 }
 

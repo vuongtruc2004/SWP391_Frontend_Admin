@@ -7,7 +7,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
-import UpdateQuizForm from "./update.quiz.form";
 import Link from "next/link";
 import { useQuizCreate } from "@/wrapper/quiz-create/quiz.create.wrapper";
 
@@ -37,6 +36,19 @@ const QuizTable = (props: {
             key: 'title',
             align: 'center',
             sorter: (a, b) => a.title.localeCompare(b.title),
+        },
+        {
+            title: 'Khóa học',
+            dataIndex: ['chapter', 'course'],
+            key: 'chapter.course.courseName',
+            align: 'center',
+            sorter: (a, b) => a.chapter.course.courseName.localeCompare(b.chapter.course.courseName),
+            render: (_, record) => {
+                return (
+                    <span style={{ color: record.chapter.course.courseName ? '' : 'red', whiteSpace: 'nowrap' }} >
+                        {record.chapter.course.courseName || 'Không có chương học'}
+                    </span>)
+            }
         },
         {
             title: 'Chương học',
@@ -72,7 +84,7 @@ const QuizTable = (props: {
             key: 'duration',
             align: 'center',
             sorter: (a, b) => a.duration - b.duration,
-            render: (duration: number) => (<span>{duration}</span>)
+            render: (duration: number) => (<span>{duration / 60}</span>)
         },
         {
             title: 'Trạng thái',
@@ -176,14 +188,6 @@ const QuizTable = (props: {
             />
 
 
-
-            <UpdateQuizForm
-                editingQuiz={editingQuiz}
-                setEditingQuiz={SetEditingQuiz}
-                openEditForm={openEditForm}
-                setOpenEditForm={setOpenEditForm}
-
-            />
 
         </>
     )

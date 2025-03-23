@@ -1,8 +1,10 @@
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import QuizPageClient from "@/components/quiz/quiz-list/quiz.page.client";
 import { getAllowSeeAnswers, getDuration, getPublished } from "@/helper/create.quiz.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import { Metadata } from "next";
+import { getServerSession } from "next-auth";
 
 export const metadata: Metadata = {
     title: "Quản lý bài kiểm tra",
@@ -29,10 +31,10 @@ const QuizPage = async (props: {
     const createdTo = searchParam.createdTo || '';
     const durationFrom = getDuration(searchParam.durationFrom || '');
     const durationTo = getDuration(searchParam.durationTo || '');
-
+    const session = getServerSession(authOptions);
     let filters: string[] = [];
     if (keyword !== '') {
-        filters.push(`(title ~ '${keyword}' or chapter.title ~ '${keyword}')`);
+        filters.push(`(title ~ '${keyword}' or chapter.title ~ '${keyword}' or chapter.course.courseName ~ '${keyword}')`);
     }
 
     if (published !== 'ALL') {
@@ -68,7 +70,7 @@ const QuizPage = async (props: {
             sort: "updatedAt,desc"
         }
     })
-
+    console.log("session expert>>", session)
 
     const fetchAllQuiz = async () => {
         let allQuiz: QuizResponse[] = [];
@@ -101,7 +103,7 @@ const QuizPage = async (props: {
     const allQuiz = await fetchAllQuiz();
 
 
-
+    console.log("quizREsponse>>", quizResponse.data)
 
     return (
         <>

@@ -31,6 +31,7 @@ const QuizSearch = (props: {
 
     const onFinish = (values: any) => {
         const { keyword, published, allowSeeAnswers } = values;
+        console.log("allowSeeAnswers>>", allowSeeAnswers)
         const newSearchParam = new URLSearchParams(searchParam);
 
         newSearchParam.set("keyword", keyword);
@@ -81,7 +82,7 @@ const QuizSearch = (props: {
                 <div className='flex gap-2'>
                     <Form.Item style={{ width: '40%' }} name="keyword" className="mb-0">
                         <Input
-                            placeholder="Tìm kiếm bằng tiêu đề bài kiểm tra hoặc chương học"
+                            placeholder="Tìm kiếm bằng khóa học, chương học hoặc tiêu đề bài kiểm tra"
                             prefix={<SearchOutlined />}
                             className='!p-[10px]'
                             onChange={() => form.submit()}

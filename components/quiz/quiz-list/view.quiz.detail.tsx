@@ -18,6 +18,7 @@ const ViewQuizDetail = (props: {
     const handleToggle = (index: number) => {
         setActiveQuestion(activeQuestion === index ? null : index);
     };
+    console.log("quizDetail>>>", quizDetail);
     return (
         <>
             <div className="ml-3 mt-3">
@@ -56,7 +57,7 @@ const ViewQuizDetail = (props: {
                     <div className="ml-5">
 
 
-                        <ul>
+                        <ul className="list-none">
                             {quizDetail.questions.map((question, index) => (
                                 <li key={index} className="mb-4 border-b pb-2">
                                     <div

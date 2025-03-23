@@ -7,19 +7,15 @@ import { QuizFieldType, useQuizCreate } from '@/wrapper/quiz-create/quiz.create.
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import { useSession } from 'next-auth/react';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 
 const { Option } = Select;
-const QuizCreateForm = ({ courses }: {
-    courses: CourseDetailsResponse[];
-}) => {
+const QuizCreateForm = ({ course }: { course: CourseDetailsResponse }) => {
     const { data: session } = useSession();
     const router = useRouter();
-    const { form, createQuestions, setCreateQuestions, selectQuestions, setSelectQuestions, isSubmitted, setIsSubmitted } = useQuizCreate();
-    const [selectedCourseId, setSelectedCourseId] = useState(courses[0].courseId);
-    const [chapters, setChapters] = useState<ChapterResponse[]>([]);
-    const [selectedChapterId, setSelectedChapterId] = useState<number | null>(null);
+    const { form, createQuestions, setCreateQuestions, selectQuestions, setSelectQuestions, setIsSubmitted } = useQuizCreate();
+    const [chapters, setChapters] = useState<ChapterResponse[]>(course.chapters);
     const [questionList, setQuestionList] = useState<string[]>([]);
 
     const onFinish: FormProps<QuizFieldType>['onFinish'] = async (values) => {
@@ -46,6 +42,7 @@ const QuizCreateForm = ({ courses }: {
         });
 
         setCreateQuestions(updatedQuestions);
+        console.log("updatedQuestions>>", updatedQuestions)
 
         if (selectQuestions.length > 0 && createQuestions[0].title === '') {
             // TH1: Có chọn từ ngân hàng nhưng không tạo mới, tiếp tục xử lý
@@ -58,7 +55,6 @@ const QuizCreateForm = ({ courses }: {
         }
 
         try {
-
             let hasDuplicateError = false;
             const updatedQuestions = createQuestions.map(q => {
                 if (questionList.includes(q.title.trim()) && q.title !== '') {
@@ -72,8 +68,6 @@ const QuizCreateForm = ({ courses }: {
 
             if (hasDuplicateError) return;
 
-
-
             const quizRequest: QuizRequest = {
                 title: values.title,
                 published: values.published,
@@ -83,11 +77,7 @@ const QuizCreateForm = ({ courses }: {
                 chapterId: values.chapterId,
                 bankQuestionIds: selectQuestions.map(q => q.questionId),
                 newQuestions: createQuestions[0].title === '' ? [] : createQuestions
-
-
             }
-
-
 
             const quizResponse = await sendRequest<ApiResponse<QuizResponse>>({
                 url: `${apiUrl}/quizzes`,
@@ -100,13 +90,14 @@ const QuizCreateForm = ({ courses }: {
             });
 
 
+            console.log("quizResponse>>", quizResponse)
             if (quizResponse.status == 201) {
 
                 notification.success({
                     message: "Thành công",
                     description: quizResponse.message.toString(),
                 });
-                router.push("/quiz")
+                router.push("/course")
             } else {
                 switch (quizResponse.errorMessage) {
                     case 'Title_Quiz_Exception':
@@ -129,21 +120,6 @@ const QuizCreateForm = ({ courses }: {
             });
         };
     }
-    useEffect(() => {
-        const courseChapters = courses.find(course => course.courseId === selectedCourseId)?.chapters;
-        if (courseChapters) {
-            setChapters(courseChapters)
-        }
-
-    }, [selectedCourseId])
-
-    useEffect(() => {
-        if (chapters.length > 0) {
-            const defaultChapterId = chapters[0].chapterId;
-            setSelectedChapterId(defaultChapterId);
-            form.setFieldsValue({ chapterId: defaultChapterId }); // Cập nhật giá trị vào Form
-        }
-    }, [chapters]);
 
     useEffect(() => {
         const fetchAllQuestions = async () => {
@@ -176,7 +152,7 @@ const QuizCreateForm = ({ courses }: {
     }, []);
 
     return (
-        <div className='p-5 border border-l-gray-300 h-[calc(100vh-61.6px)] sticky top-0 right-0'>
+        <div className='w-[400px] p-5 border border-l-gray-300 h-[calc(100vh-61.6px)] sticky top-0 right-0'>
             <h1 className='font-semibold text-lg mb-3'>Thông tin cơ bản</h1>
             <Form
                 form={form}
@@ -184,8 +160,6 @@ const QuizCreateForm = ({ courses }: {
                 onFinish={onFinish}
                 initialValues={{
                     published: false,
-                    courseId: courses[0].courseId,
-                    chapterId: courses[0].chapters[0]?.chapterId || null,
                     allowSeeAnswers: false
                 }}
             >
@@ -211,30 +185,11 @@ const QuizCreateForm = ({ courses }: {
                 </Form.Item>
 
                 <Form.Item<QuizFieldType>
-                    label="Khóa học"
-                    name='courseId'
-                    rules={[{ required: true, message: 'Vui lòng không để trống mô tả!' }]}
-                >
-                    <Select
-                        onChange={(value) => setSelectedCourseId(value)}
-                        options={courses.map(course => {
-                            return {
-                                value: course.courseId,
-                                label: course.courseName
-                            }
-                        })}
-                    />
-                </Form.Item>
-
-                <Form.Item<QuizFieldType>
                     label="Chương học"
                     name='chapterId'
                     rules={[{ required: true, message: 'Vui lòng không để trống chương học!' }]}
                 >
-                    <Select value={selectedChapterId} onChange={(value) => {
-                        setSelectedChapterId(value);
-                        form.setFieldsValue({ chapterId: value });
-                    }}>
+                    <Select placeholder="Chọn chương học">
                         {chapters.map((chapter, index) => {
                             return (
                                 <Option key={chapter.chapterId} value={chapter.chapterId}>

@@ -1,11 +1,12 @@
 'use client'
 import { useQuizCreate } from "@/wrapper/quiz-create/quiz.create.wrapper";
+import { useQuizUpdate } from "@/wrapper/quiz-update/quiz.update.wrapper";
 import { DeleteOutlined, WarningOutlined } from "@ant-design/icons"
 import { Button, Popconfirm, Tooltip } from "antd"
 import { BiSelectMultiple } from "react-icons/bi";
 import { VscDiffSingle } from "react-icons/vsc";
-const QuizSidebar = () => {
-    const { currentQuestions, isSubmitted, createQuestions, selectQuestions, setCreateQuestions, setCurrentQuestions, setSelectQuestions } = useQuizCreate();
+const QuizCurrentQuestion = () => {
+    const { currentQuestions, isSubmitted, createQuestions, selectQuestions, setCreateQuestions, setCurrentQuestions, setSelectQuestions } = useQuizUpdate();
     const confirm = () => {
         setCreateQuestions([]);
         setSelectQuestions([]);
@@ -24,31 +25,30 @@ const QuizSidebar = () => {
     };
 
     return (
-        <div className="w-[300px] shrink-0 border border-r-gray-300 h-[calc(100vh-61.6px)] sticky top-0 left-0">
-            <div className="flex items-center justify-between py-2 px-3">
-                <div className="flex-col">
-                    <div className="flex items-center">
-                        <h1>Bài kiểm tra đang có <span className="text-blue-500 font-semibold">{currentQuestions.length}</span> câu hỏi</h1>
-                        <Tooltip color='blue' title='Xóa tất cả câu hỏi'>
-                            <Popconfirm
-                                title="Xóa tất cả câu hỏi"
-                                description="Bạn có muốn xóa toàn bộ câu hỏi không?"
-                                onConfirm={confirm}
-                                okText="Có"
-                                cancelText="Không"
-                            >
-                                <Button type="text" danger icon={<DeleteOutlined />} />
+        <div className="shrink-0 border border-r-gray-300 h-[calc(100vh-61.6px)] sticky top-0 left-0">
+            <div className="flex-col py-2 px-3">
+                <div className="flex items-center justify-between">
+                    <h1>Bài kiểm tra đang có <span className="text-blue-500 font-semibold">{currentQuestions.length}</span> câu hỏi</h1>
+                    <Tooltip color='blue' title='Xóa tất cả câu hỏi'>
+                        <Popconfirm
+                            title="Xóa tất cả câu hỏi"
+                            description="Bạn có muốn xóa toàn bộ câu hỏi không?"
+                            onConfirm={confirm}
+                            okText="Có"
+                            cancelText="Không"
+                        >
+                            <Button type="text" danger icon={<DeleteOutlined />} />
 
-                            </Popconfirm>
-                        </Tooltip>
-                    </div>
-                    {createQuestions[0]?.title === '' && selectQuestions.length === 0 && isSubmitted ? <p className='text-red-500 text-base ml-2 flex items-center gap-x-1'>
-                        <WarningOutlined />
-                        Bạn chưa chọn câu hỏi!
-                    </p> : ''}
+                        </Popconfirm>
+                    </Tooltip>
                 </div>
-
+                {createQuestions[0]?.title === '' && selectQuestions.length === 0 && isSubmitted ? <p className='text-red-500 text-base ml-2 flex items-center gap-x-1'>
+                    <WarningOutlined />
+                    Bạn chưa chọn câu hỏi!
+                </p> : ''}
             </div>
+
+
 
             <ul className="flex flex-col gap-y-3 p-3 overflow-auto h-[calc(100vh-61.6px-48px)]">
                 {currentQuestions.map((question, index) => {
@@ -77,4 +77,4 @@ const QuizSidebar = () => {
     )
 }
 
-export default QuizSidebar
+export default QuizCurrentQuestion

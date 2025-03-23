@@ -23,8 +23,6 @@ const QuestionBank = () => {
         );
     };
 
-
-
     const handlePageChange: PaginationProps['onChange'] = (page) => {
         setCurrentPage(page);
     };
@@ -33,7 +31,6 @@ const QuestionBank = () => {
         setKeyword(value);
         setCurrentPage(1);
     };
-
 
     useEffect(() => {
         const fetchQuestions = async () => {

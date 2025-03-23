@@ -1,7 +1,7 @@
 'use client'
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
-import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, UserOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, QuestionCircleOutlined, UserOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
 import { notification, Popconfirm, Space, Spin, Table, TableProps, Tooltip } from 'antd';
 import { useSession } from 'next-auth/react';
@@ -231,6 +231,14 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                                 <Link href={`/chapter/create/${record.courseId}`}>
                                     <GrChapterAdd
                                         style={{ color: "black" }}
+                                    />
+                                </Link>
+                            </Tooltip>
+
+                            <Tooltip title="Thêm bài kiểm tra" color="blue">
+                                <Link href={`/quiz/create/${record.courseId}`}>
+                                    <QuestionCircleOutlined
+                                        style={{ color: "green" }}
                                     />
                                 </Link>
                             </Tooltip>
