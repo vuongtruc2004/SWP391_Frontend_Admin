@@ -1,11 +1,10 @@
 'use client'
-import { CheckOutlined, CloseOutlined, DeleteOutlined, InfoCircleOutlined, PlusOutlined, SearchOutlined, ToTopOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Modal, notification, Popconfirm, Select, Space, Table, TableProps, Tooltip } from 'antd';
+import { DeleteOutlined, EditOutlined, InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
 import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react'
 import NotificationDetail from './notification.detail';
-import TextArea from 'antd/es/input/TextArea';
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import NotificationCreate from './notification.create';
@@ -28,6 +27,7 @@ const NotificationTable = (props: {
     const pathName = usePathname();
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [openCreate, setOpenCreate] = useState(false);
+    const [openUpdate, setOpenUpdate] = useState(false);
     const [recordNotification, setRecordNotification] = useState<NotificationResponse | null>(null)
     const [stompClient, setStompClient] = useState<Client | null>(null);
 
@@ -58,6 +58,9 @@ const NotificationTable = (props: {
     const handleDelete = async (notificationId: number) => {
         const deleteRes = await sendRequest<ApiResponse<String>>({
             url: `${apiUrl}/notifications/admin/${notificationId}`,
+            headers: {
+                'Authorization': `Bearer ${session?.accessToken}`,
+            },
             method: 'DELETE',
         });
 
@@ -65,12 +68,14 @@ const NotificationTable = (props: {
             notification.success({
                 message: 'Thành công!',
                 description: 'Bạn đã xóa thông báo thành công!',
+                showProgress: true,
             })
             router.refresh();
         } else {
             notification.error({
                 message: "Thất bại!",
                 description: "Bạn đã xóa thông báo thất bại!",
+                showProgress: true,
             })
         }
     }
@@ -109,7 +114,7 @@ const NotificationTable = (props: {
             width: '20%',
             render: (_, record: NotificationResponse) => (
                 <Space size="middle">
-                    <Tooltip key={`detail-${record.notificationId}`} placement="bottom" title={"Chi tiết thông báo"}>
+                    <Tooltip key={`${record.notificationId}`} placement="bottom" title={"Chi tiết thông báo"}>
                         <InfoCircleOutlined style={{ color: "blue" }} onClick={() => {
                             setRecordNotification(record);
                             setOpenModal(true);
@@ -132,8 +137,6 @@ const NotificationTable = (props: {
 
                         </>
                     )}
-
-
                 </Space>
             ),
             align: 'center'

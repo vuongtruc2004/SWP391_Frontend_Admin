@@ -2,9 +2,9 @@
 import { validContent, validTitle } from "@/helper/create.blog.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
-import { EyeOutlined, PlusOutlined, SyncOutlined, UploadOutlined, WarningOutlined } from "@ant-design/icons";
+import { EyeOutlined, LoadingOutlined, PlusOutlined, SyncOutlined, UploadOutlined, WarningOutlined } from "@ant-design/icons";
 import MDEditor, { getCommands, ICommand } from "@uiw/react-md-editor";
-import { Avatar, Checkbox, Form, Image, Input, Modal, notification, Select, Tooltip } from "antd";
+import { Avatar, Checkbox, Form, Image, Input, Modal, notification, Select, Spin, Tooltip } from "antd";
 import { marked } from "marked";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -35,6 +35,7 @@ const BlogUpdate = (props: IProps) => {
     const [content, setContent] = useState<ErrorResponse>(initState);
     const [checkList, setCheckList] = useState<{ error: boolean, value: string[] }>({ error: false, value: selectRecord ? selectRecord?.hashtags.map((tag) => tag.tagName) : [] });
     const [listTag, setListTag] = useState<string[]>();
+    const [loading, setLoading] = useState<boolean>(false);
     const [plainContent, setPlainContent] = useState("");
     const [thumbnail, setThumbnail] = useState<File | null>(null);
 
@@ -53,14 +54,12 @@ const BlogUpdate = (props: IProps) => {
                     const formData = new FormData();
                     formData.set("file", file.files[0]);
                     formData.set("folder", "blog");
-
                     // Gửi request upload ảnh
                     const imageRes = await sendRequest<ApiResponse<string>>({
                         url: `${apiUrl}/blogs/up-thumbnail`,
                         method: "POST",
                         body: formData,
                     });
-
                     // Chèn Markdown vào editor
                     const imageMarkdown = `![image](${storageUrl}/blog/${imageRes.data})`;
                     setInputMarkdown((prev) => prev + `\n ${imageMarkdown} \n`);
@@ -161,65 +160,83 @@ const BlogUpdate = (props: IProps) => {
     }
 
     const handleOnOk = async () => {
-        const isValidTitle = validTitle(title, setTitle);
-        const isValidContent = validContent(content, setContent);
-        console.log({ title, content })
+        setLoading(true);
 
-        if (!isValidTitle || !isValidContent) {
-            return;
-        }
+        setTimeout(async () => {
+            const isValidTitle = validTitle(title, setTitle);
+            const isValidContent = validContent(content, setContent);
 
-        if (checkList && checkList.value.length === 0) {
-            setCheckList(prev => ({ ...prev, error: true }));
-            return;
-        }
+            if (!isValidTitle || !isValidContent) {
+                setLoading(false);
+                return;
+            }
 
-        const htmlTextContent = marked(inputMarkdown);
-        setPlainContent(stripHtml(htmlTextContent.toString()));
-        console.log("check html text: ", htmlTextContent)
-        // setPlainContent(content.value);
-        // console.log(plainContent)
-        const blogRequest: BlogRequest = {
-            title: title.value,
-            content: htmlTextContent.toString(),
-            plainContent: stripHtml(htmlTextContent.toString()),
-            thumbnail: urlThumbnail,
-            hashtags: checkList.value,
-            pinned: pinned,
-        }
+            if (title.value.length > 100) {
+                notification.error({
+                    message: 'Thành công!',
+                    description: 'Tiêu đề không được vượt quá 100 kí tự!',
+                    showProgress: true,
+                })
+                setLoading(false);
+                return;
+            }
+
+            if (checkList && checkList.value.length === 0) {
+                setCheckList(prev => ({ ...prev, error: true }));
+                setLoading(false);
+                return;
+            }
+
+            const htmlTextContent = marked(inputMarkdown);
+            setPlainContent(stripHtml(htmlTextContent.toString()));
+            console.log("check html text: ", htmlTextContent)
+            const blogRequest: BlogRequest = {
+                title: title.value,
+                content: htmlTextContent.toString(),
+                plainContent: stripHtml(htmlTextContent.toString()),
+                thumbnail: urlThumbnail,
+                hashtags: checkList.value,
+                pinned: pinned,
+            }
 
 
-        // giải thích nguyên lí hoạt động của markdown biến hóa từ text có kí tự thành text html và lưu plainContent: 
-        // đầu tiền nó sẽ lấy nội dung từ db (server) lên, và nội dung này đang ở dạng text html. sau đó nó dùng turndown
-        // để biến các tag html thành các kí hiệu đại diện. sau đó hiển thị ra mdeditor. khi sửa ở cửa sổ mdeditor, nó
-        // sẽ xét lại cái inputMarkdown. inputMarkdown sẽ được lấy ra và dùng hàm marked để biến hóa các kí tự trong đó thành
-        // các thẻ html. sau đó gắn lại vào content như trê.
-        // việc set plainContent ta dùng hàm stripHtml được định nghĩa ở trên để loại bỏ các thẻ html rồi sau đó đưa nó vào plain content
+            // giải thích nguyên lí hoạt động của markdown biến hóa từ text có kí tự thành text html và lưu plainContent: 
+            // đầu tiền nó sẽ lấy nội dung từ db (server) lên, và nội dung này đang ở dạng text html. sau đó nó dùng turndown
+            // để biến các tag html thành các kí hiệu đại diện. sau đó hiển thị ra mdeditor. khi sửa ở cửa sổ mdeditor, nó
+            // sẽ xét lại cái inputMarkdown. inputMarkdown sẽ được lấy ra và dùng hàm marked để biến hóa các kí tự trong đó thành
+            // các thẻ html. sau đó gắn lại vào content như trê.
+            // việc set plainContent ta dùng hàm stripHtml được định nghĩa ở trên để loại bỏ các thẻ html rồi sau đó đưa nó vào plain content
 
-        const updateBlog = await sendRequest<ApiResponse<BlogResponse>>({
-            url: `${apiUrl}/blogs/update/${selectRecord?.blogId}`,
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: blogRequest,
-        })
-
-        console.log("check updateBlog: ", updateBlog)
-
-        if (updateBlog.status === 200) {
-            handleCancle();
-            router.refresh();
-            notification.success({
-                message: "Thành Công!",
-                description: "Cập nhật bài viết thành công!",
+            const updateBlog = await sendRequest<ApiResponse<BlogResponse>>({
+                url: `${apiUrl}/blogs/update/${selectRecord?.blogId}`,
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: blogRequest,
             })
-        } else {
-            notification.error({
-                message: "Thất Bại!",
-                description: "Cập nhật bài viết thất bại!",
-            })
-        }
+
+            console.log("check updateBlog: ", updateBlog)
+
+            if (updateBlog.status === 200) {
+                handleCancle();
+                router.refresh();
+                notification.success({
+                    message: "Thành Công!",
+                    description: "Cập nhật bài viết thành công!",
+                    showProgress: true,
+                })
+            } else {
+                notification.error({
+                    message: "Thất Bại!",
+                    description: "Cập nhật bài viết thất bại!",
+                    showProgress: true,
+                })
+            }
+
+            setLoading(false);
+        }, 1500)
+
 
     }
 
@@ -268,157 +285,159 @@ const BlogUpdate = (props: IProps) => {
                 onOk={handleOnOk}
                 maskClosable={false}
             >
-                <Form>
-                    <div>
-                        <h4><span className="text-red-600">*</span>Tiêu đề bài viết:</h4>
-                        <Form.Item
+                <Spin indicator={<LoadingOutlined spin />} size="large" spinning={loading}>
+                    <Form>
+                        <div>
+                            <h4><span className="text-red-600">*</span>Tiêu đề bài viết:</h4>
+                            <Form.Item
 
-                        >
-                            <Input placeholder="Tiêu đề" value={title.value}
-                                status={title.error && title.value === "" ? "error" : ""}
-                                type="text"
-                                maxLength={100}
-                                onChange={(e) => {
-                                    setTitle({
-                                        ...title,
-                                        value: e.target.value
-                                    })
-                                    console.log(title.value)
-                                }}
-                            />
-                            {title.error && title.value === "" && (
-                                <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
-                                    <WarningOutlined />
-                                    {title.message}
-                                </p>
-                            )}
-                        </Form.Item>
-                    </div>
-                    <div>
-                        <Form.Item>
-                            <h4><span className="text-red-600">*</span>Nội dung bài viết</h4>
-                            <MDEditor
-                                value={inputMarkdown}
-                                onChange={(event) => {
-                                    setInputMarkdown(event ? event : "")
-                                    setContent({
-                                        ...content,
-                                        value: event ? event : ""
-                                    })
-                                    console.log(event)
-                                }}
-                                preview="edit"
-                                commandsFilter={(cmd) => (cmd.name && ["preview", "live", "fullscreen"].includes(cmd.name)) ? false : cmd}
+                            >
+                                <Input placeholder="Tiêu đề" value={title.value}
+                                    status={title.error && title.value === "" ? "error" : ""}
+                                    type="text"
+                                    onChange={(e) => {
+                                        setTitle({
+                                            ...title,
+                                            value: e.target.value
+                                        })
+                                        console.log(title.value)
+                                    }}
+                                />
+                                {title.error && title.value === "" && (
+                                    <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
+                                        <WarningOutlined />
+                                        {title.message}
+                                    </p>
+                                )}
+                            </Form.Item>
+                        </div>
+                        <div>
+                            <Form.Item>
+                                <h4><span className="text-red-600">*</span>Nội dung bài viết</h4>
+                                <MDEditor
+                                    value={inputMarkdown}
+                                    onChange={(event) => {
+                                        setInputMarkdown(event ? event : "")
+                                        setContent({
+                                            ...content,
+                                            value: event ? event : ""
+                                        })
+                                        console.log(event)
+                                    }}
+                                    preview="edit"
+                                    commandsFilter={(cmd) => (cmd.name && ["preview", "live", "fullscreen"].includes(cmd.name)) ? false : cmd}
+                                    style={{
+                                        background: '#e9ecef',
+                                        color: 'black'
+                                    }}
+                                    commands={customCommands}
+                                />
+
+
+                                {content.error && inputMarkdown === "" && (
+                                    <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
+                                        <WarningOutlined />
+                                        {content.message}
+                                    </p>
+                                )}
+                            </Form.Item>
+                        </div>
+                        <div className="mb-5">
+                            <h4><span className="text-red-600">*</span> Lĩnh vực:</h4>
+                            <CheckboxGroup
+                                options={listTag?.map((tag) => ({
+                                    label: tag,
+                                    value: tag,
+                                }))}
+                                value={checkList.value}
+                                onChange={handlOnChange}
                                 style={{
-                                    background: '#e9ecef',
-                                    color: 'black'
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    gap: '8px',
                                 }}
-                                commands={customCommands}
                             />
-
-
-                            {content.error && inputMarkdown === "" && (
+                            {checkList.error && checkList.value.length === 0 && (
                                 <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
                                     <WarningOutlined />
-                                    {content.message}
+                                    Vui lòng thêm chủ đề bài viết
                                 </p>
                             )}
-                        </Form.Item>
-                    </div>
-                    <div className="mb-5">
-                        <h4><span className="text-red-600">*</span> Lĩnh vực:</h4>
-                        <CheckboxGroup
-                            options={listTag?.map((tag) => ({
-                                label: tag,
-                                value: tag,
-                            }))}
-                            value={checkList.value}
-                            onChange={handlOnChange}
-                            style={{
-                                display: 'flex',
-                                flexWrap: 'wrap',
-                                gap: '8px',
-                            }}
-                        />
-                        {checkList.error && checkList.value.length === 0 && (
-                            <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
-                                <WarningOutlined />
-                                Vui lòng thêm chủ đề bài viết
-                            </p>
-                        )}
-                    </div>
-                    <div>
-                        <p><span className='text-red-600'>*</span>Ghim bài viết:</p>
-                        <Form.Item>
-                            <Select
-                                value={pinned}
-                                style={{ width: 470 }}
-                                onChange={handleChangePinned}
-                                options={[
-                                    { value: true, label: "Có" },
-                                    { value: false, label: "Không" },
-                                ]}
-                            />
-                        </Form.Item>
-                    </div>
-                    <div>
-                        <span className="text-red-500 mr-2">*</span>Ảnh:
-                        <div className={`${errThumbnail !== "" ? "border-red-500 border-2 w-fit rounded-lg" : ""}`}>
-                            {urlThumbnail === "" ? (
-                                <div className="relative w-fit">
-                                    <Avatar
-                                        shape="square"
-                                        size={120}
-                                        icon={<PlusOutlined />}
-                                        alt="avatar"
-                                    />
-                                    <input
-                                        type="file"
-                                        onChange={handleUploadFile}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                        style={{ maxWidth: "120px", maxHeight: "120px" }} // Giới hạn kích thước input file
-                                    />
-                                </div>
-
-                            ) : (
-                                <div className="flex items-end">
-                                    <div className="h-[120px] w-[200px]">
-                                        <Image
-                                            className="h-full w-full object-contain"
-                                            width="100%"
-                                            height="100%"
-                                            preview={{
-                                                visible: isPreviewVisible,
-                                                mask: <span><EyeOutlined className='mr-2' />Xem</span>,
-                                                onVisibleChange: (visible) => setIsPreviewVisible(visible),
-                                            }}
-                                            src={`${storageUrl}/blog/${urlThumbnail}`}
-                                            alt="Preview"
+                        </div>
+                        <div>
+                            <p><span className='text-red-600'>*</span>Ghim bài viết:</p>
+                            <Form.Item>
+                                <Select
+                                    value={pinned}
+                                    style={{ width: 470 }}
+                                    onChange={handleChangePinned}
+                                    options={[
+                                        { value: true, label: "Có" },
+                                        { value: false, label: "Không" },
+                                    ]}
+                                />
+                            </Form.Item>
+                        </div>
+                        <div>
+                            <span className="text-red-500 mr-2">*</span>Ảnh:
+                            <div className={`${errThumbnail !== "" ? "border-red-500 border-2 w-fit rounded-lg" : ""}`}>
+                                {urlThumbnail === "" ? (
+                                    <div className="relative w-fit">
+                                        <Avatar
+                                            shape="square"
+                                            size={120}
+                                            icon={<PlusOutlined />}
+                                            alt="avatar"
+                                        />
+                                        <input
+                                            type="file"
+                                            onChange={handleUploadFile}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                            style={{ maxWidth: "120px", maxHeight: "120px" }} // Giới hạn kích thước input file
                                         />
                                     </div>
 
-                                    <Tooltip placement="bottom" title={"Tải lên ảnh khác"}>
-                                        <UploadOutlined className="text-blue-500 text-lg ml-6" onClick={() => document.getElementById("chooseFile")?.click()} />
-                                    </Tooltip>
+                                ) : (
+                                    <div className="flex items-end">
+                                        <div className="h-[120px] w-[200px]">
+                                            <Image
+                                                className="h-full w-full object-contain"
+                                                width="100%"
+                                                height="100%"
+                                                preview={{
+                                                    visible: isPreviewVisible,
+                                                    mask: <span><EyeOutlined className='mr-2' />Xem</span>,
+                                                    onVisibleChange: (visible) => setIsPreviewVisible(visible),
+                                                }}
+                                                src={`${storageUrl}/blog/${urlThumbnail}`}
+                                                alt="Preview"
+                                            />
+                                        </div>
 
-                                    <input
-                                        type="file"
-                                        id="chooseFile"
-                                        onChange={handleUploadFile}
-                                        className="!hidden"
-                                    />
-                                </div>
+                                        <Tooltip placement="bottom" title={"Tải lên ảnh khác"}>
+                                            <UploadOutlined className="text-blue-500 text-lg ml-6" onClick={() => document.getElementById("chooseFile")?.click()} />
+                                        </Tooltip>
 
+                                        <input
+                                            type="file"
+                                            id="chooseFile"
+                                            onChange={handleUploadFile}
+                                            className="!hidden"
+                                        />
+                                    </div>
+
+                                )}
+                            </div>
+                            {errThumbnail !== "" && (
+                                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                    <WarningOutlined />
+                                    {errThumbnail}
+                                </p>
                             )}
                         </div>
-                        {errThumbnail !== "" && (
-                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                <WarningOutlined />
-                                {errThumbnail}
-                            </p>
-                        )}
-                    </div>
-                </Form>
+                    </Form>
+                </Spin>
+
             </Modal>
         </>
     )

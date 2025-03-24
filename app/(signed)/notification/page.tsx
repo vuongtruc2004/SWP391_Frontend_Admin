@@ -1,11 +1,13 @@
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import NotificationTable from "@/components/notification/notification.table";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import { Metadata } from "next";
+import { getServerSession } from "next-auth";
 
 
 export const metadata: Metadata = {
-    title: "Quản lý thông báo",
+    title: "Quản lí thông báo",
 };
 
 const NotificationPage = async (props: {
@@ -17,10 +19,14 @@ const NotificationPage = async (props: {
     const searchParam = await props.searchParams;
     const page = searchParam.page || 1;
     const keyword = searchParam.keyword || '';
+    const session = await getServerSession(authOptions);
 
     let filter = "";
     const notificationRes = await sendRequest<ApiResponse<PageDetailsResponse<NotificationResponse[]>>>({
         url: `${apiUrl}/notifications/admin`,
+        headers: {
+            'Authorization': `Bearer ${session?.accessToken}`
+        },
         queryParams: {
             page: page,
             size: 10,

@@ -136,6 +136,7 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
             body: courseRequest
         });
 
+        console.log("Check response", createResponse)
 
         if (createResponse.status === 201) {
             handleCancel();
@@ -194,10 +195,11 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
         setObjects(newObjects);
     };
 
+    console.log(">> check thumbnail", thumbnail)
     return (
         <>
             <div>
-                {session?.user.roleName && session?.user.roleName === "EXPERT" && (
+                {session?.user.roleName && session.user.roleName === "EXPERT" && (
                     <Button
                         type="primary"
                         onClick={showModal}

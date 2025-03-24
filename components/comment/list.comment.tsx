@@ -2,6 +2,7 @@ import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react'
 import SingleComment from './comment';
+import { useSession } from 'next-auth/react';
 
 const ListComment = ({ blog, comments, setComments, hasParent }: {
     blog: BlogDetailsResponse,
@@ -12,7 +13,7 @@ const ListComment = ({ blog, comments, setComments, hasParent }: {
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
-
+    const { data: session } = useSession();
     const observerRef = useRef<IntersectionObserver | null>(null);
 
     const lastCommentElementRef = useCallback((node: HTMLDivElement | null) => {
@@ -33,7 +34,10 @@ const ListComment = ({ blog, comments, setComments, hasParent }: {
         if (hasParent > -1) return;
         const getCommentOfBlog = async () => {
             const getCommentRequest = await sendRequest<ApiResponse<PageDetailsResponse<CommentResponse[]>>>({
-                url: `${apiUrl}/comments?page=${page}&size=5&filter=blog.blogId:${blog.blogId} and parentComment is null&sort=createdAt,desc&sort=commentId,asc`
+                url: `${apiUrl}/comments?page=${page}&size=5&filter=blog.blogId:${blog.blogId} and parentComment is null&sort=createdAt,desc&sort=commentId,asc`,
+                headers: {
+                    'Authorization': `Bearer ${session?.accessToken}`,
+                }
             });
             if (getCommentRequest.status === 200) {
                 setComments(prev => {

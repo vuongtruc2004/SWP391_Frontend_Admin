@@ -6,6 +6,7 @@ import { Avatar, Space } from 'antd'
 import dayjs from 'dayjs'
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import ListComment from './list.comment'
+import { useSession } from 'next-auth/react'
 
 
 const SingleComment = ({ commentResponse, blog, setComments }: {
@@ -15,6 +16,7 @@ const SingleComment = ({ commentResponse, blog, setComments }: {
 }) => {
     const [childrenVisibility, setChildrenVisibility] = useState<{ [key: number]: boolean }>({});
     const [childComment, setChildComment] = useState<CommentResponse[]>(commentResponse.replies);
+    const { data: session } = useSession();
     const IconText = ({ icon, text, onClick }: { icon: React.FC; text: string; onClick?: () => void }) => (
         <Space onClick={onClick} style={{ cursor: onClick ? "pointer" : "default" }}>
             {React.createElement(icon)}
@@ -33,6 +35,9 @@ const SingleComment = ({ commentResponse, blog, setComments }: {
         const getChildComment = async () => {
             const getAllChildComment = await sendRequest<ApiResponse<CommentResponse[]>>({
                 url: `${apiUrl}/comments/child-comment/${commentResponse.commentId}`,
+                headers: {
+                    'Authorization': `Bearer ${session?.accessToken}`,
+                },
                 method: 'GET'
             });
             if (getAllChildComment.status === 200) {

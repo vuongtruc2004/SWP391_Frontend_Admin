@@ -5,9 +5,9 @@ import { LoadingOutlined, WarningOutlined } from "@ant-design/icons";
 import { DatePicker, DatePickerProps, Form, Input, Modal, notification, Select, Spin } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useRouter } from "next/navigation";
-import viVN from 'antd/es/date-picker/locale/vi_VN';
 import { SetStateAction, useEffect, useState } from "react";
 import dayjs from "dayjs";
+import { useSession } from "next-auth/react";
 
 const initState: ErrorResponse = {
     error: false,
@@ -21,15 +21,16 @@ const NotificationCreate = (props: {
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [content, setContent] = useState<ErrorResponse>(initState);
     const [global, setGlobal] = useState(true);
-    const [status, setStatus] = useState("SENT");
+    const [status, setstatus] = useState("SENT");
     const [dateSet, setDateSet] = useState<ErrorResponse>(initState);
     const [receiver, setReceiver] = useState<{ error: boolean, tags: number[] }>({ error: false, tags: [] });
     const [userOption, setUserOption] = useState<{ value: number, label: string }[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const { data: session } = useSession();
     const router = useRouter();
 
     const handleOnChangeStatus = (value: string) => {
-        setStatus(value);
+        setstatus(value);
     }
 
     const handleOnChangeSelect = (value: boolean) => {
@@ -59,7 +60,10 @@ const NotificationCreate = (props: {
             const dataRes = await sendRequest<ApiResponse<UserResponse[]>>({
                 url: `${apiUrl}/users/get-all`,
                 method: 'GET',
-                headers: { 'content-type': 'application/json' },
+                headers: {
+                    'content-type': 'application/json',
+                    'Authorization': `Bearer ${session?.accessToken}`,
+                },
             });
 
             console.log("Dữ liệu API nhận được:", dataRes);
@@ -134,7 +138,8 @@ const NotificationCreate = (props: {
                 url: `${apiUrl}/notifications/create`,
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.accessToken}`,
                 },
                 body: notificationRequest,
             });
@@ -144,13 +149,15 @@ const NotificationCreate = (props: {
                 notification.success({
                     message: "Thành công!",
                     description: "Tạo thông báo mới thành công!",
+                    showProgress: true,
                 })
                 router.refresh()
                 setOpenCreate(false);
             } else {
                 notification.error({
                     message: "Thất bại!",
-                    description: "Tạo thông báo thất bại"
+                    description: "Tạo thông báo thất bại",
+                    showProgress: true,
                 })
             }
             setLoading(false);
@@ -163,7 +170,7 @@ const NotificationCreate = (props: {
         setTitle(initState);
         setGlobal(true);
         setReceiver({ error: false, tags: [] });
-        setStatus("SENT");
+        setstatus("SENT");
         setOpenCreate(false);
     }
 
@@ -173,7 +180,7 @@ const NotificationCreate = (props: {
             setContent(initState);
             setGlobal(true);
             setReceiver({ error: false, tags: [] });
-            setStatus("SENT");
+            setstatus("SENT");
         }
     }, [openCreate]);
 

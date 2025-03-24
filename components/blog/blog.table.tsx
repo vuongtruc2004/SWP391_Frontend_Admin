@@ -10,7 +10,8 @@ import { apiUrl, storageUrl } from "@/utils/url"
 import { sendRequest } from "@/utils/fetch.api"
 import { useSession } from "next-auth/react"
 import ListComment from "../comment/list.comment"
-import DisplayBlog from "@/features/blog-display/display.blog"
+import DisplayBlog from "@/features/display-blog/display.blog"
+
 
 type CommentDisplay = {
     comment: CommentResponse,
@@ -25,7 +26,6 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
     const pathName = usePathname()
     const page = Number(searchParam.get('page')) || 1;
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const openDetail = () => setIsModalOpen(true);
     const closeDetail = () => setIsModalOpen(false);
     const [selectRecord, setSelectRecord] = useState<BlogDetailsResponse | null>(null)
     const [openUpdate, setOpenUpdate] = useState(false);
@@ -33,7 +33,6 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
     const [currentPage, setCurrentPage] = useState(1);
     const { data: session, status } = useSession();
     const [comments, setComments] = useState<CommentResponse[]>([]);
-    const [contentBlog, setContentBlog] = useState<string>("")
 
     const indexOfLastComment = currentPage * pageSize;
     const indexOfFirstComment = indexOfLastComment - pageSize;
@@ -50,12 +49,14 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             notification.success({
                 message: change.message.toString(),
                 description: change.errorMessage,
+                showProgress: true,
             })
             router.refresh()
         } else {
             notification.error({
                 message: change.message.toString(),
                 description: change.errorMessage,
+                showProgress: true,
             })
         }
     }
@@ -72,12 +73,14 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             notification.success({
                 message: deleteBlog.message.toString(),
                 description: deleteBlog.errorMessage,
+                showProgress: true,
             })
             router.refresh()
         } else {
             notification.error({
                 message: deleteBlog.message.toString(),
-                description: deleteBlog.errorMessage
+                description: deleteBlog.errorMessage,
+                showProgress: true,
             })
         }
     }
@@ -94,7 +97,6 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             dataIndex: 'title',
             key: 'title',
             width: '30%',
-            // sorter: (a, b) => a.title.localeCompare(b.title),
         },
         {
             title: 'Tác giả',
@@ -109,7 +111,6 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             dataIndex: 'createdAt',
             key: 'createdAt',
             width: '15%',
-            // sorter: (a, b) => a.user.fullname.localeCompare(b.user.fullname),
             render: (createdAt: string) => (dayjs(createdAt).format("DD/MM/YYYY")),
             align: "center"
         },
@@ -127,7 +128,6 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             dataIndex: 'published',
             key: 'published',
             width: '10%',
-            // sorter: (a, b) => a.user.fullname.localeCompare(b.user.fullname),
             render: (published: boolean) => (published ? "Công khai" : "Chỉ mình tôi"),
             align: "center"
         },
@@ -159,39 +159,45 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
                                 </Popconfirm>
                             </Tooltip>
 
-                            {!record.published ? (
-                                <Tooltip placement="bottom" title={"Chuyển sang trạng thái công khai"}>
-                                    <CheckOutlined
-                                        style={{
-                                            color: record.published ? "gray" : "#16db65",
-                                            cursor: record.published === true ? "not-allowed" : "pointer",
-                                            pointerEvents: record.published ? "none" : "auto"
-                                        }}
-                                        onClick={() => { changeStatus(record.blogId) }}
+                            {session?.user.userId === record.user.userId && (
+                                !record.published ? (
+                                    <Tooltip placement="bottom" title={"Chuyển sang trạng thái công khai"}>
+                                        <CheckOutlined
+                                            style={{
+                                                color: record.published ? "gray" : "#16db65",
+                                                cursor: record.published === true ? "not-allowed" : "pointer",
+                                                pointerEvents: record.published ? "none" : "auto"
+                                            }}
+                                            onClick={() => { changeStatus(record.blogId) }}
 
-                                    />
-                                </Tooltip>
-                            ) : (
-                                <Tooltip placement="bottom" title={"Chuyển sang trạng thái chỉ mình tôi"}>
-                                    <CloseOutlined
-                                        style={{
-                                            color: record.published ? "red" : "gray",
-                                            cursor: record.published === false ? "not-allowed" : "pointer",
-                                            pointerEvents: record.published ? "auto" : "none"
+                                        />
+                                    </Tooltip>
+                                ) : (
+                                    <Tooltip placement="bottom" title={"Chuyển sang trạng thái chỉ mình tôi"}>
+                                        <CloseOutlined
+                                            style={{
+                                                color: record.published ? "red" : "gray",
+                                                cursor: record.published === false ? "not-allowed" : "pointer",
+                                                pointerEvents: record.published ? "auto" : "none"
+                                            }}
+                                            onClick={() => { changeStatus(record.blogId) }}
+                                        />
+                                    </Tooltip>
+                                )
+                            )}
+
+                            {session?.user.userId === record.user.userId && (
+                                <Tooltip placement="bottom" title={"Cập nhật"}>
+                                    <EditOutlined
+                                        style={{ color: "blue" }}
+                                        onClick={() => {
+                                            setOpenUpdate(true);
+                                            setSelectRecord(record)
                                         }}
-                                        onClick={() => { changeStatus(record.blogId) }}
                                     />
                                 </Tooltip>
                             )}
-                            <Tooltip placement="bottom" title={"Cập nhật"}>
-                                <EditOutlined
-                                    style={{ color: "blue" }}
-                                    onClick={() => {
-                                        setOpenUpdate(true);
-                                        setSelectRecord(record)
-                                    }}
-                                />
-                            </Tooltip>
+
                         </>
                     )}
 

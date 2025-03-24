@@ -3,6 +3,7 @@ import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import { DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { Modal, notification, Pagination, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
+import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 
@@ -13,7 +14,9 @@ const NotificationDetail = (props: {
 }) => {
     const { openModal, setOpenModal, recordNotification } = props;
     const [usersReceiver, setUsersReceiver] = useState<UserNotificationResponse[]>([]);
+    const { data: session } = useSession()
     const router = useRouter()
+    console.log(recordNotification)
 
     useEffect(() => {
         if (openModal) {
@@ -24,18 +27,21 @@ const NotificationDetail = (props: {
     // Khi dữ liệu trong state (usersReceiver) phụ thuộc vào một prop (recordNotification) và prop này có thể thay đổi.
     // Khi muốn cập nhật state mỗi khi một giá trị bên ngoài thay đổi (thường là dữ liệu từ API hoặc Redux).
 
+    console.log("check user receiver: ", usersReceiver);
     const handleDeleteNotification = async (userNotificationId: number) => {
         const deleteNotification = await sendRequest<ApiResponse<UserNotificationResponse>>({
             url: `${apiUrl}/notifications/delete-user/${userNotificationId}`,
             method: 'DELETE',
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${session?.accessToken}`,
             }
         });
         if (deleteNotification.status === 200) {
             notification.success({
                 message: "Thành công!",
                 description: "Bạn đã xóa người nhận thông báo thành công!",
+                showProgress: true,
             })
             // const newUsersReciver = recordNotification?.userNotifications.filter(user => user.userNotificationId !== deleteNotification.data.userNotificationId);
             // setUsersReceiver(newUsersReciver ? newUsersReciver : []);
@@ -46,7 +52,8 @@ const NotificationDetail = (props: {
         } else {
             notification.error({
                 message: "Thất bại!",
-                description: "Không thể xóa người nhận thông báo thông báo"
+                description: "Không thể xóa người nhận thông báo thông báo",
+                showProgress: true,
             })
         }
     }

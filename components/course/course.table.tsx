@@ -1,7 +1,7 @@
 'use client'
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
-import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, QuestionCircleOutlined, UserOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, UserOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
 import { notification, Popconfirm, Space, Spin, Table, TableProps, Tooltip } from 'antd';
 import { useSession } from 'next-auth/react';
@@ -41,13 +41,15 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             url: `${apiUrl}/courses/delete/${courseId}`,
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session?.accessToken}`,
             }
         });
         if (deleteResponse.status === 200) {
             notification.success({
                 message: "Thành Công",
                 description: deleteResponse.message.toString(),
+                showProgress: true,
             });
             router.refresh()
         } else {
@@ -62,19 +64,22 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             url: `${apiUrl}/courses/accept-status/${courseId}`,
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session?.accessToken}`,
             }
         });
         if (acceptRes.status === 200) {
             notification.success({
                 message: String(acceptRes.message),
                 description: acceptRes.errorMessage,
+                showProgress: true,
             });
             router.refresh()
         } else {
             notification.error({
                 message: "Lỗi!",
                 description: String(acceptRes.message),
+                showProgress: true,
             })
         }
     }
@@ -84,19 +89,22 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             url: `${apiUrl}/courses/request-processing/${courseId}`,
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session?.accessToken}`,
             }
         });
         if (changeStatus.status === 200) {
             notification.success({
                 message: String(changeStatus.message),
                 description: changeStatus.errorMessage,
+                showProgress: true,
             });
             router.refresh()
         } else {
             notification.error({
                 message: "Lỗi!",
                 description: String(changeStatus.message),
+                showProgress: true,
             })
         }
     }
@@ -106,19 +114,22 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             url: `${apiUrl}/courses/request-reject/${courseId}`,
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session?.accessToken}`
             }
         });
         if (changeStatus.status === 200) {
             notification.success({
                 message: String(changeStatus.message),
                 description: changeStatus.errorMessage,
+                showProgress: true,
             });
             router.refresh()
         } else {
             notification.error({
                 message: "Lỗi!",
                 description: String(changeStatus.message),
+                showProgress: true,
             })
         }
     }
@@ -208,15 +219,16 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                             <InfoCircleOutlined />
                         </Link>
                     </Tooltip>
-                    <Tooltip title="Thêm bài kiểm tra" color="blue">
-                        <Link href={`/quiz/create/${record.courseId}`}>
-                            <QuestionCircleOutlined
-                                style={{ color: "green" }}
-                            />
-                        </Link>
-                    </Tooltip>
-
-                    {session?.user.roleName && session.user.roleName === "EXPERT" && (
+                    {session?.user.roleName && session.user.roleName === 'EXPERT' && (
+                        <Tooltip title="Thêm chương học" color="blue">
+                            <Link href={`/chapter/create/${record.courseId}`}>
+                                <GrChapterAdd
+                                    style={{ color: "black" }}
+                                />
+                            </Link>
+                        </Tooltip>
+                    )}
+                    {session?.user.roleName && (session.user.roleName === "EXPERT" || session.user.roleName === "ADMIN") && (
                         <>
                             <Tooltip title='Cập nhật khoá học' color='blue'>
                                 <EditOutlined style={{ color: "blue" }}
@@ -234,14 +246,6 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                                     />
                                 </Tooltip>
                             )}
-                            <Tooltip title="Thêm chương học" color="blue">
-                                <Link href={`/chapter/create/${record.courseId}`}>
-                                    <GrChapterAdd
-                                        style={{ color: "black" }}
-                                    />
-                                </Link>
-                            </Tooltip>
-
 
                         </>
                     )}
