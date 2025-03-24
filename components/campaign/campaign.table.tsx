@@ -66,17 +66,9 @@ const CampaignTable = ({ campaignResponse }: { campaignResponse: PageDetailsResp
             title: 'STT',
             dataIndex: 'index',
             key: 'index',
-            width: '10%',
+            width: '5%',
             align: 'center',
             render: (text, record, index) => <>{(index + 1) + (page - 1) * campaignResponse.pageSize}</>,
-        },
-        {
-            title: 'Tên chiến dịch',
-            dataIndex: 'campaignName',
-            key: 'campaignName',
-            width: '30%',
-            align: 'center',
-            sorter: (a, b) => a.campaignName.localeCompare(b.campaignName),
         },
         {
             title: 'Tên chiến dịch',
@@ -110,7 +102,7 @@ const CampaignTable = ({ campaignResponse }: { campaignResponse: PageDetailsResp
             title: 'Ngày bắt đầu',
             dataIndex: 'startTime',
             key: 'startTime',
-            width: '10%',
+            width: '15%',
             align: 'center',
             sorter: (a, b) => a.startTime.localeCompare(b.startTime),
             render: (startTime) => dayjs(startTime).format('DD/MM/YYYY HH:mm:ss')
@@ -119,7 +111,7 @@ const CampaignTable = ({ campaignResponse }: { campaignResponse: PageDetailsResp
             title: 'Ngày kết thúc',
             dataIndex: 'endTime',
             key: 'endTime',
-            width: '10%',
+            width: '15%',
             align: 'center',
             sorter: (a, b) => a.endTime.localeCompare(b.endTime),
             render: (endTime) => dayjs(endTime).format('DD/MM/YYYY HH:mm:ss')

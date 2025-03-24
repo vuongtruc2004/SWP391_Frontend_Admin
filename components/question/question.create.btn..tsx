@@ -84,6 +84,20 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
                 return
             }
 
+            const isTooLong = answers.some((answer) => {
+                if (answer.content.trim().split(/\s+/).length > 50) {
+                    notification.error({
+                        message: "Thất bại",
+                        description: "Tiêu đề câu trả lời không được quá 50 từ!",
+                        showProgress: true,
+                    });
+                    setLoading(false);
+                    return true;
+                }
+                return false;
+            });
+
+            if (isTooLong) return;
 
             const questionRequest: QuestionRequest = {
                 title: title.value,
