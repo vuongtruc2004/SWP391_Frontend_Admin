@@ -1,12 +1,14 @@
 'use client'
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
-import { Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
+import { notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
 import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import UpdateQuestionForm from './update.question.form';
 import ViewQuestionDetail from './view.question.detail';
+import { apiUrl } from '@/utils/url';
+import { sendRequest } from '@/utils/fetch.api';
 
 
 
@@ -31,6 +33,30 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
     const router = useRouter();
     const page = Number(searchParams.get('page')) || 1;
     const { data: session, status } = useSession();
+
+    const deleteQuestion = async (questionId: number) => {
+        const deleteResponse = await sendRequest<ApiResponse<string>>({
+            url: `${apiUrl}/questions/${questionId}`,
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            }
+        });
+        if (deleteResponse.status === 200) {
+            notification.success({
+                message: "Thành Công",
+                description: deleteResponse.message.toString(),
+                showProgress: true
+            });
+            router.refresh()
+        } else {
+            notification.error({
+                message: "Thất Bại",
+                description: "Không tìm thấy câu hỏi!",
+                showProgress: true
+            })
+        }
+    }
 
 
     const columns: TableProps<QuestionResponse>['columns'] = [
@@ -75,7 +101,7 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
                         placement="left"
                         title="Xóa câu hỏi"
                         description="Bạn có chắc chắn muốn xóa câu hỏi này không?"
-                        // onConfirm={() => deleteCourse(record.courseId)}
+                        onConfirm={() => deleteQuestion(record.questionId)}
                         okText="Có"
                         cancelText="Không"
                     >

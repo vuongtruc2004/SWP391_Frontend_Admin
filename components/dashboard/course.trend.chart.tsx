@@ -1,9 +1,8 @@
 'use client'
-
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import { Bar } from '@ant-design/plots'
-import { Divider, Select } from 'antd';
+import { Select } from 'antd';
 import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react'
 
@@ -35,10 +34,9 @@ const CourseTrendingChart = () => {
         const fetchData = async () => {
             try {
                 const response = await sendRequest<ApiResponse<CourseSalesEntryResponse>>({
-                    url: `${apiUrl}/orders/count`,
+                    url: `${apiUrl}/orderDetails/top-sale`,
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
-                        "Content-Type": "application/json"
                     },
                 });
 
@@ -52,6 +50,8 @@ const CourseTrendingChart = () => {
                         });
 
                     setChartData(formattedData);
+
+                } else {
                 }
 
             } catch (error) {

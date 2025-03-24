@@ -17,23 +17,24 @@ const GenderPieChart = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await sendRequest<ApiResponse<GenderCountResponse>>({
-                url: `${apiUrl}/users/gender_count`,
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            if (status === 'authenticated') {
+                const response = await sendRequest<ApiResponse<GenderCountResponse>>({
+                    url: `${apiUrl}/users/gender_count`,
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${session.accessToken}`,
+                    }
+                });
 
-            if (response.status === 200) {
-                setMaleCount(response.data.maleCount)
-                setFemaleCount(response.data.femaleCount)
-                setUnkhownCount(response.data.unknownCount)
+                if (response.status === 200) {
+                    setMaleCount(response.data.maleCount)
+                    setFemaleCount(response.data.femaleCount)
+                    setUnkhownCount(response.data.unknownCount)
+                }
             }
         };
         fetchData();
-    }, []);
+    }, [session]);
 
     const data = [
         { type: 'Nam', value: maleCount },

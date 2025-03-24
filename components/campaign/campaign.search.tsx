@@ -90,10 +90,10 @@ const CampaignSearch = ({ keyword, discountRange, startFrom, startTo, endFrom, e
     };
 
     return (
-        <div className="flex gap-2 ml-10 mt-10">
-            <Form className='w-[50%]' onFinish={onFinish} form={form} initialValues={{ keyword: keyword, discountRange: discountRange }}>
+        <div className="flex gap-2 ml-10 mt-10 w-full">
+            <Form className='w-[65%]' onFinish={onFinish} form={form} initialValues={{ keyword: keyword, discountRange: discountRange }}>
 
-                <Form.Item name="keyword" className="mb-0">
+                <Form.Item name="keyword" className="mb-0 ">
                     <Input
                         placeholder="Tìm kiếm tên chiến dịch, mô tả, "
                         prefix={<SearchOutlined />}
@@ -102,9 +102,9 @@ const CampaignSearch = ({ keyword, discountRange, startFrom, startTo, endFrom, e
                     />
                 </Form.Item>
 
-                <div className='flex items-center gap-7'>
+                <div className='flex gap-7'>
 
-                    <div className='flex gap-1  '>
+                    <div className='flex gap-1'>
                         <span className="w-24 text-nowrap mt-1">Ngày bắt đầu:</span>
                         <Form.Item name="startFrom" initialValue={getValidDayjs(startFrom)}>
                             <DatePicker style={{ width: '120px' }} onChange={onChangeStartFrom} format={dateFormat} placeholder='Từ Ngày' allowClear={false} />
@@ -112,6 +112,43 @@ const CampaignSearch = ({ keyword, discountRange, startFrom, startTo, endFrom, e
                         <span>~</span>
                         <Form.Item name="startTo" initialValue={getValidDayjs(startTo)}>
                             <DatePicker style={{ width: '120px' }} onChange={onChangeStartTo} format={dateFormat} placeholder='Đến Ngày' allowClear={false} />
+                        </Form.Item>
+                    </div>
+
+                    <div className='flex gap-1'>
+                        <Form.Item name="minPrice" label="Phần trăm giảm">
+                            <InputNumber
+                                type="number"
+                                style={{ width: '120px' }}
+                                placeholder='0'
+                                min={0}
+                                onChange={handlePriceChange}
+                            />
+                        </Form.Item>
+                        <span>~</span>
+                        <Form.Item name="maxPrice">
+                            <InputNumber
+                                type="number"
+                                style={{ width: '120px' }}
+                                value={100}
+                                placeholder='100'
+                                onChange={handlePriceChange}
+                            />
+                        </Form.Item>
+                    </div>
+
+                </div>
+
+                <div className='flex items-center gap-7'>
+
+                    <div className='flex gap-1  '>
+                        <span className="w-24 text-nowrap mt-1">Ngày kết thúc:</span>
+                        <Form.Item name="endFrom" initialValue={getValidDayjs(endFrom)}>
+                            <DatePicker style={{ width: '120px' }} onChange={onChangeEndFrom} format={dateFormat} placeholder='Từ Ngày' allowClear={false} />
+                        </Form.Item>
+                        <span>~</span>
+                        <Form.Item name="endTo" initialValue={getValidDayjs(endTo)}>
+                            <DatePicker style={{ width: '120px' }} onChange={onChangeEndTo} format={dateFormat} placeholder='Đến Ngày' allowClear={false} />
                         </Form.Item>
                     </div>
 
@@ -131,46 +168,9 @@ const CampaignSearch = ({ keyword, discountRange, startFrom, startTo, endFrom, e
                         />
                     </Form.Item>
 
-                </div>
-
-                <div className='flex items-center gap-7'>
-
-                    <div className='flex gap-1  '>
-                        <span className="w-24 text-nowrap mt-1">Ngày kết thúc:</span>
-                        <Form.Item name="endFrom" initialValue={getValidDayjs(endFrom)}>
-                            <DatePicker style={{ width: '120px' }} onChange={onChangeEndFrom} format={dateFormat} placeholder='Từ Ngày' allowClear={false} />
-                        </Form.Item>
-                        <span>~</span>
-                        <Form.Item name="endTo" initialValue={getValidDayjs(endTo)}>
-                            <DatePicker style={{ width: '120px' }} onChange={onChangeEndTo} format={dateFormat} placeholder='Đến Ngày' allowClear={false} />
-                        </Form.Item>
-                    </div>
 
 
                 </div>
-
-                <div className='flex gap-1'>
-                    <Form.Item name="minPrice" label="Số lượng giảm">
-                        <InputNumber
-                            type="number"
-                            style={{ width: '120px' }}
-                            placeholder="Từ số"
-                            min={0}
-                            onChange={handlePriceChange}
-                        />
-                    </Form.Item>
-                    <span>~</span>
-                    <Form.Item name="maxPrice">
-                        <InputNumber
-                            type="number"
-                            style={{ width: '120px' }}
-                            placeholder="Đến số"
-                            min={0}
-                            onChange={handlePriceChange}
-                        />
-                    </Form.Item>
-                </div>
-
 
             </Form>
             <Tooltip title="Làm mới" color='blue'>

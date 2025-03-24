@@ -48,7 +48,7 @@ const ViewQuestionDetail = (props: IProps) => {
                             }]}
                         />
                     </div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Bài kiểm tra liên quan:
+                    {/* <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Bài kiểm tra liên quan:
                     </span>{question.quizzes.length}
                         <Collapse
                             items={[{
@@ -61,7 +61,7 @@ const ViewQuestionDetail = (props: IProps) => {
                                     </ul>
                             }]}
                         />
-                    </div>
+                    </div> */}
 
                     {/* 
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>

@@ -52,10 +52,10 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                 return
             }
 
-            if (subjectName.value.split(/\s+/).length > 20) {
+            if (subjectName.value.split(/\s+/).length > 50) {
                 notification.error({
                     message: "Thất bại",
-                    description: "Tên lĩnh vực không được quá 20 từ!",
+                    description: "Tên lĩnh vực không được quá 50 từ!",
                     showProgress: true
                 });
                 setLoading(false)

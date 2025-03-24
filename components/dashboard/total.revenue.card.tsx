@@ -49,53 +49,54 @@ const TotalRevenueCard = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await sendRequest<ApiResponse<DashboardResponse>>({
-                url: `${apiUrl}/orders/dashboard-statistics/${type}`,
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                    'Content-Type': 'application/json'
+            if (status === 'authenticated') {
+                const response = await sendRequest<ApiResponse<DashboardResponse>>({
+                    url: `${apiUrl}/orders/dashboard-statistics/${type}`,
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${session.accessToken}`,
+                    }
+                });
+
+                if (response.status === 200) {
+
+                    setRevenue(response.data.revenue)
+                    setStudents(response.data.students)
+                    setCourseSold(response.data.orders)
+
+                    const percentSale = response.data.yesterdayRevenue > 0
+                        ? ((response.data.todayRevenue - response.data.yesterdayRevenue) / response.data.yesterdayRevenue) * 100
+                        : response.data.todayRevenue === 0 ? 0 : 100;
+                    setTotalSalesToday(response.data.todayRevenue);
+                    setPercentSale(percentSale);
+                    setTotalSalesYesterday(response.data.yesterdayRevenue);
+
+                    const percentStudent = response.data.yesterdayStudents > 0
+                        ? ((response.data.todayStudents - response.data.yesterdayStudents) / response.data.yesterdayStudents) * 100
+                        : response.data.todayRevenue === 0 ? 0 : 100;
+                    setTotalStudentsToday(response.data.todayStudents);
+                    setPercentStudent(percentStudent);
+                    setTotalStudentsYesterday(response.data.yesterdayStudents);
+
+                    const percentCoursesSell = response.data.yesterdayOrders > 0
+                        ? ((response.data.todayOrders - response.data.yesterdayOrders) / response.data.yesterdayOrders) * 100
+                        : response.data.todayRevenue === 0 ? 0 : 100;
+                    setTotalCoursesSellToday(response.data.todayOrders);
+                    setPercentCoursesSell(percentCoursesSell);
+                    setTotalCoursesSellYesterday(response.data.yesterdayOrders);
+
+                    if (type === 'month') {
+                        setCurrentText(getCurrentMonth());
+                    } else if (type === 'quarter') {
+                        setCurrentText(getCurrentQuarter())
+                    } else if (type === 'year') {
+                        setCurrentText(getCurrentYear())
+                    }
                 }
-            });
-
-            if (response.status === 200) {
-
-                setRevenue(response.data.revenue)
-                setStudents(response.data.students)
-                setCourseSold(response.data.orders)
-
-                const percentSale = response.data.yesterdayRevenue > 0
-                    ? ((response.data.todayRevenue - response.data.yesterdayRevenue) / response.data.yesterdayRevenue) * 100
-                    : response.data.todayRevenue === 0 ? 0 : 100;
-                setTotalSalesToday(response.data.todayRevenue);
-                setPercentSale(percentSale);
-                setTotalSalesYesterday(response.data.yesterdayRevenue);
-
-                const percentStudent = response.data.yesterdayStudents > 0
-                    ? ((response.data.todayStudents - response.data.yesterdayStudents) / response.data.yesterdayStudents) * 100
-                    : response.data.todayRevenue === 0 ? 0 : 100;
-                setTotalStudentsToday(response.data.todayStudents);
-                setPercentStudent(percentStudent);
-                setTotalStudentsYesterday(response.data.yesterdayStudents);
-
-                const percentCoursesSell = response.data.yesterdayOrders > 0
-                    ? ((response.data.todayOrders - response.data.yesterdayOrders) / response.data.yesterdayOrders) * 100
-                    : response.data.todayRevenue === 0 ? 0 : 100;
-                setTotalCoursesSellToday(response.data.todayOrders);
-                setPercentCoursesSell(percentCoursesSell);
-                setTotalCoursesSellYesterday(response.data.yesterdayOrders);
-
             }
         };
         fetchData();
-        if (type === 'month') {
-            setCurrentText(getCurrentMonth());
-        } else if (type === 'quarter') {
-            setCurrentText(getCurrentQuarter())
-        } else if (type === 'year') {
-            setCurrentText(getCurrentYear())
-        }
-    }, [type]);
+    }, [type, session]);
 
     const handleChange = (value: string) => {
         setType(value);

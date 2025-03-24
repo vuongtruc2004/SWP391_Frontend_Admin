@@ -88,10 +88,10 @@ const CampaignCreateBtn = () => {
             }
 
 
-            if (campaigntName.value.split(/\s+/).length > 50) {
+            if (campaigntName.value.split(/\s+/).length > 100) {
                 notification.error({
                     message: "Thất bại",
-                    description: "Tên chiến dịch không được quá 50 từ!",
+                    description: "Tên chiến dịch không được quá 100 từ!",
                     showProgress: true
                 });
                 setLoading(false)
@@ -223,7 +223,7 @@ const CampaignCreateBtn = () => {
     return (
         <>
             <div className="flex justify-between items-center mb-4 px-6">
-                <div className="mt-[-5rem] ml-[25rem]">
+                <div className="mt-[-5rem] ml-[66rem]">
                     <Button
                         type="primary"
                         onClick={showModal}

@@ -12,7 +12,7 @@ const ViewCampaignDetail = ({ campaign, openViewDraw, setOpenViewDraw }: {
     setOpenViewDraw: Dispatch<SetStateAction<boolean>>
 }) => {
 
-    const [openCollapse, setOpenCollapse] = useState(['0']);
+    const [openCollapse, setOpenCollapse] = useState(['1']);
 
     const onClose = () => {
         setOpenCollapse([]);
@@ -66,7 +66,7 @@ const ViewCampaignDetail = ({ campaign, openViewDraw, setOpenViewDraw }: {
 
                     </table>
 
-                    {/* <Collapse
+                    <Collapse
                         activeKey={openCollapse}
                         onChange={setOpenCollapse}
                         items={[{
@@ -83,7 +83,7 @@ const ViewCampaignDetail = ({ campaign, openViewDraw, setOpenViewDraw }: {
                                     ))}
                                 </ul>
                         }]}
-                    /> */}
+                    />
 
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ảnh:</span> </div><br />
                     <div className="flex justify-center items-center">

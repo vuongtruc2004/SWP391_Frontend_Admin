@@ -82,6 +82,9 @@ const CampaignPage = async (props: {
 
     const priceResponse = await sendRequest<ApiResponse<MinMaxPriceResponse>>({
         url: `${apiUrl}/campaigns/price-range`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        }
     })
 
     return (

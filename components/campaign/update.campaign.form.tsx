@@ -109,10 +109,10 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
                 return
             }
 
-            if (campaignName.value.split(/\s+/).length > 50) {
+            if (campaignName.value.split(/\s+/).length > 100) {
                 notification.error({
                     message: "Thất bại",
-                    description: "Tên chiến dịch không được quá 50 từ!",
+                    description: "Tên chiến dịch không được quá 100 từ!",
                     showProgress: true
                 });
                 setLoading(false)

@@ -19,26 +19,28 @@ const AgeRangeColumns = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await sendRequest<ApiResponse<AgeRangeResponse>>({
-                url: `${apiUrl}/users/age_count`,
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            if (status === 'authenticated') {
+                const response = await sendRequest<ApiResponse<AgeRangeResponse>>({
+                    url: `${apiUrl}/users/age_count`,
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`,
+                    }
+                });
 
-            if (response.status === 200) {
-                setSixToTwelve(response.data["6-12"])
-                setThirdteenToNineteen(response.data["13-19"])
-                setTewntyToNthirdtynine(response.data["20-39"])
-                setFourthtyToFifthtynine(response.data["40-59"])
-                setOverSixty(response.data["60-110"])
-                setUnknown(response.data["Unknown"])
+                if (response.status === 200) {
+                    setSixToTwelve(response.data["6-12"])
+                    setThirdteenToNineteen(response.data["13-19"])
+                    setTewntyToNthirdtynine(response.data["20-39"])
+                    setFourthtyToFifthtynine(response.data["40-59"])
+                    setOverSixty(response.data["60-110"])
+                    setUnknown(response.data["Unknown"])
+                }
             }
+
         };
         fetchData();
-    }, []);
+    }, [session]);
 
     const data = [
         { type: 'Chưa xác định', value: unknown },

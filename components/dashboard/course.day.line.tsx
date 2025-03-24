@@ -44,30 +44,30 @@ const CourseDayLine = () => {
     const { data: session, status } = useSession();
 
     useEffect(() => {
-        fetchData(firstDayOfWeek, endDayOfWeek);
-    }, [firstDayOfWeek, endDayOfWeek]);
+        const fetchData = async (startDate: string, endDate: string) => {
+            if (status === 'authenticated') {
+                const response = await sendRequest<ApiResponse<CourseWeekResponse>>({
+                    url: `${apiUrl}/orders/course_sell_in_week?startDate=${startDate}&endDate=${endDate}`,
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`,
+                    }
+                });
 
-
-    const fetchData = async (startDate: string, endDate: string) => {
-        const response = await sendRequest<ApiResponse<CourseWeekResponse>>({
-            url: `${apiUrl}/orders/course_sell_in_week?startDate=${startDate}&endDate=${endDate}`,
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-                'Content-Type': 'application/json'
+                if (response.status === 200) {
+                    setMonday(response.data["MONDAY"]);
+                    setTuesday(response.data["TUESDAY"]);
+                    setWednesday(response.data["WEDNESDAY"]);
+                    setThursday(response.data["THURSDAY"]);
+                    setFriday(response.data["FRIDAY"]);
+                    setSaturday(response.data["SATURDAY"]);
+                    setSunday(response.data["SUNDAY"]);
+                }
             }
-        });
+        };
+        fetchData(firstDayOfWeek, endDayOfWeek);
+    }, [firstDayOfWeek, endDayOfWeek, session]);
 
-        if (response.status === 200) {
-            setMonday(response.data["MONDAY"]);
-            setTuesday(response.data["TUESDAY"]);
-            setWednesday(response.data["WEDNESDAY"]);
-            setThursday(response.data["THURSDAY"]);
-            setFriday(response.data["FRIDAY"]);
-            setSaturday(response.data["SATURDAY"]);
-            setSunday(response.data["SUNDAY"]);
-        }
-    };
 
 
     const handleWeekChange = (date: Dayjs | null) => {

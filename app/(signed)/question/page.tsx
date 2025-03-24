@@ -1,3 +1,4 @@
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import QuestionCreateBtn from "@/components/question/question.create.btn.";
 import QuestionSearch from "@/components/question/question.search";
 import QuestionTable from "@/components/question/question.table";
@@ -5,6 +6,7 @@ import { isFullNumber } from "@/helper/subject.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import { Metadata } from "next";
+import { getServerSession } from "next-auth";
 
 export const metadata: Metadata = {
     title: "Quản lý câu hỏi",
@@ -20,6 +22,8 @@ const QuestionPage = async (props: {
     const keyword = searchParams.keyword || ""
     const page = searchParams.page || 1;
     let filter = ""
+    const session = await getServerSession(authOptions);
+
     if (isFullNumber(keyword)) {
         filter = `questionId : ${keyword}`
     } else {
@@ -28,6 +32,9 @@ const QuestionPage = async (props: {
 
     const questionResponse = await sendRequest<ApiResponse<PageDetailsResponse<QuestionResponse[]>>>({
         url: `${apiUrl}/questions`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
         queryParams: {
             page: page,
             size: 10,

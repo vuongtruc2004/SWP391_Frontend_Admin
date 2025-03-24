@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCollapseContext } from '../../wrapper/collapse-sidebar/collapse.sidebar.wrapper';
-import { sidebarItems, sidebarItemsExpert } from './app.sidebar.properties';
+import { sidebarItems, sidebarItemsAdmin, sidebarItemsExpert } from './app.sidebar.properties';
 import './overwrite.style.scss';
 
 const AppSidebar = () => {
@@ -33,7 +33,13 @@ const AppSidebar = () => {
                 style={{ width: '100%' }}
                 selectedKeys={[pathname.split('/')[1]]}
                 mode="inline"
-                items={session?.user.roleName === "ADMIN" ? sidebarItems : sidebarItemsExpert}
+                items={
+                    session?.user.roleName === "ADMIN"
+                        ? sidebarItemsAdmin
+                        : session?.user.roleName === "EXPERT"
+                            ? sidebarItemsExpert
+                            : sidebarItems
+                }
                 theme="light"
             />
         </Sider>

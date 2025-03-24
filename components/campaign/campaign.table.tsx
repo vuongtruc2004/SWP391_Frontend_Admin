@@ -34,7 +34,6 @@ const CampaignTable = ({ campaignResponse }: { campaignResponse: PageDetailsResp
     const [currentCampaign, setCurrentCampaign] = useState<CampaignResponse>()
     const [openEditForm, setOpenEditForm] = useState(false);
     const [editingCampaign, setEditingCampaign] = useState<CampaignResponse | null>(null)
-    const [stompClient, setStompClient] = useState<Client | null>(null);
     const { data: session, status } = useSession();
 
     const deleteCampaign = async (campaignId: number) => {
@@ -43,7 +42,6 @@ const CampaignTable = ({ campaignResponse }: { campaignResponse: PageDetailsResp
             method: 'DELETE',
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
-                'Content-Type': 'application/json'
             }
         });
         if (deleteResponse.status === 200) {
