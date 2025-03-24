@@ -208,6 +208,13 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                             <InfoCircleOutlined />
                         </Link>
                     </Tooltip>
+                    <Tooltip title="Thêm bài kiểm tra" color="blue">
+                        <Link href={`/quiz/create/${record.courseId}`}>
+                            <QuestionCircleOutlined
+                                style={{ color: "green" }}
+                            />
+                        </Link>
+                    </Tooltip>
 
                     {session?.user.roleName && session.user.roleName === "EXPERT" && (
                         <>
@@ -235,13 +242,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                                 </Link>
                             </Tooltip>
 
-                            <Tooltip title="Thêm bài kiểm tra" color="blue">
-                                <Link href={`/quiz/create/${record.courseId}`}>
-                                    <QuestionCircleOutlined
-                                        style={{ color: "green" }}
-                                    />
-                                </Link>
-                            </Tooltip>
+
                         </>
                     )}
                     {session?.user.roleName && session.user.roleName === "ADMIN" && (

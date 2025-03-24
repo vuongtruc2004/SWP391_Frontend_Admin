@@ -52,8 +52,18 @@ const UserPage = async (props: {
 
     }
 
+    const session = await getServerSession(authOptions);
+    if (session?.user && session.user.roleName !== "ADMIN") {
+        redirect(session.user.roleName === "EXPERT" ? "/course" : "/blog");
+    }
+
     const userResponse = await sendRequest<ApiResponse<PageDetailsResponse<UserResponse[]>>>({
         url: `${apiUrl}/users`,
+        headers: {
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        },
         queryParams: {
             page: page,
             size: 10,
@@ -91,10 +101,7 @@ const UserPage = async (props: {
     };
 
     const allUsers = await fetchAllUsers();
-    const session = await getServerSession(authOptions);
-    if (session?.user && session.user.roleName !== "ADMIN") {
-        redirect(session.user.roleName === "EXPERT" ? "/course" : "/blog");
-    }
+
 
     return <UserPageClient
         keyword={keyword}

@@ -8,11 +8,12 @@ import { useState } from "react";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import Link from "next/link";
-import { useQuizCreate } from "@/wrapper/quiz-create/quiz.create.wrapper";
+import { useSession } from "next-auth/react";
 
 const QuizTable = (props: {
     quizPageResponse: PageDetailsResponse<QuizResponse[]>
 }) => {
+    const { data: session, status } = useSession();
     const { quizPageResponse } = props;
     const searchParams = useSearchParams();
     const page = Number(searchParams.get('page')) || 1;
@@ -125,11 +126,11 @@ const QuizTable = (props: {
                             setQuizDetail(record);
                         }} />
                     </Link>
-                    <Link href={`/quiz/update?quizId=${record.quizId}`} passHref>
-                        <EditOutlined style={{ color: "blue", cursor: "pointer" }} />
-                    </Link>
-
-
+                    {session?.user.roleName === 'EXPERT' && status === 'authenticated' && (
+                        <Link href={`/quiz/update?quizId=${record.quizId}`} passHref>
+                            <EditOutlined style={{ color: "blue", cursor: "pointer" }} />
+                        </Link>
+                    )}
                     <Popconfirm
                         placement="left"
                         title={`${record.published ? "Đóng" : "Mở"} bài kiểm tra`}

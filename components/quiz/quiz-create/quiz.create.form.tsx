@@ -42,7 +42,6 @@ const QuizCreateForm = ({ course }: { course: CourseDetailsResponse }) => {
         });
 
         setCreateQuestions(updatedQuestions);
-        console.log("updatedQuestions>>", updatedQuestions)
 
         if (selectQuestions.length > 0 && createQuestions[0].title === '') {
             // TH1: Có chọn từ ngân hàng nhưng không tạo mới, tiếp tục xử lý
@@ -88,9 +87,6 @@ const QuizCreateForm = ({ course }: { course: CourseDetailsResponse }) => {
                     Authorization: `Bearer ${session?.accessToken}`
                 },
             });
-
-
-            console.log("quizResponse>>", quizResponse)
             if (quizResponse.status == 201) {
 
                 notification.success({

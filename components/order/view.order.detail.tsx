@@ -20,7 +20,6 @@ const ViewOrderDetail = (props: {
         setActiveOrder(activeOrder === index ? null : index);
         fetchCourseDetails(courseId);
     };
-
     const fetchCourseDetails = async (courseId: number) => {
         if (courseDetails[courseId]) return;
 
@@ -41,27 +40,18 @@ const ViewOrderDetail = (props: {
         <Drawer title="THÔNG TIN CHI TIẾT" onClose={() => setOpenDraw(false)} open={openDraw}>
             {viewOrderDetail ? (
                 <>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Trạng thái: </span>
-                        <span>
-                            {{
-                                PENDING: 'Chưa thanh toán',
-                                COMPLETED: 'Đã thanh toán',
-                                EXPIRED: 'Đã hết hạn',
-                                CANCELLED: 'Đã hủy'
-                            }[viewOrderDetail.orderStatus] || 'Không xác định'}
-                        </span>
-                    </div>
+
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ngày tạo: </span>
                         {viewOrderDetail.createdAt ? dayjs(viewOrderDetail.createdAt).format("DD/MM/YYYY HH:mm:ss") : 'Không có dữ liệu'}
                     </div>
-                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ngày cập nhật: </span>
-                        {viewOrderDetail.updatedAt ? dayjs(viewOrderDetail.updatedAt).format("DD/MM/YYYY HH:mm:ss") : 'Không có dữ liệu'}
+                    <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ngày thanh toán: </span>
+                        {viewOrderDetail.paidAt ? dayjs(viewOrderDetail.paidAt).format("DD/MM/YYYY HH:mm:ss") : 'Không có dữ liệu'}
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Họ và tên: </span>
                         {viewOrderDetail.user?.fullname || 'Không có dữ liệu'}
                     </div>
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tổng số tiền: </span>
-                        {viewOrderDetail.totalAmount.toLocaleString()}₫
+                        {viewOrderDetail.totalPrice.toLocaleString()}₫
                     </div>
 
                     <Collapse
@@ -70,23 +60,23 @@ const ViewOrderDetail = (props: {
                                 key: '1',
                                 label: 'Xem chi tiết hóa đơn',
                                 children: (
-                                    <ul className='ml-0.5'>
+                                    <ul className='ml-0.5 list-none'>
                                         {viewOrderDetail.orderDetails.map((orderDetail, index) => (
                                             <li key={index} className="mb-2">
                                                 <div
                                                     className="flex items-center gap-2 cursor-pointer font-medium text-gray-700"
-                                                    onClick={() => handleToggle(index, orderDetail.courseId)}>
+                                                    onClick={() => handleToggle(index, orderDetail.course.courseId)}>
                                                     <DoubleRightOutlined style={{ color: 'green' }} />
                                                     {`Khóa học ${index + 1}`}
                                                 </div>
 
                                                 {activeOrder === index && (
-                                                    courseDetails[orderDetail.courseId] ? (
+                                                    courseDetails[orderDetail.course.courseId] ? (
                                                         <ul className="ml-6 mt-2 list-disc">
                                                             {/* <li><span className="font-medium text-blue-500">Số tiền:</span> {courseDetails[orderDetail.courseId]?.price}₫ </li> */}
-                                                            <li><span className="font-medium text-blue-500">Khóa học:</span> {courseDetails[orderDetail.courseId]?.courseName}</li>
-                                                            <li><span className="font-medium text-blue-500">Mô tả:</span> {courseDetails[orderDetail.courseId]?.description}</li>
-                                                            <li><span className="font-medium text-blue-500">Giảng viên:</span> {courseDetails[orderDetail.courseId]?.expert?.user.fullname}</li>
+                                                            <li><span className="font-medium text-blue-500">Khóa học:</span> {courseDetails[orderDetail.course.courseId]?.courseName}</li>
+                                                            <li><span className="font-medium text-blue-500">Mô tả:</span> {courseDetails[orderDetail.course.courseId]?.description}</li>
+                                                            <li><span className="font-medium text-blue-500">Giảng viên:</span> {courseDetails[orderDetail.course.courseId]?.expert?.user.fullname}</li>
                                                         </ul>
                                                     ) : (
                                                         <p>Đang tải...</p>

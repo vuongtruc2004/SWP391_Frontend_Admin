@@ -11,13 +11,12 @@ const OrderSearch = (props: {
     keyword: string,
     createdFrom: string,
     createdTo: string,
-    updatedFrom: string,
-    updatedTo: string,
-    orderStatus: string,
+    paidAtFrom: string,
+    paidAtTo: string,
     minPrice: number,
     maxPrice: number
 }) => {
-    const { keyword, orderStatus, createdFrom, createdTo, updatedFrom, updatedTo, minPrice, maxPrice } = props;
+    const { keyword, createdFrom, createdTo, paidAtFrom, paidAtTo, minPrice, maxPrice } = props;
     const router = useRouter();
     const searchParam = useSearchParams();
     const pathName = usePathname();
@@ -26,7 +25,7 @@ const OrderSearch = (props: {
 
 
     const handleReset = () => {
-        form.setFieldsValue({ keyword: '', orderStatus: 'ALL', createdFrom: '', createdTo: '', updatedFrom: '', updatedTo: '', minPrice: '', maxPrice: '' })
+        form.setFieldsValue({ keyword: '', createdFrom: '', createdTo: '', paidAtFrom: '', paidAtTo: '', minPrice: '', maxPrice: '' })
         router.push("/order")
     }
 
@@ -35,7 +34,6 @@ const OrderSearch = (props: {
 
         const newSearchParam = new URLSearchParams(searchParam);
         newSearchParam.set("keyword", keyword);
-        newSearchParam.set("orderStatus", orderStatus);
         newSearchParam.set("minPrice", minPrice);
         newSearchParam.set("maxPrice", maxPrice);
 
@@ -62,22 +60,22 @@ const OrderSearch = (props: {
         newSearchParam.set("page", "1")
         router.replace(`${pathName}?${newSearchParam}`)
     };
-    const onChangeUpdatedFrom: DatePickerProps['onChange'] = (date, dateString) => {
+    const onChangepaidAtFrom: DatePickerProps['onChange'] = (date, dateString) => {
         const newSearchParam = new URLSearchParams(searchParam)
         if (date) {
-            newSearchParam.set('updatedFrom', date.format('YYYY-MM-DD')) // Định dạng chuẩn cho URL
+            newSearchParam.set('paidAtFrom', date.format('YYYY-MM-DD')) // Định dạng chuẩn cho URL
         } else {
-            newSearchParam.delete('updatedFrom')
+            newSearchParam.delete('paidAtFrom')
         }
         newSearchParam.set("page", "1")
         router.replace(`${pathName}?${newSearchParam}`)
     };
-    const onChangeUpdatedTo: DatePickerProps['onChange'] = (date, dateString) => {
+    const onChangepaidAtTo: DatePickerProps['onChange'] = (date, dateString) => {
         const newSearchParam = new URLSearchParams(searchParam)
         if (date) {
-            newSearchParam.set('updatedTo', date.format('YYYY-MM-DD')) // Định dạng chuẩn cho URL
+            newSearchParam.set('paidAtTo', date.format('YYYY-MM-DD')) // Định dạng chuẩn cho URL
         } else {
-            newSearchParam.delete('updatedTo')
+            newSearchParam.delete('paidAtTo')
         }
         newSearchParam.set("page", "1")
         router.replace(`${pathName}?${newSearchParam}`)
@@ -91,19 +89,19 @@ const OrderSearch = (props: {
     };
 
     useEffect(() => {
-        form.setFieldsValue({ keyword, orderStatus });
+        form.setFieldsValue({ keyword });
     }, []);
 
     return (
         <>
             <div className="flex gap-2 ml-10 mt-10">
-                <Form className='w-[50%]' onFinish={onFinish} form={form} initialValues={{ keyword: keyword, orderStatus: orderStatus }}>
+                <Form className='w-[50%]' onFinish={onFinish} form={form} initialValues={{ keyword: keyword }}>
                     <Form.Item name="keyword" className="mb-0">
                         <Input
-                            placeholder="Tìm kiếm bằng họ tên khách hàng, email ..."
+                            placeholder="Tìm kiếm bằng họ tên khách hàng, email, mã hóa đơn"
                             prefix={<SearchOutlined />}
                             className='!p-[10px]'
-                            onPressEnter={() => form.submit()}
+                            onChange={() => form.submit()}
                         />
                     </Form.Item>
                     <div className='flex items-center gap-5'>
@@ -120,25 +118,7 @@ const OrderSearch = (props: {
                             </Form.Item>
                         </div>
 
-                        <Form.Item name="orderStatus" className="mb-0" label="Trạng thái:">
-                            <Select
-                                style={{ width: '150px' }}
-                                allowClear={false}
-                                onChange={(value) => {
-                                    form.submit();
-                                }}
-                                options={[
-                                    { value: "ALL", label: "Tất cả" },
-                                    { value: "PENDING", label: 'Chưa thanh toán' },
-                                    { value: "COMPLETED", label: 'Đã thanh toán' },
-                                    { value: "EXPIRED", label: 'Đã hết hạn' },
-                                    { value: "CANCELLED", label: 'Đã hủy' },
 
-
-
-                                ]}
-                            />
-                        </Form.Item>
 
 
 
@@ -146,12 +126,12 @@ const OrderSearch = (props: {
                     <div className='flex gap-1 '>
 
                         <span className="w-24 text-nowrap mt-1">Ngày cập nhật :</span>
-                        <Form.Item name="updatedFrom" initialValue={getValidDayjs(updatedFrom)}>
-                            <DatePicker style={{ width: '120px' }} onChange={onChangeUpdatedFrom} format={dateFormat} placeholder='Từ Ngày' allowClear={false} />
+                        <Form.Item name="paidAtFrom" initialValue={getValidDayjs(paidAtFrom)}>
+                            <DatePicker style={{ width: '120px' }} onChange={onChangepaidAtFrom} format={dateFormat} placeholder='Từ Ngày' allowClear={false} />
                         </Form.Item>
                         <span>~</span>
-                        <Form.Item name="updatedTo" initialValue={getValidDayjs(updatedTo)}>
-                            <DatePicker style={{ width: '120px' }} onChange={onChangeUpdatedTo} format={dateFormat} placeholder='Đến Ngày' allowClear={false} />
+                        <Form.Item name="paidAtTo" initialValue={getValidDayjs(paidAtTo)}>
+                            <DatePicker style={{ width: '120px' }} onChange={onChangepaidAtTo} format={dateFormat} placeholder='Đến Ngày' allowClear={false} />
                         </Form.Item>
 
 

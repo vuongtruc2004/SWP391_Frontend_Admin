@@ -229,19 +229,18 @@ declare global {
 
     interface OrderResponse {
         orderId: number;
-        orderStatus: string;
         orderCode: string;
         createdAt: string;
-        updatedAt: string;
+        paidAt: string;
         user: UserResponse;
-        totalAmount: number;
+        totalPrice: number;
         orderDetails: OrderDetailsResponse[];
         allowSeeAnswers: boolean;
     }
 
     interface OrderDetailsResponse {
         orderDetailsId: number;
-        courseId: number;
+        course: CourseResponse;
     }
 
     interface NotificationResponse {

@@ -8,6 +8,7 @@ import { apiUrl, storageUrl } from '@/utils/url';
 import dayjs from 'dayjs';
 import { validDob, validDobUpdate, validEmail, validFullName, validGender, validPassword, validRole } from '@/helper/create.user.helper';
 import { PlusOutlined, SyncOutlined, WarningOutlined } from '@ant-design/icons';
+import { useSession } from 'next-auth/react';
 
 interface IProps {
     editingUser: UserResponse | null;
@@ -21,7 +22,7 @@ const initState: ErrorResponse = {
 }
 const UpdateUserForm = (props: IProps) => {
     const { editingUser, setEditingUser, openEditForm, setOpenEditForm } = props;
-
+    const { data: session } = useSession();
     const [email, setEmail] = useState<ErrorResponse>(initState);
     const [fullName, setFullName] = useState<ErrorResponse>(initState);
     const [role, setRole] = useState<ErrorResponse>({
@@ -144,7 +145,8 @@ const UpdateUserForm = (props: IProps) => {
             url: `${apiUrl}/users`,
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.accessToken}`
             },
             body: userRequest
         });

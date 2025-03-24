@@ -22,6 +22,7 @@ const QuizPage = async (props: {
         durationTo: string;
     }>
 }) => {
+    const session = await getServerSession(authOptions);
     const searchParam = await props.searchParams;
     const keyword = searchParam.keyword || '';
     const page = searchParam.page || 1;
@@ -31,7 +32,6 @@ const QuizPage = async (props: {
     const createdTo = searchParam.createdTo || '';
     const durationFrom = getDuration(searchParam.durationFrom || '');
     const durationTo = getDuration(searchParam.durationTo || '');
-    const session = getServerSession(authOptions);
     let filters: string[] = [];
     if (keyword !== '') {
         filters.push(`(title ~ '${keyword}' or chapter.title ~ '${keyword}' or chapter.course.courseName ~ '${keyword}')`);
@@ -59,10 +59,12 @@ const QuizPage = async (props: {
 
 
 
-
     const filter = filters.length > 0 ? filters.join(" and ") : '';
     const quizResponse = await sendRequest<ApiResponse<PageDetailsResponse<QuizResponse[]>>>({
         url: `${apiUrl}/quizzes`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+        },
         queryParams: {
             page: page,
             size: 10,
@@ -70,7 +72,6 @@ const QuizPage = async (props: {
             sort: "updatedAt,desc"
         }
     })
-    console.log("session expert>>", session)
 
     const fetchAllQuiz = async () => {
         let allQuiz: QuizResponse[] = [];

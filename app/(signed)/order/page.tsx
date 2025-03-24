@@ -6,6 +6,8 @@ import { apiUrl } from "@/utils/url";
 import { Metadata } from "next";
 import { isFullNumber } from "@/helper/subject.helper";
 import { getOrderStatus, getPrice } from "@/helper/create.order.helper";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 
 export const metadata: Metadata = {
@@ -19,27 +21,28 @@ const OrderPage = async (props: {
         orderStatus?: string,
         createdFrom?: string,
         createdTo?: string,
-        updatedFrom?: string,
-        updatedTo?: string,
+        paidAtFrom?: string,
+        paidAtTo?: string,
         minPrice?: string,
         maxPrice?: string
 
     }>
 }) => {
+    const session = await getServerSession(authOptions);
     const searchParams = await props.searchParams;
     const keyword = searchParams.keyword || '';
     const page = searchParams.page || 1;
     const createdFrom = searchParams.createdFrom || '';
     const createdTo = searchParams.createdTo || '';
-    const updatedFrom = searchParams.updatedFrom || '';
-    const updatedTo = searchParams.updatedTo || '';
+    const paidAtFrom = searchParams.paidAtFrom || '';
+    const paidAtTo = searchParams.paidAtTo || '';
     const minPrice = getPrice(searchParams.minPrice);
     const maxPrice = getPrice(searchParams.maxPrice);
     const orderStatus = getOrderStatus(searchParams.orderStatus);
     let filters: string[] = [];
 
     if (keyword !== '') {
-        filters.push(`(user.fullname ~ '${keyword}' or user.email ~ '${keyword}')`);
+        filters.push(`(user.fullname ~ '${keyword}' or user.email ~ '${keyword}' or orderCode ~ '${keyword}')`);
     }
 
     if (orderStatus !== 'ALL') {
@@ -50,15 +53,15 @@ const OrderPage = async (props: {
         filters.push(`createdAt > '${createdFrom}' and createdAt < '${createdTo}'`);
     }
 
-    if (updatedFrom !== '' && updatedTo !== '') {
-        filters.push(`updatedAt > '${updatedFrom}' and updatedAt < '${updatedTo}'`);
+    if (paidAtFrom !== '' && paidAtTo !== '') {
+        filters.push(`paidAt > '${paidAtFrom}' and paidAt < '${paidAtTo}'`);
     }
 
     if (minPrice != '') {
-        filters.push(` totalAmount >: ${minPrice}`)
+        filters.push(` totalPrice >: ${minPrice}`)
     }
     if (maxPrice != '') {
-        filters.push(` totalAmount <: ${maxPrice} `)
+        filters.push(` totalPrice <: ${maxPrice} `)
     }
 
 
@@ -72,6 +75,10 @@ const OrderPage = async (props: {
 
     const orderResponse = await sendRequest<ApiResponse<PageDetailsResponse<OrderResponse[]>>>({
         url: `${apiUrl}/orders`,
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.accessToken}`
+        },
         queryParams: {
             page: page,
             size: 10,
@@ -79,13 +86,14 @@ const OrderPage = async (props: {
         }
     })
 
+
     return (
 
         <>
             <div className="border w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
                 <OrderSearch
-                    keyword={keyword} orderStatus={orderStatus} createdFrom={createdFrom}
-                    createdTo={createdTo} updatedFrom={updatedFrom} updatedTo={updatedTo}
+                    keyword={keyword} createdFrom={createdFrom}
+                    createdTo={createdTo} paidAtFrom={paidAtFrom} paidAtTo={paidAtTo}
                     minPrice={priceResponse.data.minPrice} maxPrice={priceResponse.data.maxPrice} />
 
                 <OrderTable orderPageResponse={orderResponse.data} />

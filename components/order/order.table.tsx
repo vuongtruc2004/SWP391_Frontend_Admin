@@ -8,10 +8,12 @@ import { useState } from "react";
 import ViewOrderDetail from "./view.order.detail";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
+import { useSession } from "next-auth/react";
 
 const OrderTable = (props: {
     orderPageResponse: PageDetailsResponse<OrderResponse[]>
 }) => {
+    const { data: session, status } = useSession();
     const { orderPageResponse } = props;
     const searchParams = useSearchParams();
     const page = Number(searchParams.get('page')) || 1;
@@ -30,18 +32,33 @@ const OrderTable = (props: {
             render: (text, record, index) => <>{(index + 1) + (page - 1) * orderPageResponse.pageSize}</>,
         },
         {
-            title: 'Ngày thanh toán',
-            dataIndex: 'updatedAt',
-            key: 'updatedAt',
+            title: 'Ngày tạo',
+            dataIndex: 'createdAt',
+            key: 'createdAt',
             align: 'center',
-            render: (updatedAt: string, record) => (
+            render: (createdAt: string, record) => (
                 <span>
-                    {updatedAt !== record.createdAt && record.orderStatus === 'COMPLETED' ? dayjs(updatedAt).format('DD/MM/YYYY HH:mm:ss') : 'Không có dữ liệu'}
+                    {createdAt ? dayjs(createdAt).format('DD/MM/YYYY') : 'Không có dữ liệu'}
                 </span>
             ),
             sorter: {
                 compare: (a: OrderResponse, b: OrderResponse) =>
-                    dayjs(a.updatedAt).unix() - dayjs(b.updatedAt).unix(),
+                    dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
+            },
+        },
+        {
+            title: 'Ngày thanh toán',
+            dataIndex: 'paidAt',
+            key: 'paidAt',
+            align: 'center',
+            render: (paidAt: string, record) => (
+                <span>
+                    {paidAt ? dayjs(paidAt).format('DD/MM/YYYY') : 'Chưa thanh toán'}
+                </span>
+            ),
+            sorter: {
+                compare: (a: OrderResponse, b: OrderResponse) =>
+                    dayjs(a.paidAt).unix() - dayjs(b.paidAt).unix(),
             },
         },
         {
@@ -70,39 +87,9 @@ const OrderTable = (props: {
             title: 'Tổng số tiền',
             key: 'price',
             align: 'center',
-            render: (_, record) => `${record.totalAmount.toLocaleString()}₫`
-
+            render: (_, record) => `${record.totalPrice.toLocaleString()}₫`
 
         },
-        {
-            title: 'Trạng thái',
-            dataIndex: 'orderStatus',
-            key: 'orderStatus',
-            align: 'center',
-            render: (_, record) => {
-                const statusColors: Record<string, string> = {
-                    PENDING: 'red',
-                    COMPLETED: 'green',
-                    EXPIRED: 'gray',
-                    CANCELLED: 'orange',
-                };
-
-                const statusLabels: Record<string, string> = {
-                    PENDING: 'Chưa thanh toán',
-                    COMPLETED: 'Đã thanh toán',
-                    EXPIRED: 'Đã hết hạn',
-                    CANCELLED: 'Đã hủy',
-                };
-
-                return (
-                    <span className="text-nowrap" style={{ color: statusColors[record.orderStatus] }}>
-                        {statusLabels[record.orderStatus] || 'Không xác định'}
-                    </span>
-                );
-            },
-            sorter: (a, b) => a.orderStatus.localeCompare(b.orderStatus),
-        }
-        ,
         {
             title: 'Hành động',
             key: 'action',
@@ -112,36 +99,35 @@ const OrderTable = (props: {
                         setOpenDraw(true);
                         setOrderDetail(record);
                     }} />
-
-                    <EditOutlined className="text-blue-500" style={{ color: "blue" }}
-                        onClick={() => {
-                            // setEditingUser(record)
-                            // setOpenEditForm(true)
-                        }}
-                    />
-                    <CheckCircleFilled style={{ color: 'green' }} onClick={() => handleChangeStatus(record.orderId)} />
+                    <CheckCircleFilled style={{ color: 'green' }} onClick={() => handleChangeStatus(record.orderCode)} />
                 </Space>
             ),
         },
     ];
 
-    const handleChangeStatus = async (orderId: number) => {
-        const orderResponse = await sendRequest<ApiResponse<OrderResponse>>({
-            url: `${apiUrl}/orders/active/${orderId}`,
-        });
-        if (orderResponse.status === 200) {
-            messageApi.open({
-                type: 'success',
-                content: orderResponse.message.toString(),
+    const handleChangeStatus = async (orderCode: string) => {
+        if (status === 'authenticated') {
+            const orderResponse = await sendRequest<ApiResponse<OrderResponse>>({
+                url: `${apiUrl}/purchase?orderCode=${orderCode}`,
+                headers: {
+                    Authorization: `Bearer ${session.accessToken}`
+                }
             });
-            router.refresh();
-        } else {
-            messageApi.open({
-                type: 'error',
-                content: orderResponse.message.toString(),
-            });
+            if (orderResponse.status === 200) {
+                messageApi.open({
+                    type: 'success',
+                    content: orderResponse.message.toString(),
+                });
+                router.refresh();
+            } else {
+                messageApi.open({
+                    type: 'error',
+                    content: orderResponse.message.toString(),
+                });
+            }
         }
     }
+
     return (
         <>
             {contextHolder}

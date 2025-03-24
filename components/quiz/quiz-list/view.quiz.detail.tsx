@@ -40,7 +40,7 @@ const ViewQuizDetail = (props: {
 
                         <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Tiêu đề bài kiểm tra: </span>{quizDetail.title}</div>
                         <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Trạng thái: </span>{quizDetail.published ? 'Đang mở' : 'Bị đóng'}</div>
-                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Thời gian: </span>{quizDetail.duration} phút</div>
+                        <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Thời gian: </span>{quizDetail.duration / 60} phút</div>
                         <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Cho xem đáp án: </span>{quizDetail.allowSeeAnswers ? 'Đang mở' : 'Bị đóng'}</div>
                         <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Cập nhật lần cuối: </span>{quizDetail.updatedAt == null ? 'Chưa có dữ liệu' : dayjs(quizDetail.updatedAt).format("DD/MM/YYYY")}</div>
                         <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Chương học: </span>{quizDetail.chapter != null ? quizDetail.chapter.title : ''}</div>
