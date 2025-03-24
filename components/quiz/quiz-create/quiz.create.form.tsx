@@ -34,10 +34,15 @@ const QuizCreateForm = ({ course }: { course: CourseDetailsResponse }) => {
                 hasError = true;
                 return { ...q, errorMessage: "Vui lòng không để trống câu hỏi" };
             }
+            if (q.title.split(/\s+/).length > 30) {
+                hasError = true;
+                return { ...q, errorMessage: "Nội dung câu hỏi không được quá 30 chữ" }
+            }
             if (questionValues.filter(v => v === q.title.trim().toLowerCase()).length > 1) {
                 hasError = true;
                 return { ...q, errorMessage: "Vui lòng không tạo câu hỏi giống nhau" };
             }
+
             return { ...q, errorMessage: "" };
         });
 

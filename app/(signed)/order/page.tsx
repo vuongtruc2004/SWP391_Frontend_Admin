@@ -69,14 +69,15 @@ const OrderPage = async (props: {
 
     const priceResponse = await sendRequest<ApiResponse<MinMaxPriceResponse>>({
         url: `${apiUrl}/orders/price-range`,
-
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+        },
     })
 
 
     const orderResponse = await sendRequest<ApiResponse<PageDetailsResponse<OrderResponse[]>>>({
         url: `${apiUrl}/orders`,
         headers: {
-            'Content-Type': 'application/json',
             Authorization: `Bearer ${session?.accessToken}`
         },
         queryParams: {

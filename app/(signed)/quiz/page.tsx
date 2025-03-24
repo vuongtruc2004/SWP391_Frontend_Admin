@@ -81,6 +81,9 @@ const QuizPage = async (props: {
         while (currentPage <= totalPages) {
             const response = await sendRequest<ApiResponse<PageDetailsResponse<QuizResponse[]>>>({
                 url: `${apiUrl}/quizzes`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                },
                 queryParams: {
                     page: currentPage,
                     size: 10,
@@ -103,8 +106,6 @@ const QuizPage = async (props: {
 
     const allQuiz = await fetchAllQuiz();
 
-
-    console.log("quizREsponse>>", quizResponse.data)
 
     return (
         <>

@@ -97,6 +97,12 @@ const QuestionsCreateForm = () => {
                                         Vui lòng không để trống câu trả lời
                                     </p>
                                 )}
+                                {answer.content.split(/\s+/).length > 30 && createQuestions[0].title != '' && (
+                                    <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                        <WarningOutlined />
+                                        Nội dung câu trả lời không được quá 30 kí tự
+                                    </p>
+                                )}
                             </div>
                         ))}
 
