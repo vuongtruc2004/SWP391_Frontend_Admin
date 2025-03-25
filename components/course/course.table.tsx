@@ -233,7 +233,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                         </div>
 
                     )}
-                    {session?.user.roleName && (session.user.roleName === "EXPERT" || session.user.roleName === "ADMIN") && (
+                    {session?.user.roleName && (session.user.roleName === "EXPERT") && (
                         <>
                             <Tooltip title='Cập nhật khoá học' color='blue'>
                                 <EditOutlined style={{ color: "blue" }}
@@ -259,18 +259,20 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                             <FaBan onClick={() => rejectCourse(record.courseId)} />
                         </Tooltip>
                     )}
-                    <Tooltip placement="bottom" title='Xóa khóa học'>
-                        <Popconfirm
-                            placement="left"
-                            title="Xóa khóa học"
-                            description="Bạn có chắc chắn muốn xóa khóa học này không?"
-                            onConfirm={() => deleteCourse(record.courseId)}
-                            okText="Có"
-                            cancelText="Không"
-                        >
-                            <DeleteOutlined style={{ color: "red" }} />
-                        </Popconfirm>
-                    </Tooltip>
+                    {session?.user.roleName && (session.user.roleName === "EXPERT") && (
+                        <Tooltip placement="bottom" title='Xóa khóa học'>
+                            <Popconfirm
+                                placement="left"
+                                title="Xóa khóa học"
+                                description="Bạn có chắc chắn muốn xóa khóa học này không?"
+                                onConfirm={() => deleteCourse(record.courseId)}
+                                okText="Có"
+                                cancelText="Không"
+                            >
+                                <DeleteOutlined style={{ color: "red" }} />
+                            </Popconfirm>
+                        </Tooltip>
+                    )}
 
                     {
                         session?.user.roleName && session?.user.roleName === "ADMIN" && (

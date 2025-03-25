@@ -69,7 +69,6 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
                 url: `${apiUrl}/files/image`,
                 method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
                     Authorization: `Bearer ${session?.accessToken}`
                 },
                 body: formData
