@@ -41,10 +41,6 @@ const OrderTable = (props: {
                     {createdAt ? dayjs(createdAt).format('DD/MM/YYYY') : 'Không có dữ liệu'}
                 </span>
             ),
-            sorter: {
-                compare: (a: OrderResponse, b: OrderResponse) =>
-                    dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
-            },
         },
         {
             title: 'Ngày thanh toán',
@@ -56,10 +52,6 @@ const OrderTable = (props: {
                     {paidAt ? dayjs(paidAt).format('DD/MM/YYYY') : 'Chưa thanh toán'}
                 </span>
             ),
-            sorter: {
-                compare: (a: OrderResponse, b: OrderResponse) =>
-                    dayjs(a.paidAt).unix() - dayjs(b.paidAt).unix(),
-            },
         },
         {
             title: 'Mã hóa đơn',

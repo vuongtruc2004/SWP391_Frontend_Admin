@@ -77,8 +77,6 @@ const CourseSearch = (props: { keyword: string, accepted?: string, createdFrom: 
         router.replace(`${pathName}?${newSearchParam}`)
     };
 
-
-
     useEffect(() => {
         if (!render) {
             setRender(true);

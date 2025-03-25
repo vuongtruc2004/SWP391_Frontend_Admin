@@ -42,7 +42,9 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
         const change = await sendRequest<ApiResponse<BlogResponse>>({
             url: `${apiUrl}/blogs/status/${blogId}`,
             method: 'PUT',
-            headers: { "Content-Type": "application/json" }
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            }
         });
 
         if (change.status === 200) {
@@ -66,7 +68,7 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             url: `${apiUrl}/blogs/delete/${blogId}`,
             method: 'DELETE',
             headers: {
-                "Content-Type": "application/json"
+                Authorization: `Bearer ${session?.accessToken}`
             }
         });
         if (deleteBlog.status === 200) {
@@ -103,7 +105,6 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             dataIndex: 'user',
             key: 'user',
             width: '15%',
-            // sorter: (a, b) => a.user.fullname.localeCompare(b.user.fullname),
             render: (user) => user?.fullname || "No author!"
         },
         {
@@ -119,7 +120,6 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             dataIndex: 'updatedAt',
             key: 'updatedAt',
             width: '20%',
-            // sorter: (a, b) => a.user.fullname.localeCompare(b.user.fullname),
             render: (updatedAt: string) => (updatedAt ? dayjs(updatedAt).format("DD/MM/YYYY") : "Chưa cập nhật"),
             align: "center"
         },
@@ -247,8 +247,6 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
             return newKeys;
         });
     };
-
-
 
     const convertToDataNode = (comments: CommentResponse[]): TreeProps["treeData"] => {
         return comments.map(comment => ({

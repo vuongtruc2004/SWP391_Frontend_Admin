@@ -1,21 +1,20 @@
 'use client'
-import { EditOutlined, InfoCircleOutlined, LockFilled, LockOutlined, UnlockOutlined } from '@ant-design/icons';
+import { EditOutlined, InfoCircleOutlined, LockOutlined } from '@ant-design/icons';
 import { notification, Popconfirm, Space, Table, TableProps } from 'antd';
-import React, { RefObject, useEffect, useRef, useState } from 'react'
+import { RefObject, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
 import '@ant-design/v5-patch-for-react-19';
-
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { apiUrl } from '@/utils/url';
 import ViewUserDetail from './view.user.detail';
 import UpdateUserForm from './update.user.form';
-
-
+import { useSession } from 'next-auth/react';
 
 const UserTable = (props: {
     userPageResponse: PageDetailsResponse<UserResponse[]>,
     componentPDF: RefObject<HTMLDivElement | null>,
 }) => {
+    const { data: session, status } = useSession();
     const { userPageResponse, componentPDF } = props;
     const [openDraw, setOpenDraw] = useState(false);
     const [user, setUser] = useState<UserResponse | null>(null);
@@ -26,16 +25,12 @@ const UserTable = (props: {
     const [openEditForm, setOpenEditForm] = useState(false);
     const [editingUser, setEditingUser] = useState<UserResponse | null>(null)
 
-    const [sheetData, setSheetData] = useState<UserResponse[]>([]);
-
-
-
     const lockUser = async (userId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<Boolean>>({
             url: `${apiUrl}/users/${userId}`,
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json'
+                Authorization: `Bearer ${session?.accessToken}`
             }
         });
 
@@ -68,7 +63,6 @@ const UserTable = (props: {
             key: 'fullname',
             width: '30%',
             align: 'center',
-            sorter: (a, b) => a.fullname.localeCompare(b.fullname),
         },
         {
             title: 'Email',
@@ -76,7 +70,6 @@ const UserTable = (props: {
             key: 'email',
             width: '30%',
             align: 'center',
-            sorter: (a, b) => a.email.localeCompare(b.email),
         },
         {
             title: 'Vai trò',
@@ -84,7 +77,6 @@ const UserTable = (props: {
             key: 'rolename',
             width: '10%',
             align: 'center',
-            sorter: (a, b) => a.roleName.localeCompare(b.roleName),
         },
         {
             title: 'Giới tính',
@@ -98,7 +90,6 @@ const UserTable = (props: {
                 }
                 return gender === "MALE" ? "Nam" : "Nữ";
             },
-            sorter: (a, b) => a.gender.localeCompare(b.gender),
         },
         {
             title: 'Trạng thái',
@@ -111,9 +102,6 @@ const UserTable = (props: {
                     {locked ? "Bị khóa" : "Đang hoạt động"}
                 </span>
             ),
-            sorter: {
-                compare: (a, b) => Number(a.locked) - Number(b.locked)
-            },
         },
         {
             title: 'Hành động',
@@ -126,12 +114,10 @@ const UserTable = (props: {
                         setUser(record);
                     }} />
 
-                    <EditOutlined className="text-blue-500" style={{ color: "blue" }}
-                        onClick={() => {
-                            setEditingUser(record)
-                            setOpenEditForm(true)
-                        }}
-                    />
+                    <EditOutlined className="text-blue-500" style={{ color: "blue" }} onClick={() => {
+                        setEditingUser(record);
+                        setOpenEditForm(true)
+                    }} />
                     <Popconfirm
                         placement="left"
                         title={`${record.locked ? "Mở khóa" : "Khóa"} người dùng`}
@@ -150,11 +136,7 @@ const UserTable = (props: {
 
     return (
         <>
-
-
             <div className='overflow-y-auto' ref={componentPDF} >
-
-
                 <Table
                     className=" max-h-[calc(100vh-100px)] mb-8 pl-6 pr-6"
                     columns={columns}
@@ -186,7 +168,6 @@ const UserTable = (props: {
                 editingUser={editingUser}
                 setEditingUser={setEditingUser}
             />
-
         </>
     );
 };

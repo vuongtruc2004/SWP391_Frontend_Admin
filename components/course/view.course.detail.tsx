@@ -44,8 +44,6 @@ const ViewCourseDetail = (props: { courseDetail: CourseDetailsResponse, expertDe
         }
     }, []);
 
-
-
     const contentStyle: React.CSSProperties = {
         margin: 0,
         height: '160px',

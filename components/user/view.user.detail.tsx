@@ -1,7 +1,6 @@
 import { sendRequest } from '@/utils/fetch.api'
 import { apiUrl, storageUrl } from '@/utils/url'
-import { DoubleRightOutlined } from '@ant-design/icons'
-import { Collapse, Drawer } from 'antd'
+import { Drawer } from 'antd'
 import React, { SetStateAction, useEffect, useState } from 'react'
 
 interface IProps {
@@ -31,10 +30,8 @@ const ViewUserDetail = (props: IProps) => {
         if (user?.roleName === 'EXPERT') {
             fetchApi();
         }
+    }, [user]);
 
-
-
-    }, [user])
     return (
         <>
             <Drawer title="THÔNG TIN CHI TIẾT" onClose={onClose} open={openDraw}>
@@ -56,10 +53,6 @@ const ViewUserDetail = (props: IProps) => {
                     </> : ''
                     }
 
-
-
-
-
                     <div className='mb-2'><span className='text-blue-500 text-base mr-2 font-bold'>Ảnh:</span> </div><br />
                     <div className="flex justify-center items-center">
                         <div className="relative">
@@ -76,7 +69,6 @@ const ViewUserDetail = (props: IProps) => {
                     :
                     <div>Không có dữ liệu</div>
                 }
-
             </Drawer>
         </>)
 }

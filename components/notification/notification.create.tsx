@@ -66,7 +66,6 @@ const NotificationCreate = (props: {
                 },
             });
 
-            console.log("Dữ liệu API nhận được:", dataRes);
             const users = Array.isArray(dataRes?.data) ? dataRes.data.map((user: UserResponse) => ({
                 key: user.userId,
                 value: user.userId,
@@ -79,7 +78,6 @@ const NotificationCreate = (props: {
         getDataUser();
     }, [openCreate]);
 
-    // Chỉ gọi khi `openCreate` thay đổi
 
     const handleOnOk = async () => {
         setLoading(true);

@@ -11,10 +11,6 @@ const UserPageClient = ({ keyword, userResponse, allUsers, roleName, locked, gen
     const componentPDF = useRef<HTMLDivElement>(null);
     const [sheetData, setSheetData] = useState<UserResponse[]>([]);
 
-
-
-
-
     useEffect(() => {
         if (allUsers.length > 0) {
             setSheetData([...allUsers]);

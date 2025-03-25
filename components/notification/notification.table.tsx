@@ -91,7 +91,6 @@ const NotificationTable = (props: {
             dataIndex: 'title',
             key: 'title',
             width: '40%',
-            sorter: (a, b) => a.title.localeCompare(b.title),
         },
         {
             title: 'Trạng thái',

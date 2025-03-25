@@ -78,14 +78,12 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             dataIndex: 'subjectName',
             key: 'name',
             width: '20%',
-            sorter: (a, b) => a.subjectName.localeCompare(b.subjectName),
         },
         {
             title: 'Mô tả',
             dataIndex: 'description',
             key: 'description',
             width: '40%',
-            sorter: (a, b) => a.description.localeCompare(b.description),
             render: (text, record) => (
                 <Paragraph
                     ellipsis={{
@@ -106,7 +104,6 @@ const SubjectTable = (props: { subjectPageResponse: PageDetailsResponse<SubjectR
             key: 'totalCourses',
             width: '10%',
             align: 'center',
-            sorter: (a, b) => a.totalCourses - b.totalCourses,
             render: (text, record) => (
                 <Tooltip title='Các khóa học' color='blue'>
                     <Popconfirm

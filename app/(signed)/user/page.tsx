@@ -60,9 +60,7 @@ const UserPage = async (props: {
     const userResponse = await sendRequest<ApiResponse<PageDetailsResponse<UserResponse[]>>>({
         url: `${apiUrl}/users`,
         headers: {
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
+            Authorization: `Bearer ${session?.accessToken}`
         },
         queryParams: {
             page: page,
@@ -103,13 +101,16 @@ const UserPage = async (props: {
     const allUsers = await fetchAllUsers();
 
 
-    return <UserPageClient
-        keyword={keyword}
-        userResponse={userResponse.data}
-        allUsers={allUsers}
-        roleName={roleName}
-        locked={locked}
-        gender={gender} />;
+    return (
+        <UserPageClient
+            keyword={keyword}
+            userResponse={userResponse.data}
+            allUsers={allUsers}
+            roleName={roleName}
+            locked={locked}
+            gender={gender}
+        />
+    )
 };
 
 export default UserPage;

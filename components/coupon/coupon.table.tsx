@@ -9,7 +9,9 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import UpdateCouponForm from './update.coupon.form';
 import ViewCouponDetail from './view.coupon.detail';
+import { useSession } from 'next-auth/react';
 const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResponse[]> }) => {
+    const { data: session, status } = useSession();
 
     const CountdownTimer = ({ startTime, endTime }) => {
         const [timeLeft, setTimeLeft] = useState(null);
@@ -80,7 +82,7 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
             url: `${apiUrl}/coupons/${couponId}`,
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json'
+                Authorization: `Bearer ${session?.accessToken}`
             }
         });
         if (deleteResponse.status === 200) {

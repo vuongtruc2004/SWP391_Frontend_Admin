@@ -41,7 +41,6 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             url: `${apiUrl}/courses/delete/${courseId}`,
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${session?.accessToken}`,
             }
         });
@@ -64,7 +63,6 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             url: `${apiUrl}/courses/accept-status/${courseId}`,
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${session?.accessToken}`,
             }
         });
@@ -89,7 +87,6 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             url: `${apiUrl}/courses/request-processing/${courseId}`,
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${session?.accessToken}`,
             }
         });
@@ -114,7 +111,6 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             url: `${apiUrl}/courses/request-reject/${courseId}`,
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${session?.accessToken}`
             }
         });
@@ -146,14 +142,12 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             dataIndex: 'courseName',
             key: 'name',
             width: '20%',
-            sorter: (a, b) => a.courseName.localeCompare(b.courseName),
         },
         {
             title: 'Mô tả',
             dataIndex: 'description',
             key: 'description',
             width: '30%',
-            sorter: (a, b) => a.description.localeCompare(b.description),
         },
         {
             title: 'Giá',
@@ -324,6 +318,7 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
     useEffect(() => {
         setRender(true);
     }, [])
+
     if (!render) {
         return (
             <></>

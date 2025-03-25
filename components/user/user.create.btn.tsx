@@ -1,5 +1,4 @@
 'use client'
-
 import { Avatar, Button, DatePicker, DatePickerProps, Form, Image, Input, Modal, notification, Select, Space } from "antd";
 import { useRef, useState } from "react";
 import dayjs from "dayjs";
@@ -7,7 +6,7 @@ import { apiUrl, storageUrl } from "@/utils/url";
 import { sendRequest } from "@/utils/fetch.api";
 import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
 import { validAchievement, validDescription, validDob, validEmail, validFullName, validGender, validJob, validPassword, validRole, validYearOfExperience } from "@/helper/create.user.helper";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 const initState: ErrorResponse = {
@@ -16,7 +15,8 @@ const initState: ErrorResponse = {
 
 }
 const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
-    const { handelOnExportExcel } = props
+    const { handelOnExportExcel } = props;
+    const { data: session, status } = useSession();
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -42,7 +42,6 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
     const [isPreviewVisible, setPreviewVisible] = useState<boolean>(false);
     const [urlAvatar, setUrlAvatar] = useState<ErrorResponse>(initState);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const { data: session, status } = useSession();
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -75,7 +74,9 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
             const uploadResponse = await sendRequest<ApiResponse<{ avatar: string }>>({
                 url: `${apiUrl}/users/avataradmin`,
                 method: 'POST',
-                headers: {},
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                },
                 body: formData
             });
             if (uploadResponse.status === 200 && uploadResponse.data?.avatar) {
@@ -169,7 +170,9 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
             const imageResponse = await sendRequest<ApiResponse<{ avatar: string }>>({
                 url: `${apiUrl}/users/avataradmin`,
                 method: 'POST',
-                headers: {},
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                },
                 body: formData
             });
 
@@ -192,7 +195,6 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
 
     return (
         <>
-
             <div className="flex justify-between items-center mb-4 px-6">
                 <div className="mr-auto">
                     <Button type="primary" onClick={showModal} className="w-fit ">
@@ -209,8 +211,6 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
                         Xuất Excel
                     </Button>
                 </div>
-
-
 
             </div>
             <Modal title="Tạo người dùng" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okText="Tạo" cancelText="Hủy">

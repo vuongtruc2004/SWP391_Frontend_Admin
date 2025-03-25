@@ -6,6 +6,7 @@ import { EyeOutlined, LoadingOutlined, PlusOutlined, SyncOutlined, UploadOutline
 import MDEditor, { getCommands, ICommand } from "@uiw/react-md-editor";
 import { Avatar, Checkbox, Form, Image, Input, Modal, notification, Select, Spin, Tooltip } from "antd";
 import { marked } from "marked";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import TurndownService from 'turndown'
@@ -23,6 +24,7 @@ const initState: ErrorResponse = {
     value: ''
 }
 const BlogUpdate = (props: IProps) => {
+    const { data: session, status } = useSession();
     const { openUpdate, setOpenUpdate, selectRecord, setSelectRecord } = props;
     const CheckboxGroup = Checkbox.Group;
     const router = useRouter();
@@ -115,21 +117,15 @@ const BlogUpdate = (props: IProps) => {
     useEffect(() => {
 
         const getAllSubjects = async () => {
-            try {
-                const getAllSub = await sendRequest<ApiResponse<SubjectResponse>>({
-                    url: `${apiUrl}/hashtags/all`,
-                    method: 'GET',
-                });
-                console.log(getAllSub.data);
-                if (getAllSub.data && Array.isArray(getAllSub.data)) {
-                    setListTag(getAllSub.data.map((hashTag: { tagName: string }) => hashTag.tagName));
-                }
-            } catch {
-                console.error("Error fetching subjects");
+            const getAllSub = await sendRequest<ApiResponse<SubjectResponse>>({
+                url: `${apiUrl}/hashtags/all`,
+                method: 'GET',
+            });
+            if (getAllSub.data && Array.isArray(getAllSub.data)) {
+                setListTag(getAllSub.data.map((hashTag: { tagName: string }) => hashTag.tagName));
             }
         };
-        getAllSubjects()
-
+        getAllSubjects();
     }, []);
 
     const stripHtml = (html: string) => {
@@ -199,24 +195,15 @@ const BlogUpdate = (props: IProps) => {
                 pinned: pinned,
             }
 
-
-            // giải thích nguyên lí hoạt động của markdown biến hóa từ text có kí tự thành text html và lưu plainContent: 
-            // đầu tiền nó sẽ lấy nội dung từ db (server) lên, và nội dung này đang ở dạng text html. sau đó nó dùng turndown
-            // để biến các tag html thành các kí hiệu đại diện. sau đó hiển thị ra mdeditor. khi sửa ở cửa sổ mdeditor, nó
-            // sẽ xét lại cái inputMarkdown. inputMarkdown sẽ được lấy ra và dùng hàm marked để biến hóa các kí tự trong đó thành
-            // các thẻ html. sau đó gắn lại vào content như trê.
-            // việc set plainContent ta dùng hàm stripHtml được định nghĩa ở trên để loại bỏ các thẻ html rồi sau đó đưa nó vào plain content
-
             const updateBlog = await sendRequest<ApiResponse<BlogResponse>>({
                 url: `${apiUrl}/blogs/update/${selectRecord?.blogId}`,
                 method: 'PATCH',
                 headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
                     'Content-Type': 'application/json'
                 },
                 body: blogRequest,
             })
-
-            console.log("check updateBlog: ", updateBlog)
 
             if (updateBlog.status === 200) {
                 handleCancle();
@@ -236,16 +223,10 @@ const BlogUpdate = (props: IProps) => {
 
             setLoading(false);
         }, 1500)
-
-
     }
-
-
 
     const handleUploadFile = async (e: ChangeEvent<HTMLInputElement>) => {
         setErrThumbnail("")
-        console.log("vao")
-
         if (e.target.files && e.target.files[0]) {
             const formData = new FormData();
             formData.set('file', e.target.files[0]);
@@ -254,13 +235,13 @@ const BlogUpdate = (props: IProps) => {
             const imageResponse = await sendRequest<ApiResponse<string>>({
                 url: `${apiUrl}/blogs/up-thumbnail`,
                 method: 'POST',
-                headers: {},
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
                 body: formData
             });
-            console.log("check thumb", imageResponse.data)
             if (imageResponse.status === 200) {
                 setUrlThumbnail(imageResponse.data)
-
             } else {
                 setErrThumbnail("Không thể tải hình ảnh lên!")
             }

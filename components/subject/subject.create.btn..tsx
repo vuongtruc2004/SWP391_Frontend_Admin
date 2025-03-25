@@ -132,7 +132,9 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
             const imageResponse = await sendRequest<ApiResponse<string>>({
                 url: `${apiUrl}/subjects/thumbnail`,
                 method: 'POST',
-                headers: {},
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
                 body: formData
             });
 

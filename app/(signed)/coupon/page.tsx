@@ -1,9 +1,11 @@
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import CouponCreateBtn from "@/components/coupon/coupon.create.btn";
 import CouponSearch from "@/components/coupon/coupon.search";
 import CouponTable from "@/components/coupon/coupon.table";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import { Metadata } from "next";
+import { getServerSession } from "next-auth";
 
 export const metadata: Metadata = {
     title: "Quản lý coupon",
@@ -19,6 +21,7 @@ const CouponPage = async (props: {
         maxPrice: string;
     }>
 }) => {
+    const session = await getServerSession(authOptions);
     const searchParams = await props.searchParams;
     const page = searchParams.page || "1";
     const keyword = searchParams.keyword || "";
@@ -35,6 +38,9 @@ const CouponPage = async (props: {
     }
     const couponResponse = await sendRequest<ApiResponse<PageDetailsResponse<CouponResponse[]>>>({
         url: `${apiUrl}/coupons/all`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+        },
         queryParams: {
             page: page,
             size: 10,
@@ -42,6 +48,8 @@ const CouponPage = async (props: {
             sort: "createdAt,desc"
         }
     });
+
+    console.log(couponResponse);
 
 
     return (
@@ -59,7 +67,6 @@ const CouponPage = async (props: {
                 />
             </div>
             <CouponTable couponPageResponse={couponResponse.data} />
-
         </div>
     );
 };
