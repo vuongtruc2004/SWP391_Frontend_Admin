@@ -169,7 +169,7 @@ const QuizCreateForm = ({ course }: { course: CourseDetailsResponse }) => {
                     name='title'
 
                     rules={[{ required: true, message: 'Vui lòng không để trống tiêu đề!' },
-                    { max: 20, message: "Tiêu đề bài kiểm tra không được vượt quá 20 kí tự!" }
+                    { max: 40, message: "Tiêu đề bài kiểm tra không được vượt quá 40 kí tự!" }
 
                     ]}
                 >

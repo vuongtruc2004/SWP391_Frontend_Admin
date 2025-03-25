@@ -112,7 +112,7 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
             couponDescription: couponDescription.value || "",
             couponCode: couponCode.value || "",
             discountType: discountType || "",
-            discountValue: Number(discountValue.value || 0),
+            discountAmount: Number(discountValue.value || 0),
             maxDiscountAmount: Number(maxDiscountAmount.value || 0),
             minOrderValue: Number(minOrderValue.value || 0),
             maxUses: Number(maxUses.value || 0),

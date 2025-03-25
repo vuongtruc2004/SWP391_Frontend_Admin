@@ -102,7 +102,7 @@ const BlogCreate = (props: IProps) => {
                 return
             }
 
-            if (title.value.length > 100) {
+            if (title.value.split(/\s+/).length > 100) {
                 notification.error({
                     message: 'Thất bại!',
                     description: 'Tiêu đề không được quá 100 kí tự!',

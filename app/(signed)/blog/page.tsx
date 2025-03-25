@@ -40,8 +40,8 @@ const BlogPage = async (props: {
         filter += ` and published : ${published === "public" ? true : false}`
     }
 
-    if (createdFrom !== "" && createdTo !== "") {
-        filter += ` and createdAt > '${createdFrom}' and createdAt < '${createdTo}'`
+    if (createdFrom !== "" || createdTo !== "") {
+        filter += ` and createdAt > '${createdFrom}' or createdAt < '${createdTo}'`
     }
 
     const blogResponse = await sendRequest<ApiResponse<PageDetailsResponse<BlogDetailsResponse[]>>>({

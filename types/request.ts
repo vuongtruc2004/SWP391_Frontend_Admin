@@ -163,4 +163,19 @@ declare global {
         endTime: string;
         courseIds?: number[];
     }
+
+    interface CouponRequest {
+        couponId?: number;
+        couponName: string;
+        couponDescription: string;
+        couponCode: string;
+        discountType: string;
+        discountAmount: number;
+        maxDiscountAmount: number;
+        minOrderValue: number;
+        maxUses: number;
+        startTime: string;
+        endTime: string;
+        courses: string[];
+    }
 }

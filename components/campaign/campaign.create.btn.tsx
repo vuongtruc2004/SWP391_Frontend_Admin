@@ -12,11 +12,11 @@ import timezone from "dayjs/plugin/timezone";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
-
+dayjs.extend(isSameOrBefore);
 const initState: ErrorResponse = {
     error: false,
     value: ''
@@ -131,6 +131,11 @@ const CampaignCreateBtn = () => {
 
             if (global !== "ALL") {
                 campaignRequest.courseIds = applymentType.tags
+            }
+
+            if (dates && dates[1] && dayjs(dates[1]).isSameOrBefore(dayjs())) {
+                setLoading(false);
+                return;
             }
 
             const createResponse = await sendRequest<ApiResponse<CampaignResponse>>({
@@ -341,6 +346,13 @@ const CampaignCreateBtn = () => {
                             <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                 <WarningOutlined />
                                 {emptyDate}
+                            </p>
+                        )}
+
+                        {dates && dates[1] && dayjs(dates[1]).isSameOrBefore(dayjs()) && (
+                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                <WarningOutlined />
+                                Không được để thời gian kết thúc bé hơn thời gian hiện tại
                             </p>
                         )}
 

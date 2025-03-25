@@ -10,7 +10,9 @@ import { validCampaignName, validDescription, validReduceValue } from '@/helper/
 import TextArea from 'antd/es/input/TextArea';
 import dayjs, { Dayjs } from 'dayjs';
 import { useSession } from 'next-auth/react';
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 
+dayjs.extend(isSameOrBefore);
 
 const initState: ErrorResponse = {
     error: false,
@@ -154,6 +156,11 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
 
             if (global !== "ALL") {
                 campaignRequest.courseIds = applymentType.tags
+            }
+
+            if (dates && dates[1] && dayjs(dates[1]).isSameOrBefore(dayjs())) {
+                setLoading(false);
+                return;
             }
 
             const updateResponse = await sendRequest<ApiResponse<CampaignResponse>>({
@@ -339,6 +346,13 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
                         <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                             <WarningOutlined />
                             {emptyDate}
+                        </p>
+                    )}
+
+                    {dates && dates[1] && dayjs(dates[1]).isSameOrBefore(dayjs()) && (
+                        <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                            <WarningOutlined />
+                            Không được để thời gian kết thúc bé hơn thời gian hiện tại
                         </p>
                     )}
 

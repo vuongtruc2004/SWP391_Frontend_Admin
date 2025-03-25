@@ -171,7 +171,7 @@ const BlogUpdate = (props: IProps) => {
                 return;
             }
 
-            if (title.value.length > 100) {
+            if (title.value.split(/\s+/).length > 100) {
                 notification.error({
                     message: 'Thành công!',
                     description: 'Tiêu đề không được vượt quá 100 kí tự!',

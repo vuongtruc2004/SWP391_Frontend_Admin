@@ -159,8 +159,6 @@ declare global {
         user: UserResponse;
     }
 
-
-
     interface SubjectResponse {
         subjectId: number;
         subjectName: string;
@@ -176,8 +174,6 @@ declare global {
         minPrice: number;
         maxPrice: number;
     }
-
-
     interface ExpertDetailsResponse extends ExpertResponse {
         job: string,
         achievement: string,
@@ -289,4 +285,19 @@ declare global {
         courses: CourseResponse[];
     }
 
+    interface CouponResponse {
+        couponId: number;
+        couponName: string;
+        couponDescription: string;
+        couponCode: string;
+        discountType: 'FIXED' | 'PERCENTAGE';
+        discountPercent: number;
+        discountAmount: number;
+        maxDiscountAmount: number;
+        minOrderValue: number;
+        maxUses: number;
+        usedCount: number;
+        startTime: string;
+        endTime: string;
+    }
 }
