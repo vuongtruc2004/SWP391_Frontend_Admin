@@ -1,5 +1,4 @@
 'use client'
-
 import { validDes, validIntroduction, validOriginPrice } from "@/helper/create.course.helper";
 import { validTitle } from "@/helper/create.question.helper";
 import { sendRequest } from "@/utils/fetch.api";
@@ -36,10 +35,9 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
     const [urlThumbnail, setUrlThumbnail] = useState("");
     const [thumbnail, setThumbnail] = useState("");
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
-    const { data: session, status } = useSession();
     const [titleWordCount, setTitleWordCount] = useState("");
     const fileInputRef = useRef<HTMLInputElement>(null)
-
+    const { data: session, status } = useSession();
 
     useEffect(() => {
         const fetchSubjects = async () => {
@@ -70,6 +68,10 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
             const imageResponse = await sendRequest<ApiResponse<string>>({
                 url: `${apiUrl}/files/image`,
                 method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${session?.accessToken}`
+                },
                 body: formData
             });
 
@@ -130,8 +132,9 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
             url: `${apiUrl}/courses`,
             method: 'POST',
             headers: {
+                "Content-Type": "application/json",
                 Authorization: `Bearer ${session?.accessToken}`,
-                "Content-Type": "application/json"
+
             },
             body: courseRequest
         });
