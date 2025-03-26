@@ -1,9 +1,8 @@
 'use client'
-import { validDes, validIntroduction, validOriginPrice } from "@/helper/create.course.helper";
-import { validTitle } from "@/helper/create.question.helper";
+import { validDes, validIntroduction, validOriginPrice, validTitle } from "@/helper/create.course.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
-import { EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
+import { EyeOutlined, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined, UploadOutlined, WarningOutlined } from "@ant-design/icons";
 import { Avatar, Button, Checkbox, Image, Input, Modal, notification, Tooltip } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useSession } from "next-auth/react";
@@ -15,11 +14,10 @@ const initState: ErrorResponse = {
     value: ''
 };
 
-const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<CourseResponse[]> }) => {
+const CourseCreateForm = (props: { coursePageResponse: PageDetailsResponse<CourseResponse[]> }) => {
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isRotated, setIsRotated] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
     const [emptySubject, setEmptySubject] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -33,26 +31,20 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
     const [checkedList, setCheckedList] = useState<string[]>();
     const [errThumbnail, setErrThumbnail] = useState("");
     const [urlThumbnail, setUrlThumbnail] = useState("");
-    const [thumbnail, setThumbnail] = useState("");
     const [isPreviewVisible, setIsPreviewVisible] = useState(false);
-    const [titleWordCount, setTitleWordCount] = useState("");
     const fileInputRef = useRef<HTMLInputElement>(null)
     const { data: session, status } = useSession();
 
     useEffect(() => {
         const fetchSubjects = async () => {
-            try {
-                const response = await fetch(`${apiUrl}/subjects/all-inpagination`);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.data && Array.isArray(data.data)) {
-                        setSubjects(data.data.map((subject: { subjectName: string }) => subject.subjectName));
-                    }
-                } else {
-                    console.error("API fetch failed");
+            const response = await fetch(`${apiUrl}/subjects/all-inpagination`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.data && Array.isArray(data.data)) {
+                    setSubjects(data.data.map((subject: { subjectName: string }) => subject.subjectName));
                 }
-            } catch (error) {
-                console.error("Error fetching subjects:", error);
+            } else {
+                console.error("API fetch failed");
             }
         };
         fetchSubjects();
@@ -127,6 +119,8 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
             introduction: introduction.value,
         }
 
+        console.log(">>> check req: ", courseRequest);
+
         const createResponse = await sendRequest<ApiResponse<CourseDetailsResponse>>({
             url: `${apiUrl}/courses`,
             method: 'POST',
@@ -148,7 +142,6 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
                 description: createResponse.message.toString(),
             });
         } else {
-            setErrorMessage(createResponse.message.toString());
             notification.error({
                 message: "Thất bại",
                 description: createResponse.message.toString(),
@@ -197,7 +190,6 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
         setObjects(newObjects);
     };
 
-    console.log(">> check thumbnail", thumbnail)
     return (
         <>
             <div>
@@ -211,16 +203,9 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
                         Tạo mới
                     </Button>
                 )}
-
             </div>
 
-            <Modal
-                title="Tạo khoá học"
-                open={isModalOpen}
-                footer={null}
-                width={700}
-                onCancel={handleCancel}
-            >
+            <Modal title="Tạo khoá học" open={isModalOpen} footer={null} width={700}>
                 <div>
                     <span className="text-red-500 mr-2">*</span>Tên khóa học:
                     <Input
@@ -392,9 +377,7 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
                                     />
                                 </div>
 
-                                <SyncOutlined className="text-blue-500 text-lg ml-6"
-                                    onClick={handleSyncClick}
-                                />
+                                <UploadOutlined className="text-blue-500 text-lg ml-6" onClick={handleSyncClick} />
 
                                 <input
                                     type="file"
@@ -415,14 +398,12 @@ const CourseCreateBtn = (props: { coursePageResponse: PageDetailsResponse<Course
                 </div>
 
                 <div className="flex justify-end mt-5">
-                    <Button className="mr-4" onClick={() => handleCancel()}>Hủy</Button>
-                    <Button loading={loading} type="primary" onClick={() => handleOk()}>Tạo</Button>
+                    <Button className="mr-4" onClick={handleCancel}>Hủy</Button>
+                    <Button loading={loading} type="primary" onClick={handleOk}>Tạo bản nháp</Button>
                 </div>
-
             </Modal>
-
         </>
     );
 };
 
-export default CourseCreateBtn;
+export default CourseCreateForm;

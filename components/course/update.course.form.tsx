@@ -368,12 +368,10 @@ const UpdateCourseForm = (props: {
                                 mask: <span><EyeOutlined className='mr-2' />Xem</span>,
                                 onVisibleChange: (visible) => setIsPreviewVisible(visible),
                             }}
-                            src={
-                                urlThumbnail === ""
-                                    ? `${storageUrl}/course/${editingCourse?.thumbnail}`
-                                    : `${storageUrl}/course/${urlThumbnail}`
+                            src={urlThumbnail === ""
+                                ? `${storageUrl}/course/${editingCourse?.thumbnail}`
+                                : `${storageUrl}/course/${urlThumbnail}`
                             }
-
                             alt="Xem trước"
                         />
                     </div>
@@ -386,20 +384,17 @@ const UpdateCourseForm = (props: {
                     />
                 </div>
             </div>
-            {
-                errThumbnail !== "" && (
-                    <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                        <WarningOutlined />
-                        {errThumbnail}
-                    </p>
-                )
-            }
+            {errThumbnail !== "" && (
+                <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                    <WarningOutlined />
+                    {errThumbnail}
+                </p>
+            )}
             <div className="flex justify-end mt-5">
                 <Button className="mr-4" onClick={() => handleCancel()}>Hủy</Button>
                 <Button loading={loading} type="primary" onClick={() => handleOk()}>Cập nhật</Button>
             </div>
-
-        </Modal >
+        </Modal>
     )
 }
 

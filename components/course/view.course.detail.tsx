@@ -1,11 +1,9 @@
 'use client'
-import { sendRequest } from '@/utils/fetch.api';
 import { storageUrl } from '@/utils/url';
 import { useCollapseContext } from '@/wrapper/collapse-sidebar/collapse.sidebar.wrapper';
-import { ArrowLeftOutlined, CheckOutlined, ClockCircleOutlined, HistoryOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
-import { Avatar, Button, Carousel, Divider, Image, Rate, Tag } from 'antd';
+import { CheckOutlined, ClockCircleOutlined, HistoryOutlined, UserOutlined } from '@ant-design/icons';
+import { Avatar, Carousel, Rate, Tag } from 'antd';
 import dayjs from 'dayjs';
-import { url } from 'inspector';
 import React, { useEffect } from 'react'
 import { IoIosInfinite } from 'react-icons/io';
 import CourseContent from './course.content';
@@ -44,21 +42,8 @@ const ViewCourseDetail = (props: { courseDetail: CourseDetailsResponse, expertDe
         }
     }, []);
 
-    const contentStyle: React.CSSProperties = {
-        margin: 0,
-        height: '160px',
-        color: '#fff',
-        lineHeight: '160px',
-        textAlign: 'center',
-        background: '#364d79',
-    };
-
-    const onChange = (currentSlide: number) => {
-        console.log(currentSlide);
-    };
     return (
         <>
-            {/* <div className='w-full h-full flex flex-col relative'> */}
             <div className='bg-slate-600 w-full h-[50%]'>
                 <div className='ml-28 my-14'>
                     <h1 className='text-white font-semibold text-[30px]'>{courseDetail.courseName}</h1>
@@ -119,9 +104,9 @@ const ViewCourseDetail = (props: { courseDetail: CourseDetailsResponse, expertDe
                     </div>
 
                 </div>
-                <div className='border bg-white border rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] w-[30%] absolute top-[160px] right-12 pb-11'>
+                <div className='border bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] w-[30%] absolute top-[160px] right-12 pb-11'>
                     <div className='border rounded-lg overflow-hidden h-[100%]'>
-                        <Carousel afterChange={onChange}>
+                        <Carousel>
                             <div className='h-full'>
                                 <img src={`${storageUrl}/course/${courseDetail.thumbnail}`} alt="" className='h-[280px] w-full' />
                             </div>
@@ -153,7 +138,6 @@ const ViewCourseDetail = (props: { courseDetail: CourseDetailsResponse, expertDe
                     </div>
                 </div>
             </div>
-            {/* </div> */}
         </>
 
     )

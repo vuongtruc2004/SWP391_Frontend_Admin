@@ -8,6 +8,7 @@ import { Metadata } from "next";
 import TotalRevenueCard from "@/components/dashboard/total.revenue.card";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
     title: "Thống kê",
@@ -16,8 +17,11 @@ export const metadata: Metadata = {
 const DashboardPage = async () => {
     const session = await getServerSession(authOptions)
     if (session && session.user.roleName === 'EXPERT') {
-        throw new Error("Bạn không có quyền truy cập vào nguồn tài nguyên này!")
+        redirect("/course");
+    } else if (session && session.user.roleName === 'MARKETING') {
+        redirect("/blog");
     }
+
     return (
         <div className="max-h-[87vh] overflow-y-auto overflow-x-hidden">
             <Row gutter={[16, 24]}>

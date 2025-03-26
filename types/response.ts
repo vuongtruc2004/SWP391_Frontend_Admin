@@ -106,12 +106,11 @@ declare global {
         createdAt: string;
         updatedAt: string;
         objectives: string[],
-        courseStatus: string
+        courseStatus: "DRAFT" | "PROCESSING" | "APPROVED" | "REJECTED"
     }
 
     interface CourseDetailsResponse extends CourseResponse {
         introduction: string,
-        accepted: boolean,
         subjects: SubjectResponse[],
         chapters: ChapterResponse[],
         totalLikes: number,

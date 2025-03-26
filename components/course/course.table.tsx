@@ -1,14 +1,13 @@
 'use client'
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
-import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, QuestionCircleOutlined, UserOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, QuestionCircleOutlined, SendOutlined, UserOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
-import { notification, Popconfirm, Space, Spin, Table, TableProps, Tooltip } from 'antd';
+import { notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { FaBan } from "react-icons/fa";
+import { useState } from 'react';
 import { GrChapterAdd } from 'react-icons/gr';
 import { LuGitPullRequestCreateArrow } from "react-icons/lu";
 import UpdateCourseForm from './update.course.form';
@@ -23,9 +22,7 @@ export const init = {
         value: ""
     }
 }
-const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDetailsResponse[]> }) => {
-    const { coursePageResponse } = props;
-    const [openDraw, setOpenDraw] = useState(false);
+const CourseTable = ({ coursePageResponse }: { coursePageResponse: PageDetailsResponse<CourseDetailsResponse[]> }) => {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const router = useRouter();
@@ -33,8 +30,6 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
     const { data: session, status } = useSession();
     const [editingCourse, setEditingCourse] = useState<CourseResponse | null>(null)
     const [openEditForm, setOpenEditForm] = useState(false);
-    const [course, setCourse] = useState<CourseDetailsResponse | null>(null);
-    const [render, setRender] = useState(false);
 
     const deleteCourse = async (courseId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<CourseDetailsResponse>>({
@@ -84,8 +79,8 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
 
     const changeDraftToProcessingCourse = async (courseId: number) => {
         const changeStatus = await sendRequest<ApiResponse<CourseDetailsResponse>>({
-            url: `${apiUrl}/courses/request-processing/${courseId}`,
-            method: 'POST',
+            url: `${apiUrl}/courses/processing/${courseId}`,
+            method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${session?.accessToken}`,
             }
@@ -157,32 +152,10 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             sorter: {
                 compare: (a, b) => a.price - b.price,
             },
-            render: (price: number) => <>{price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " đ"}</>,
+            render: (price: number) => <>{price.toLocaleString('vi-VN')}₫</>,
         },
         {
-            title: 'Trạng thái kích hoạt',
-            dataIndex: 'accepted',
-            key: 'accepted',
-            width: '15%',
-            align: 'center',
-            render: (_, record: CourseDetailsResponse) => {
-                const { accepted, courseStatus } = record;
-
-                if (courseStatus === 'PROCESSING') {
-                    return <Spin size="small" />;
-                }
-
-                return !accepted || ['DRAFT', 'REJECT'].includes(courseStatus) ? (
-                    <CloseOutlined style={{ color: 'red' }} />
-                ) : (
-                    <CheckOutlined style={{ color: 'green' }} />
-                );
-            }
-
-        },
-
-        {
-            title: 'Trạng thái duyệt',
+            title: 'Trạng thái',
             dataIndex: 'courseStatus',
             key: 'courseStatus',
             width: '15%',
@@ -190,15 +163,25 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
             render: (status) => {
                 switch (status) {
                     case 'DRAFT':
-                        return 'Bản nháp';
-                    case 'REJECT':
-                        return 'Chưa được duyệt';
+                        return (
+                            <p className='text-orange-500'>Bản nháp</p>
+                        );
+                    case 'REJECTED':
+                        return (
+                            <p className='text-red-500'>Bị từ chối duyệt</p>
+                        );
                     case 'PROCESSING':
-                        return 'Đang chờ duyệt';
-                    case 'SUCCESS':
-                        return 'Đã duyệt';
+                        return (
+                            <p className='text-purple-500'>Đang chờ duyệt</p>
+                        );
+                    case 'APPROVED':
+                        return (
+                            <p className='text-green-500'>Đã duyệt</p>
+                        );
                     default:
-                        return 'Không xác định';
+                        return (
+                            <p className='text-gray-500'>Không xác định</p>
+                        );
                 }
             }
         },
@@ -213,29 +196,23 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                             <InfoCircleOutlined />
                         </Link>
                     </Tooltip>
-                    {session?.user.roleName && session.user.roleName === 'EXPERT' && (
-                        <div className='flex items-center justify-center gap-3'>
-                            <Tooltip title="Thêm bài kiểm tra" color="blue">
+                    {session?.user.roleName && (session.user.roleName === "EXPERT") && (
+                        <>
+                            <Tooltip title="Thêm bài kiểm tra" placement="bottom" >
                                 <Link href={`/quiz/create/${record.courseId}`}>
                                     <QuestionCircleOutlined
                                         style={{ color: "green" }}
                                     />
                                 </Link>
                             </Tooltip>
-                            <Tooltip title="Thêm chương học" color="blue">
+                            <Tooltip title="Thêm chương học" placement="bottom" >
                                 <Link href={`/chapter/create/${record.courseId}`}>
                                     <GrChapterAdd
                                         style={{ color: "black" }}
                                     />
                                 </Link>
                             </Tooltip>
-
-                        </div>
-
-                    )}
-                    {session?.user.roleName && (session.user.roleName === "EXPERT") && (
-                        <>
-                            <Tooltip title='Cập nhật khoá học' color='blue'>
+                            <Tooltip title='Cập nhật khoá học' placement="bottom" >
                                 <EditOutlined style={{ color: "blue" }}
                                     onClick={() => {
                                         setEditingCourse(record)
@@ -243,89 +220,35 @@ const CourseTable = (props: { coursePageResponse: PageDetailsResponse<CourseDeta
                                     }}
                                 />
                             </Tooltip>
-                            {(record.courseStatus === 'DRAFT' || record.courseStatus === 'REJECT') && (
-                                <Tooltip title='Gửi yêu cầu duyệt' color='blue'>
-                                    <LuGitPullRequestCreateArrow
-                                        onClick={() => changeDraftToProcessingCourse(record.courseId)}
-
-                                    />
+                            {(record.courseStatus === 'DRAFT') && (
+                                <Tooltip title='Gửi yêu cầu duyệt' placement="bottom" >
+                                    <SendOutlined onClick={() => changeDraftToProcessingCourse(record.courseId)} />
                                 </Tooltip>
                             )}
-
+                            <Tooltip placement="bottom" title='Xóa khóa học'>
+                                <Popconfirm
+                                    placement="left"
+                                    title="Xóa khóa học"
+                                    description="Bạn có chắc chắn muốn xóa khóa học này không?"
+                                    onConfirm={() => deleteCourse(record.courseId)}
+                                    okText="Có"
+                                    cancelText="Không"
+                                >
+                                    <DeleteOutlined style={{ color: "red" }} />
+                                </Popconfirm>
+                            </Tooltip>
                         </>
                     )}
-                    {session?.user.roleName && session.user.roleName === "ADMIN" && (
-                        <Tooltip title="Từ chối duyệt khoá học" color="red">
-                            <FaBan onClick={() => rejectCourse(record.courseId)} />
-                        </Tooltip>
-                    )}
-                    {session?.user.roleName && (session.user.roleName === "EXPERT") && (
-                        <Tooltip placement="bottom" title='Xóa khóa học'>
-                            <Popconfirm
-                                placement="left"
-                                title="Xóa khóa học"
-                                description="Bạn có chắc chắn muốn xóa khóa học này không?"
-                                onConfirm={() => deleteCourse(record.courseId)}
-                                okText="Có"
-                                cancelText="Không"
-                            >
-                                <DeleteOutlined style={{ color: "red" }} />
-                            </Popconfirm>
-                        </Tooltip>
-                    )}
-
-                    {
-                        session?.user.roleName && session?.user.roleName === "ADMIN" && (
-                            <>
-                                {!record.accepted ? (
-                                    <Tooltip placement="bottom" title='Chấp nhận khóa học'>
-                                        <CheckOutlined
-                                            style={{
-                                                color: record.accepted ? "gray" : "#16db65",
-                                                cursor: record.accepted ? "not-allowed" : "pointer",
-                                                pointerEvents: record.accepted ? "none" : "auto"
-                                            }}
-                                            onClick={() => acceptCourse(record.courseId)}
-                                        />
-                                    </Tooltip>
-
-                                ) : (
-                                    <Tooltip placement="bottom" title='Ẩn khóa học'>
-                                        <CloseOutlined
-                                            style={{
-                                                color: record.accepted ? "red" : "gray",
-                                                cursor: record.accepted ? "pointer" : "not-allowed",
-                                                pointerEvents: record.accepted ? "auto" : "none"
-                                            }}
-                                            onClick={() => acceptCourse(record.courseId)}
-                                        />
-                                    </Tooltip>
-
-                                )}
-                            </>
-
-                        )
-                    }
-
-                    <Tooltip title='Xem danh sách người mua' color='blue'>
+                    <Tooltip title='Xem danh sách người mua' placement='bottom'>
                         <Link href={`/course/purchaser/${record.courseId}`}>
                             <UserOutlined />
                         </Link>
                     </Tooltip>
-
                 </Space >
             ),
         },
     ];
-    useEffect(() => {
-        setRender(true);
-    }, [])
 
-    if (!render) {
-        return (
-            <></>
-        )
-    }
     return (
         <>
             <Table
