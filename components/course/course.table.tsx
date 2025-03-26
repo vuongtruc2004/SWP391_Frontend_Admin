@@ -1,7 +1,7 @@
 'use client'
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
-import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, InfoCircleOutlined, QuestionCircleOutlined, SendOutlined, UserOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, InfoCircleOutlined, QuestionCircleOutlined, SendOutlined, UserOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
 import { notification, Popconfirm, Space, Table, TableProps, Tooltip } from 'antd';
 import { useSession } from 'next-auth/react';
@@ -9,7 +9,8 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { GrChapterAdd } from 'react-icons/gr';
-import { LuGitPullRequestCreateArrow } from "react-icons/lu";
+import { IoBan } from 'react-icons/io5';
+import { MdOutlineBookmarkAdded } from "react-icons/md";
 import UpdateCourseForm from './update.course.form';
 
 export const init = {
@@ -196,6 +197,20 @@ const CourseTable = ({ coursePageResponse }: { coursePageResponse: PageDetailsRe
                             <InfoCircleOutlined />
                         </Link>
                     </Tooltip>
+                    {session?.user.roleName && (session.user.roleName === "ADMIN") && (
+                        <>
+                            <Tooltip title="Duyệt khoá học" placement="bottom" >
+                                <Link href={`/quiz/create/${record.courseId}`}>
+                                    <MdOutlineBookmarkAdded style={{ color: "green" }} />
+                                </Link>
+                            </Tooltip>
+                            <Tooltip title="Từ chối khoá học" placement="bottom" >
+                                <Link href={`/quiz/create/${record.courseId}`}>
+                                    <IoBan style={{ color: "red" }} />
+                                </Link>
+                            </Tooltip>
+                        </>
+                    )}
                     {session?.user.roleName && (session.user.roleName === "EXPERT") && (
                         <>
                             <Tooltip title="Thêm bài kiểm tra" placement="bottom" >
