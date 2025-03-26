@@ -101,10 +101,33 @@ const CourseTable = ({ coursePageResponse }: { coursePageResponse: PageDetailsRe
             })
         }
     }
+    const approvedCourse = async (courseId: number) => {
+        const changeStatus = await sendRequest<ApiResponse<CourseDetailsResponse>>({
+            url: `${apiUrl}/courses/approved/${courseId}`,
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${session?.accessToken}`,
+            }
+        });
+        if (changeStatus.status === 200) {
+            notification.success({
+                message: String(changeStatus.message),
+                description: changeStatus.errorMessage,
+                showProgress: true,
+            });
+            router.refresh()
+        } else {
+            notification.error({
+                message: "Lỗi!",
+                description: String(changeStatus.message),
+                showProgress: true,
+            })
+        }
+    }
 
     const rejectCourse = async (courseId: number) => {
         const changeStatus = await sendRequest<ApiResponse<CourseDetailsResponse>>({
-            url: `${apiUrl}/courses/request-reject/${courseId}`,
+            url: `${apiUrl}/courses/rejected/${courseId}`,
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${session?.accessToken}`
@@ -200,14 +223,11 @@ const CourseTable = ({ coursePageResponse }: { coursePageResponse: PageDetailsRe
                     {session?.user.roleName && (session.user.roleName === "ADMIN") && (
                         <>
                             <Tooltip title="Duyệt khoá học" placement="bottom" >
-                                <Link href={`/quiz/create/${record.courseId}`}>
-                                    <MdOutlineBookmarkAdded style={{ color: "green" }} />
-                                </Link>
+                                <MdOutlineBookmarkAdded onClick={() => approvedCourse(record.courseId)}
+                                    style={{ color: "green" }} />
                             </Tooltip>
                             <Tooltip title="Từ chối khoá học" placement="bottom" >
-                                <Link href={`/quiz/create/${record.courseId}`}>
-                                    <IoBan style={{ color: "red" }} />
-                                </Link>
+                                <IoBan style={{ color: "red" }} onClick={() => rejectCourse(record.courseId)} />
                             </Tooltip>
                         </>
                     )}
