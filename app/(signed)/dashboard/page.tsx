@@ -18,8 +18,6 @@ const DashboardPage = async () => {
     const session = await getServerSession(authOptions)
     if (session && session.user.roleName === 'EXPERT') {
         redirect("/course");
-    } else if (session && session.user.roleName === 'MARKETING') {
-        redirect("/blog");
     }
 
     return (

@@ -7,6 +7,7 @@ import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import { Metadata } from "next";
 import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
     title: "Quản lý câu hỏi",
@@ -23,6 +24,10 @@ const QuestionPage = async (props: {
     const page = searchParams.page || 1;
     let filter = ""
     const session = await getServerSession(authOptions);
+
+    if (session && session.user.roleName === 'MARKETING') {
+        redirect("/blog");
+    }
 
     if (isFullNumber(keyword)) {
         filter = `questionId : ${keyword}`
@@ -44,6 +49,7 @@ const QuestionPage = async (props: {
     })
 
     return (
+
         <div className="border w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
             <QuestionSearch keyword={keyword} />
 

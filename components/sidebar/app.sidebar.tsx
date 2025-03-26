@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCollapseContext } from '../../wrapper/collapse-sidebar/collapse.sidebar.wrapper';
-import { sidebarItems, sidebarItemsAdmin, sidebarItemsExpert } from './app.sidebar.properties';
+import { sidebarItems, sidebarItemsAdmin, sidebarItemsExpert, sidebarItemsMarketing } from './app.sidebar.properties';
 import './overwrite.style.scss';
 
 const AppSidebar = () => {
@@ -38,8 +38,12 @@ const AppSidebar = () => {
                         ? sidebarItemsAdmin
                         : session?.user.roleName === "EXPERT"
                             ? sidebarItemsExpert
-                            : sidebarItems
+                            : session?.user.roleName === "MARKETING"
+                                ? sidebarItemsMarketing
+                                : sidebarItems
                 }
+
+
                 theme="light"
             />
         </Sider>

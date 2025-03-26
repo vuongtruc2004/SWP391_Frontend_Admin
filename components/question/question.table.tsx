@@ -71,7 +71,6 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
             dataIndex: 'title',
             key: 'title',
             width: '40%',
-            sorter: (a, b) => a.title.localeCompare(b.title),
         },
         {
             title: 'Hành động',
@@ -87,29 +86,31 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
                     </Tooltip>
 
                     {session?.user.roleName === 'EXPERT' &&
-                        <Tooltip title='Chỉnh sửa câu hỏi' color='blue'>
-                            <EditOutlined style={{ color: "blue" }}
-                                onClick={() => {
-                                    setEditingQuestion(record)
-                                    setOpenEditForm(true)
-                                }}
-                            />
-                        </Tooltip>
+                        <>
+                            <Tooltip title='Chỉnh sửa câu hỏi' color='blue'>
+                                <EditOutlined style={{ color: "blue" }}
+                                    onClick={() => {
+                                        setEditingQuestion(record)
+                                        setOpenEditForm(true)
+                                    }}
+                                />
+                            </Tooltip>
+                            <Popconfirm
+                                placement="left"
+                                title="Xóa câu hỏi"
+                                description="Bạn có chắc chắn muốn xóa câu hỏi này không?"
+                                onConfirm={() => deleteQuestion(record.questionId)}
+                                okText="Có"
+                                cancelText="Không"
+                            >
+                                <Tooltip title='Xóa câu hỏi' color='blue'>
+                                    <DeleteOutlined style={{ color: "red" }} />
+                                </Tooltip>
 
+                            </Popconfirm>
+                        </>
                     }
-                    <Popconfirm
-                        placement="left"
-                        title="Xóa câu hỏi"
-                        description="Bạn có chắc chắn muốn xóa câu hỏi này không?"
-                        onConfirm={() => deleteQuestion(record.questionId)}
-                        okText="Có"
-                        cancelText="Không"
-                    >
-                        <Tooltip title='Xóa câu hỏi' color='blue'>
-                            <DeleteOutlined style={{ color: "red" }} />
-                        </Tooltip>
 
-                    </Popconfirm>
 
                 </Space>
             ),

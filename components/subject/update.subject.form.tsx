@@ -1,7 +1,7 @@
 'use client'
 import { ChangeEvent, useActionState, useEffect, useRef, useState } from 'react';
 import { Button, Image, Input, Modal, notification, Spin, Tooltip } from 'antd';
-import { EyeOutlined, SyncOutlined, WarningOutlined } from '@ant-design/icons';
+import { EyeOutlined, SyncOutlined, UploadOutlined, WarningOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import '@ant-design/v5-patch-for-react-19';
 import { sendRequest } from '@/utils/fetch.api';
@@ -236,7 +236,7 @@ const UpdateSubjectForm = (props: {
                         </div>
                         <Tooltip title='Tải ảnh mới lên' color='#4096ff'>
                             <div>
-                                <FiUpload style={{ color: '#4096ff' }} className=" text-lg ml-6"
+                                <UploadOutlined style={{ color: '#4096ff' }} className=" text-lg ml-6"
                                     onClick={handleSyncClick}
                                 />
                             </div>

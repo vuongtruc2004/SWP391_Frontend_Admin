@@ -3,8 +3,8 @@
 import { validDescription, validSubjectName } from "@/helper/create.subject.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
-import { EyeOutlined, PlusOutlined, SyncOutlined, WarningOutlined } from "@ant-design/icons";
-import { Avatar, Button, Col, Image, Input, Modal, notification, Row, Select, Spin } from "antd";
+import { EyeOutlined, PlusOutlined, SyncOutlined, UploadOutlined, WarningOutlined } from "@ant-design/icons";
+import { Avatar, Button, Col, Image, Input, Modal, notification, Row, Select, Spin, Tooltip } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -148,34 +148,36 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
     }
 
     return (
-        <><div className="flex justify-between items-center mb-4 px-6">
-            <div className="">
-                <Button
-                    type="primary"
-                    onClick={showModal}
-                    className="w-fit !pt-5 !pb-5"
-                    icon={
-                        <PlusOutlined
-                            className={`transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`}
-                        />
-                    }
-                >
-                    Tạo mới
-                </Button>
+        <>
+            <div className="flex justify-between items-center mb-4 px-6">
+                {session?.user.roleName === 'EXPERT' &&
+                    <Button
+                        type="primary"
+                        onClick={showModal}
+                        className="w-fit !pt-5 !pb-5"
+                        icon={
+                            <PlusOutlined
+                                className={`transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`}
+                            />
+                        }
+                    >
+                        Tạo mới
+                    </Button>
+                }
+
+                <div className="flex gap-2 mr-2">
+
+                    <Button
+                        style={{ background: 'green', borderColor: "green" }}
+                        type="primary"
+                        onClick={() => handelOnExportExcel()}
+                        className="w-fit hover:bg-green-100 hover:border-green-700 !pt-5 !pb-5">
+                        Xuất Excel
+                    </Button>
+
+                </div>
+
             </div>
-            <div className="flex gap-2 mr-2">
-
-                <Button
-                    style={{ background: 'green', borderColor: "green" }}
-                    type="primary"
-                    onClick={() => handelOnExportExcel()}
-                    className="w-fit hover:bg-green-100 hover:border-green-700 !pt-5 !pb-5">
-                    Xuất Excel
-                </Button>
-
-            </div>
-
-        </div>
             <Modal
                 title="Tạo lĩnh vực"
                 open={isModalOpen}
@@ -274,10 +276,11 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                                                 alt="Preview"
                                             />
                                         </div>
-
-                                        <SyncOutlined style={{ color: '#4096ff' }} className="text-lg ml-6"
-                                            onClick={handleSyncClick}
-                                        />
+                                        <Tooltip title='Thay đổi ảnh' color="blue" placement="topLeft">
+                                            <UploadOutlined style={{ color: '#4096ff' }} className="text-lg ml-6"
+                                                onClick={handleSyncClick}
+                                            />
+                                        </Tooltip>
 
                                         <input
                                             type="file"

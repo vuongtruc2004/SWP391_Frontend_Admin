@@ -4,6 +4,7 @@ import { sendRequest } from "@/utils/fetch.api"
 import { apiUrl } from "@/utils/url"
 import { Metadata } from "next";
 import { getServerSession } from "next-auth"
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
     title: "Quản lý lĩnh vực",
@@ -20,6 +21,10 @@ const SubjectPage = async (props: {
     const page = searchParams.page || 1;
     const filter = `subjectName ~ '${keyword}' or description ~ '${keyword}'`
     const session = await getServerSession(authOptions);
+
+    if (session && session.user.roleName === 'MARKETING') {
+        redirect("/blog");
+    }
 
     if (!session) {
         return null;
@@ -74,8 +79,6 @@ const SubjectPage = async (props: {
 
 
     return (
-
-
         <div className="borde w-full h-[87vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
             <SubjectPageClient keyword={keyword} subjectPageResponse={subjectResponse.data} allSubjects={allSubjects} />
         </div>

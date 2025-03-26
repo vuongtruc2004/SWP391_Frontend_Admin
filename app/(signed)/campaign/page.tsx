@@ -1,6 +1,5 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import CampaignCreateBtn from '@/components/campaign/campaign.create.btn';
-import CampaignFilter from '@/components/campaign/campaign.filter';
 import CampaignSearch from '@/components/campaign/campaign.search';
 import CampaignTable from '@/components/campaign/campaign.table'
 import { getDiscountRange, getReducePrice } from '@/helper/create.campaign.helper';
@@ -8,6 +7,7 @@ import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import { Metadata } from 'next';
 import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
 import React from 'react'
 
 export const metadata: Metadata = {
@@ -39,6 +39,10 @@ const CampaignPage = async (props: {
     const minPrice = getReducePrice(searchParams.minPrice || "");
     const maxPrice = getReducePrice(searchParams.maxPrice || "");
     const session = await getServerSession(authOptions);
+
+    if (session && session.user.roleName === 'EXPERT') {
+        redirect('/course')
+    }
 
     if (!session) {
         return null;
