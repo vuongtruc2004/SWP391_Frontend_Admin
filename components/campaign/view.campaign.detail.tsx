@@ -75,11 +75,7 @@ const ViewCampaignDetail = ({ campaign, openViewDraw, setOpenViewDraw }: {
                             children:
                                 <ul className='ml-4'>
                                     {[...campaign.courses].map((course, index) => (
-                                        <Link key={index} href={`http://localhost:5173/course?keyword=${convertToPlusSeparated(course.courseName)}&page=1`}>
-                                            <Tooltip title="Thông tin khóa học" placement='rightTop'>
-                                                <ol ><span className='gap-2 mr-2'><DoubleRightOutlined style={{ color: 'green' }} /></span>{course.courseName}</ol>
-                                            </Tooltip>
-                                        </Link>
+                                        <ol ><span className='gap-2 mr-2'><DoubleRightOutlined style={{ color: 'green' }} /></span>{course.courseName}</ol>
                                     ))}
                                 </ul>
                         }]}

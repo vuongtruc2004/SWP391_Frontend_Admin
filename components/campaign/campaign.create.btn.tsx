@@ -191,7 +191,9 @@ const CampaignCreateBtn = () => {
             const imageResponse = await sendRequest<ApiResponse<string>>({
                 url: `${apiUrl}/subjects/thumbnail`,
                 method: 'POST',
-                headers: {},
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
                 body: formData
             });
 
@@ -228,7 +230,7 @@ const CampaignCreateBtn = () => {
     return (
         <>
             <div className="flex justify-between items-center mb-4 px-6">
-                <div className="mt-[-5rem] ml-[66rem]">
+                <div className="mt-[-11vh] ml-[140vh]">
                     <Button
                         type="primary"
                         onClick={showModal}
