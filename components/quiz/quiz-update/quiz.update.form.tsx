@@ -135,6 +135,9 @@ const QuizUpdateForm = ({ quizId }: {
 
                 const questionsAll = await sendRequest<ApiResponse<PageDetailsResponse<QuestionResponse[]>>>({
                     url: `${apiUrl}/questions/pagination`,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`
+                    },
                     queryParams: {
                         page: currentPage,
                         size: 10
@@ -163,10 +166,10 @@ const QuizUpdateForm = ({ quizId }: {
                         url: `${apiUrl}/quizzes/${quizId}`,
                         method: 'GET',
                         headers: {
-                            'Content-Type': 'application/json',
                             Authorization: `Bearer ${session?.accessToken}`
-                        }
+                        },
                     });
+                    console.log("response>", response)
                     if (response.status === 200) {
                         form.setFieldsValue({
                             title: response.data.title,

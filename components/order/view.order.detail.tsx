@@ -5,6 +5,7 @@ import { apiUrl } from "@/utils/url";
 import { DoubleRightOutlined } from "@ant-design/icons";
 import { Collapse, Drawer } from "antd";
 import dayjs from "dayjs";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
 
 const ViewOrderDetail = (props: {
@@ -15,7 +16,7 @@ const ViewOrderDetail = (props: {
     const { openDraw, setOpenDraw, viewOrderDetail } = props;
     const [activeOrder, setActiveOrder] = useState<number | null>(null);
     const [courseDetails, setCourseDetails] = useState<{ [key: number]: CourseDetailsResponse | null }>({});
-
+    const { data: session } = useSession();
     const handleToggle = (index: number, courseId: number) => {
         setActiveOrder(activeOrder === index ? null : index);
         fetchCourseDetails(courseId);
@@ -26,6 +27,10 @@ const ViewOrderDetail = (props: {
         try {
             const resCourse = await sendRequest<ApiResponse<CourseDetailsResponse>>({
                 url: `${apiUrl}/courses/${courseId}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                },
+
             });
 
             if (resCourse.status === 200) {

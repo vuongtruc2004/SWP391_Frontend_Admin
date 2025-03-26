@@ -26,8 +26,8 @@ const PurchaserTable = (props: {
             url: `${apiUrl}/users/${userId}`,
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json'
-            }
+                Authorization: `Bearer ${session?.accessToken}`
+            },
         });
 
         if (deleteResponse.status === 200) {

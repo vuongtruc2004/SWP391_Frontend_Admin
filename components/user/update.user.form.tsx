@@ -89,21 +89,16 @@ const UpdateUserForm = ({ editingUser, setEditingUser, openEditForm, setOpenEdit
         setOpenEditForm(false);
         setErrorMessage('');
     };
-
     const handleOk = async () => {
-        // Kiểm tra tất cả các giá trị
         const isEmailValid = validEmail(email, setEmail);
         const isFullNameValid = validFullName(fullName, setFullName);
         const isGenderValid = validGender(gender, setGender);
         const isRoleValid = validRole(role, setRole);
         const isDobValid = validDobUpdate(dob, setDob);
-
-        // Nếu bất kỳ giá trị nào không hợp lệ, dừng lại
         if (!isEmailValid || !isFullNameValid || !isGenderValid || !isRoleValid || !isDobValid) {
             return;
         }
         if (avatar) {
-            console.log(">>Lsadklsajkasjfksadjfsakdl");
             const formData = new FormData();
             formData.append('file', avatar);
             formData.append('folder', 'avatar');
@@ -117,53 +112,52 @@ const UpdateUserForm = ({ editingUser, setEditingUser, openEditForm, setOpenEdit
                 body: formData
             });
 
-            console.log(">>>>>>>", uploadResponse);
 
             if (uploadResponse.status === 200 && uploadResponse.data?.avatar) {
                 setUrlAvatar({ ...urlAvatar, value: uploadResponse.data.avatar }) // Lấy avatar từ API response
             }
 
-            const userRequest: UserRequest = {
-                userId: editingUser?.userId,
-                email: email.value,
-                fullname: fullName.value,
-                roleName: role.value,
-                gender: gender.value,
-                dob: dob.value ? dayjs(dob.value).format("YYYY-MM-DD") : editingUser?.dob || '',
-                avatar: urlAvatar.value
-            }
+        }
+        const userRequest: UserRequest = {
+            userId: editingUser?.userId,
+            email: email.value,
+            fullname: fullName.value,
+            roleName: role.value,
+            gender: gender.value,
+            dob: dob.value ? dayjs(dob.value).format("YYYY-MM-DD") : editingUser?.dob || '',
+            avatar: urlAvatar.value
+        }
 
-            if (JSON.stringify(userRequest) === JSON.stringify(initialUser)) {
-                notification.info({
-                    message: "Không có thay đổi",
-                    description: "Không có thông tin nào được cập nhật.",
-                });
-                handleCancel();
-                return;
-            }
-            const updateResponse = await sendRequest<ApiResponse<UserResponse>>({
-                url: `${apiUrl}/users`,
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${session?.accessToken}`
-                },
-                body: userRequest
+        if (JSON.stringify(userRequest) === JSON.stringify(initialUser)) {
+            notification.info({
+                message: "Không có thay đổi",
+                description: "Không có thông tin nào được cập nhật.",
             });
+            handleCancel();
+            return;
+        }
+        const updateResponse = await sendRequest<ApiResponse<UserResponse>>({
+            url: `${apiUrl}/users`,
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.accessToken}`
+            },
+            body: userRequest
+        });
 
-            console.log(">>>>>>>", updateResponse);
-            if (updateResponse.status === 201) {
-                handleCancel();
-                router.refresh();
-                notification.success({
-                    message: "Thành công",
-                    description: updateResponse.message.toString(),
-                });
-            } else {
-                setErrorMessage(updateResponse.message.toString());
-            }
-        };
-    }
+        if (updateResponse.status === 201) {
+            handleCancel();
+            router.refresh();
+            notification.success({
+                message: "Thành công",
+                description: updateResponse.message.toString(),
+            });
+        } else {
+            setErrorMessage(updateResponse.message.toString());
+        }
+    };
+
 
     const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -178,7 +172,6 @@ const UpdateUserForm = ({ editingUser, setEditingUser, openEditForm, setOpenEdit
                 url: `${apiUrl}/users/avataradmin`,
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     Authorization: `Bearer ${session?.accessToken}`
                 },
                 body: formData
@@ -200,7 +193,7 @@ const UpdateUserForm = ({ editingUser, setEditingUser, openEditForm, setOpenEdit
     };
 
     return (
-        <Modal title="Cập nhật người dùng" open={openEditForm} onOk={handleOk} onCancel={handleCancel} okText="Cập nhật">
+        <Modal title="Cập nhật người dùng" open={openEditForm} onOk={handleOk} onCancel={handleCancel} okText="Cập nhật" cancelText="Hủy">
             <div className="mb-3">
                 <span className="text-red-500 mr-2">*</span>Email:
                 <Input

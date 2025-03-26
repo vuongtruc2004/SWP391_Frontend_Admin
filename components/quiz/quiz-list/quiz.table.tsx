@@ -127,20 +127,24 @@ const QuizTable = (props: {
                         }} />
                     </Link>
                     {session?.user.roleName === 'EXPERT' && status === 'authenticated' && (
-                        <Link href={`/quiz/update?quizId=${record.quizId}`} passHref>
-                            <EditOutlined style={{ color: "blue", cursor: "pointer" }} />
-                        </Link>
+                        <>
+                            <Link href={`/quiz/update?quizId=${record.quizId}`} passHref>
+                                <EditOutlined style={{ color: "blue", cursor: "pointer" }} />
+                            </Link>
+
+                            <Popconfirm
+                                placement="left"
+                                title={`${record.published ? "Đóng" : "Mở"} bài kiểm tra`}
+                                description={`Bạn có chắc chắn muốn ${record.published ? "đóng" : "mở"} bài kiểm tra này không?`}
+                                onConfirm={() => publishedQuiz(record.quizId)}
+                                okText="Có"
+                                cancelText="Không"
+                            >
+                                <LockOutlined style={{ color: 'red' }} />
+                            </Popconfirm>
+                        </>
                     )}
-                    <Popconfirm
-                        placement="left"
-                        title={`${record.published ? "Đóng" : "Mở"} bài kiểm tra`}
-                        description={`Bạn có chắc chắn muốn ${record.published ? "đóng" : "mở"} bài kiểm tra này không?`}
-                        onConfirm={() => publishedQuiz(record.quizId)}
-                        okText="Có"
-                        cancelText="Không"
-                    >
-                        <LockOutlined style={{ color: 'red' }} />
-                    </Popconfirm>
+
                 </Space>
             ),
         },
@@ -151,7 +155,6 @@ const QuizTable = (props: {
             url: `${apiUrl}/quizzes/${quizId}`,
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json',
                 Authorization: `Bearer ${session?.accessToken}`
             }
         });

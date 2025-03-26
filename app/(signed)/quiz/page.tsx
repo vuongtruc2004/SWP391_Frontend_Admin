@@ -5,6 +5,7 @@ import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import { Metadata } from "next";
 import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
     title: "Quản lý bài kiểm tra",
@@ -60,6 +61,9 @@ const QuizPage = async (props: {
 
 
     const filter = filters.length > 0 ? filters.join(" and ") : '';
+    if (session?.user.roleName === "MARKETING") {
+        redirect("/blog");
+    }
     const quizResponse = await sendRequest<ApiResponse<PageDetailsResponse<QuizResponse[]>>>({
         url: `${apiUrl}/quizzes`,
         headers: {

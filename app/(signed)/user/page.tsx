@@ -69,7 +69,7 @@ const UserPage = async (props: {
             sort: "updatedAt,desc"
         }
     });
-
+    console.log("userResponse>>>", userResponse);
     const fetchAllUsers = async () => {
         let allUsers: UserResponse[] = [];
         let currentPage = 1;
@@ -78,6 +78,9 @@ const UserPage = async (props: {
         do {
             const response = await sendRequest<ApiResponse<PageDetailsResponse<UserResponse[]>>>({
                 url: `${apiUrl}/users`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                },
                 queryParams: {
                     page: currentPage,
                     size: 10,

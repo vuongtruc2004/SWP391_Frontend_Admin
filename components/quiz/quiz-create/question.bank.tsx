@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { sendRequest } from '@/utils/fetch.api';
 import { apiUrl } from '@/utils/url';
 import { useQuizCreate } from '@/wrapper/quiz-create/quiz.create.wrapper';
+import { useSession } from 'next-auth/react';
 const { Search } = Input;
 
 const QuestionBank = () => {
@@ -14,7 +15,7 @@ const QuestionBank = () => {
     const [questionsPage, setQuestionsPage] = useState<PageDetailsResponse<QuestionResponse[]> | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [keyword, setKeyword] = useState("");
-
+    const { data: session } = useSession();
     const handleCheck = (e: CheckboxChangeEvent, question: QuestionResponse) => {
         setSelectQuestions(prev =>
             e.target.checked
@@ -36,6 +37,9 @@ const QuestionBank = () => {
         const fetchQuestions = async () => {
             const questionPageResponse = await sendRequest<ApiResponse<PageDetailsResponse<QuestionResponse[]>>>({
                 url: `${apiUrl}/questions/pagination`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                },
                 queryParams: {
                     page: currentPage,
                     filter: `title ~ '${keyword}'`,

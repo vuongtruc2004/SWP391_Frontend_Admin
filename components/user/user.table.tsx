@@ -113,11 +113,13 @@ const UserTable = (props: {
                         setOpenDraw(true);
                         setUser(record);
                     }} />
+                    {record.roleName !== "USER" && (
+                        <EditOutlined className="text-blue-500" style={{ color: "blue" }} onClick={() => {
+                            setEditingUser(record);
+                            setOpenEditForm(true)
+                        }} />
+                    )}
 
-                    <EditOutlined className="text-blue-500" style={{ color: "blue" }} onClick={() => {
-                        setEditingUser(record);
-                        setOpenEditForm(true)
-                    }} />
                     <Popconfirm
                         placement="left"
                         title={`${record.locked ? "Mở khóa" : "Khóa"} người dùng`}
@@ -132,7 +134,6 @@ const UserTable = (props: {
             ),
         },
     ];
-
 
     return (
         <>

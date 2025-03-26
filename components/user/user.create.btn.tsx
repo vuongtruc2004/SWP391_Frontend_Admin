@@ -79,6 +79,7 @@ const UserCreateBtn = (props: { handelOnExportExcel: any }) => {
                 },
                 body: formData
             });
+
             if (uploadResponse.status === 200 && uploadResponse.data?.avatar) {
                 setUrlAvatar({ ...urlAvatar, value: uploadResponse.data.avatar })
             } else {

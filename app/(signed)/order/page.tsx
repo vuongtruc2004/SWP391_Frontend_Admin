@@ -8,6 +8,7 @@ import { isFullNumber } from "@/helper/subject.helper";
 import { getOrderStatus, getPrice } from "@/helper/create.order.helper";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 
 export const metadata: Metadata = {
@@ -74,7 +75,9 @@ const OrderPage = async (props: {
         },
     })
 
-
+    if (session?.user.roleName === "EXPERT") {
+        redirect("/course");
+    }
     const orderResponse = await sendRequest<ApiResponse<PageDetailsResponse<OrderResponse[]>>>({
         url: `${apiUrl}/orders`,
         headers: {

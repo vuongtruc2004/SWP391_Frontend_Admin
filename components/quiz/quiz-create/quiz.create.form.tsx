@@ -131,6 +131,9 @@ const QuizCreateForm = ({ course }: { course: CourseDetailsResponse }) => {
 
                 const questionsAll = await sendRequest<ApiResponse<PageDetailsResponse<QuestionResponse[]>>>({
                     url: `${apiUrl}/questions/pagination`,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`
+                    },
                     queryParams: {
                         page: currentPage,
                         size: 10

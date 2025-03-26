@@ -1,6 +1,8 @@
+'use client'
 import { sendRequest } from '@/utils/fetch.api'
 import { apiUrl, storageUrl } from '@/utils/url'
 import { Drawer } from 'antd'
+import { useSession } from 'next-auth/react'
 import React, { SetStateAction, useEffect, useState } from 'react'
 
 interface IProps {
@@ -18,10 +20,14 @@ const ViewUserDetail = (props: IProps) => {
     };
     const [expertDetailsResponse, setExpertDetailResponse] = useState<ExpertDetailsResponse | null>(null);
     const [showDescription, setShowDescription] = useState(false);
+    const { data: session } = useSession();
     useEffect(() => {
         const fetchApi = async () => {
             const expertDetailResponse = await sendRequest<ApiResponse<ExpertDetailsResponse>>({
-                url: `${apiUrl}/experts/${user?.userId}`
+                url: `${apiUrl}/experts/${user?.userId}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                },
             });
             if (expertDetailResponse.status === 200) {
                 setExpertDetailResponse(expertDetailResponse.data);

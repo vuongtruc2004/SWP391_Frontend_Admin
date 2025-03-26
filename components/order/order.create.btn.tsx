@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import { CopyOutlined } from "@ant-design/icons";
 import { sendRequest } from "@/utils/fetch.api";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const OrderCreate = () => {
     const [messageApi, contextHolder] = message.useMessage();
@@ -19,7 +20,7 @@ const OrderCreate = () => {
     const [orders, setOrders] = useState<OrderRequest | null>(null);
     const ref = useRef<HTMLDivElement>(null);
     const { refresh } = useRouter();
-
+    const { data: session } = useSession();
     const handleOk = async () => {
         if (orders) {
             const createOrderRequest: CreateOrderRequest = {
@@ -33,7 +34,8 @@ const OrderCreate = () => {
                 url: `${apiUrl}/orders`,
                 method: 'POST',
                 headers: {
-                    "Content-Type": 'application/json'
+                    "Content-Type": 'application/json',
+                    Authorization: `Bearer ${session?.accessToken}`
                 },
                 body: createOrderRequest
             });
