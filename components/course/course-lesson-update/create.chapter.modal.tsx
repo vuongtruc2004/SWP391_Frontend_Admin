@@ -7,45 +7,36 @@ interface FieldType {
     title: string;
     description: string;
 }
-const UpdateChapterModal = ({ chapters, setChapters, selectedChapterIndex, setSelectedChapterIndex, open, setOpen, setIsSaved }: {
-    chapters: ChapterRequest[],
+const CreateChapterModal = ({ setChapters, open, setOpen, setIsSaved }: {
     setChapters: Dispatch<SetStateAction<ChapterRequest[]>>,
-    selectedChapterIndex: number | null,
-    setSelectedChapterIndex: Dispatch<SetStateAction<number | null>>,
     open: boolean,
     setOpen: Dispatch<SetStateAction<boolean>>,
     setIsSaved: Dispatch<SetStateAction<boolean>>
 }) => {
-    if (selectedChapterIndex === null) return null;
     const [form] = Form.useForm();
 
     const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-        setChapters(prev => prev.map((chapter, index) => index === selectedChapterIndex ? {
-            ...chapter,
+        setChapters(prev => [...prev, {
             title: values.title,
-            description: values.description
-        } : chapter));
+            description: values.description,
+            lessons: []
+        }]);
         setIsSaved(false);
         setOpen(false);
-        setSelectedChapterIndex(null);
     };
 
     return (
-        <Modal title={`Cập nhật chương học`} open={open} closable={false} footer={[
+        <Modal title={`Tạo chương học`} open={open} closable={false} footer={[
             <Button icon={<CloseOutlined />} iconPosition="start" onClick={() => {
+                form.resetFields();
                 setOpen(false);
-                setSelectedChapterIndex(null);
             }} key="cancel">Hủy</Button>,
 
-            <Button key="submit" type="primary" onClick={() => form.submit()}>Cập nhật</Button>
+            <Button key="submit" type="primary" onClick={() => form.submit()}>Tạo</Button>
         ]}>
             <Form
                 form={form}
                 layout="vertical"
-                initialValues={{
-                    title: chapters[selectedChapterIndex].title,
-                    description: chapters[selectedChapterIndex].description
-                }}
                 onFinish={onFinish}
             >
                 <Form.Item<FieldType>
@@ -82,4 +73,4 @@ const UpdateChapterModal = ({ chapters, setChapters, selectedChapterIndex, setSe
     )
 }
 
-export default UpdateChapterModal
+export default CreateChapterModal

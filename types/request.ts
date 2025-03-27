@@ -140,16 +140,16 @@ declare global {
     interface ChapterRequest {
         title: string;
         description: string;
-        courseId: number;
         lessons: LessonRequest[];
     }
 
     interface LessonRequest {
         title: string;
+        description: string | null;
+        duration: number;
         lessonType: "VIDEO" | "DOCUMENT";
-        videoUrl?: string;
-        documentContent?: string;
-        duration?: number;
+        videoUrl: string | null;
+        documentContent: string | null;
     }
 
     interface CampaignRequest {

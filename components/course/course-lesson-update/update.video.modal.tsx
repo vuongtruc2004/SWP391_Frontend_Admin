@@ -1,4 +1,3 @@
-import { isValidYouTubeUrl } from "@/helper/create.course.helper";
 import { CloseOutlined, UploadOutlined } from "@ant-design/icons"
 import { Button, Divider, Form, FormProps, Input, message, Modal, Upload, UploadProps } from "antd"
 import TextArea from "antd/es/input/TextArea";
@@ -11,9 +10,9 @@ interface FieldType {
     duration: number;
 }
 const UpdateVideoModal = ({ setChapters, selectedLesson, setSelectedLesson, open, setOpen, setIsSaved }: {
-    setChapters: Dispatch<SetStateAction<ChapterResponse[]>>,
-    selectedLesson: LessonResponse | null,
-    setSelectedLesson: Dispatch<SetStateAction<LessonResponse | null>>,
+    setChapters: Dispatch<SetStateAction<ChapterRequest[]>>,
+    selectedLesson: LessonRequest | null,
+    setSelectedLesson: Dispatch<SetStateAction<LessonRequest | null>>,
     open: boolean,
     setOpen: Dispatch<SetStateAction<boolean>>,
     setIsSaved: Dispatch<SetStateAction<boolean>>
@@ -42,7 +41,7 @@ const UpdateVideoModal = ({ setChapters, selectedLesson, setSelectedLesson, open
     };
 
     return (
-        <Modal title={`Cập nhật Video`} open={open} closable={false} footer={[
+        <Modal title={`Cập nhật video`} open={open} closable={false} footer={[
             <Button icon={<CloseOutlined />} iconPosition="start" onClick={() => {
                 setSelectedLesson(null);
                 setOpen(false);
@@ -64,20 +63,19 @@ const UpdateVideoModal = ({ setChapters, selectedLesson, setSelectedLesson, open
                 <Form.Item<FieldType>
                     label="Tiêu đề"
                     name="title"
-                    rules={[{ required: true, message: 'Vui lòng không để trống tiêu đề!' }, {
-                        validator(rule, value, callback) {
-                            if (value) {
-                                const wordCount = value.trim().split(/\s+/).length;
-                                if (wordCount > 20) {
-                                    callback('Tiêu đề chỉ được tối đa 20 từ!');
-                                } else {
-                                    callback();
+                    rules={[
+                        { required: true, message: 'Vui lòng không để trống tiêu đề!' },
+                        {
+                            validator(_, value) {
+                                if (value) {
+                                    const wordCount = value.trim().split(/\s+/).length;
+                                    if (wordCount > 20) {
+                                        return Promise.reject(new Error('Tiêu đề chỉ được tối đa 20 từ!'));
+                                    }
                                 }
-                            } else {
-                                callback();
+                                return Promise.resolve();
                             }
-                        }
-                    }]}
+                        }]}
                 >
                     <Input placeholder="Nhập tiêu đề video" />
                 </Form.Item>
@@ -93,19 +91,7 @@ const UpdateVideoModal = ({ setChapters, selectedLesson, setSelectedLesson, open
                 <Form.Item<FieldType>
                     label="Đường dẫn video"
                     name="videoUrl"
-                    rules={[{ required: true, message: 'Vui lòng không để trống đường dẫn video!' }, {
-                        validator(rule, value, callback) {
-                            if (value) {
-                                if (isValidYouTubeUrl(value)) {
-                                    callback();
-                                } else {
-                                    callback();
-                                }
-                            } else {
-                                callback();
-                            }
-                        }
-                    }]}
+                    rules={[{ required: true, message: 'Vui lòng không để trống đường dẫn video!' }]}
                 >
                     <Input placeholder="Nhập đường dẫn video" />
                 </Form.Item>

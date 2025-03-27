@@ -1,40 +1,48 @@
 import { CloseOutlined } from "@ant-design/icons"
-import { Button, Form, FormProps, Input, Modal } from "antd"
+import { Button, Form, FormProps, Input, message, Modal, Upload, UploadProps } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import { Dispatch, SetStateAction } from "react"
 
 interface FieldType {
     title: string;
-    description: string;
+    documentContent: string;
 }
-const UpdateChapterModal = ({ chapters, setChapters, selectedChapterIndex, setSelectedChapterIndex, open, setOpen, setIsSaved }: {
-    chapters: ChapterRequest[],
+const UpdateDocumentModal = ({ setChapters, selectedLesson, setSelectedLesson, open, setOpen, setIsSaved }: {
     setChapters: Dispatch<SetStateAction<ChapterRequest[]>>,
-    selectedChapterIndex: number | null,
-    setSelectedChapterIndex: Dispatch<SetStateAction<number | null>>,
+    selectedLesson: LessonRequest | null,
+    setSelectedLesson: Dispatch<SetStateAction<LessonRequest | null>>,
     open: boolean,
     setOpen: Dispatch<SetStateAction<boolean>>,
     setIsSaved: Dispatch<SetStateAction<boolean>>
 }) => {
-    if (selectedChapterIndex === null) return null;
+    if (!selectedLesson || selectedLesson.lessonType !== 'DOCUMENT') return null;
     const [form] = Form.useForm();
 
+    const props: UploadProps = {
+        accept: 'video/*',
+        beforeUpload: (file) => {
+            const isVideo = file.type.startsWith('video/');
+
+            if (!isVideo) {
+                message.error(`${file.name} không phải là 1 video!`);
+            }
+
+            return isVideo || Upload.LIST_IGNORE;
+        },
+        onChange: (info) => {
+            console.log(info.fileList);
+        },
+    };
+
     const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-        setChapters(prev => prev.map((chapter, index) => index === selectedChapterIndex ? {
-            ...chapter,
-            title: values.title,
-            description: values.description
-        } : chapter));
-        setIsSaved(false);
-        setOpen(false);
-        setSelectedChapterIndex(null);
+
     };
 
     return (
-        <Modal title={`Cập nhật chương học`} open={open} closable={false} footer={[
+        <Modal title={`Cập nhật tài liệu đọc thêm`} open={open} closable={false} footer={[
             <Button icon={<CloseOutlined />} iconPosition="start" onClick={() => {
+                setSelectedLesson(null);
                 setOpen(false);
-                setSelectedChapterIndex(null);
             }} key="cancel">Hủy</Button>,
 
             <Button key="submit" type="primary" onClick={() => form.submit()}>Cập nhật</Button>
@@ -43,8 +51,8 @@ const UpdateChapterModal = ({ chapters, setChapters, selectedChapterIndex, setSe
                 form={form}
                 layout="vertical"
                 initialValues={{
-                    title: chapters[selectedChapterIndex].title,
-                    description: chapters[selectedChapterIndex].description
+                    title: selectedLesson.title,
+                    documentContent: selectedLesson.documentContent,
                 }}
                 onFinish={onFinish}
             >
@@ -65,21 +73,20 @@ const UpdateChapterModal = ({ chapters, setChapters, selectedChapterIndex, setSe
                             }
                         }
                     ]}
-
                 >
-                    <Input placeholder="Nhập tiêu đề chương học" />
+                    <Input placeholder="Nhập tiêu đề video" />
                 </Form.Item>
 
                 <Form.Item<FieldType>
-                    label="Mô tả"
-                    name="description"
-                    rules={[{ required: true, message: 'Vui lòng không để trống mô tả!' }]}
+                    label="Nội dung tài liệu"
+                    name="documentContent"
+                    rules={[{ required: true, message: 'Vui lòng không để trống nội dung tài liệu!' }]}
                 >
-                    <TextArea rows={4} placeholder="Nhập mô tả chương học" />
+                    <TextArea rows={4} placeholder="Nhập nội dung tài liệu" />
                 </Form.Item>
             </Form>
         </Modal>
     )
 }
 
-export default UpdateChapterModal
+export default UpdateDocumentModal
