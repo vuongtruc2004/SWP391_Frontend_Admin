@@ -105,7 +105,7 @@ const BlogCreate = (props: IProps) => {
             if (title.value.split(/\s+/).length > 100) {
                 notification.error({
                     message: 'Thất bại!',
-                    description: 'Tiêu đề không được quá 100 kí tự!',
+                    description: 'Tiêu đề không được quá 100 từ!',
                     showProgress: true,
                 })
                 setLoading(false);
@@ -137,6 +137,7 @@ const BlogCreate = (props: IProps) => {
                 },
                 body: blogRequest,
             })
+
             if (createBlog.status === 201) {
                 setTitle(initState);
                 setContent(initState);
@@ -183,7 +184,7 @@ const BlogCreate = (props: IProps) => {
             if (title.value.split(/\s+/).length > 100) {
                 notification.error({
                     message: 'Thất bại!',
-                    description: 'Tiêu đề không được quá 100 kí tự!',
+                    description: 'Tiêu đề không được quá 100 từ!',
                     showProgress: true,
                 })
                 setLoading(false);
@@ -215,6 +216,9 @@ const BlogCreate = (props: IProps) => {
                 },
                 body: blogRequestDraft,
             })
+
+            console.log("error", saveDraftBlog);
+
             if (saveDraftBlog.status === 201) {
                 setTitle(initState);
                 setContent(initState);

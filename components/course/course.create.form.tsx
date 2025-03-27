@@ -205,7 +205,7 @@ const CourseCreateForm = (props: { coursePageResponse: PageDetailsResponse<Cours
                 )}
             </div>
 
-            <Modal title="Tạo khoá học" open={isModalOpen} footer={null} width={700}>
+            <Modal closable={false} title="Tạo khoá học" open={isModalOpen} footer={null} width={700}>
                 <div>
                     <span className="text-red-500 mr-2">*</span>Tên khóa học:
                     <Input

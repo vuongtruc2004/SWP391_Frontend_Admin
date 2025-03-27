@@ -119,14 +119,12 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
             dataIndex: 'couponName',
             key: 'name',
             width: '20%',
-            sorter: (a, b) => a.couponName.localeCompare(b.couponName),
         },
         {
             title: 'Mã coupon',
             dataIndex: 'couponCode',
             key: 'code',
             width: '10%',
-            sorter: (a, b) => a.couponCode.localeCompare(b.couponCode),
         },
         {
             title: 'Hiệu lực',
@@ -140,7 +138,7 @@ const CouponTable = (props: { couponPageResponse: PageDetailsResponse<CouponResp
             dataIndex: 'minOrderValue',
             key: 'min',
             width: '20%',
-            render: (price: number) => <>{price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " đ"}</>
+            render: (price: number) => <>{price ? `${price.toLocaleString("vi-VN")}₫` : "Mọi đơn hàng"}</>
         },
         {
             title: 'Hành động',

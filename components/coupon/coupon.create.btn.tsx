@@ -184,7 +184,8 @@ const CouponCreateBtn = (props: { couponPageResponse: PageDetailsResponse<Coupon
                 open={isModalOpen}
                 footer={null}
                 width={700}
-                onCancel={handleCancel}
+                // onCancel={handleCancel}
+                closable={false}
             >
                 <div>
                     <span className="text-red-500 mr-2">*</span>

@@ -96,7 +96,7 @@ const NotificationCreate = (props: {
             if (title.value.split(/\s+/).length > 100) {
                 notification.error({
                     message: 'Thất bại!',
-                    description: 'Tiêu đề không được vượt quá 100 kí tự!',
+                    description: 'Tiêu đề không được vượt quá 100 từ!',
                 });
                 setLoading(false);
                 return;
@@ -105,7 +105,7 @@ const NotificationCreate = (props: {
             if (content.value.split(/\s+/).length > 280) {
                 notification.error({
                     message: 'Thất bại!',
-                    description: 'Nội dung thông báo không được quá 280 kí tự!',
+                    description: 'Nội dung thông báo không được quá 280 từ!',
                 });
                 setLoading(false);
                 return;

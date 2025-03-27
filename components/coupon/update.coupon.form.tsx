@@ -224,6 +224,7 @@ const UpdateCouponForm = (props: {
     };
     return (
         <Modal
+            closable={false}
             title={
                 <div style={{ fontSize: '24px', textAlign: 'center', width: '100%', display: 'block' }}>
                     Cập nhật coupon
@@ -232,7 +233,6 @@ const UpdateCouponForm = (props: {
             open={openEditForm}
             footer={null}
             width={700}
-            onCancel={handleCancel}
         >
             <div>
                 <span className="text-red-500 mr-2">*</span>

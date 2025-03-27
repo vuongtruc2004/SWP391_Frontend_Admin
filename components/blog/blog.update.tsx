@@ -170,7 +170,7 @@ const BlogUpdate = (props: IProps) => {
             if (title.value.split(/\s+/).length > 100) {
                 notification.error({
                     message: 'Thành công!',
-                    description: 'Tiêu đề không được vượt quá 100 kí tự!',
+                    description: 'Tiêu đề không được vượt quá 100 từ!',
                     showProgress: true,
                 })
                 setLoading(false);
@@ -264,7 +264,7 @@ const BlogUpdate = (props: IProps) => {
             if (title.value.split(/\s+/).length > 100) {
                 notification.error({
                     message: 'Thành công!',
-                    description: 'Tiêu đề không được vượt quá 100 kí tự!',
+                    description: 'Tiêu đề không được vượt quá 100 từ!',
                     showProgress: true,
                 })
                 setLoading(false);
