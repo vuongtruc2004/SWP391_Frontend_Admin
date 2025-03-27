@@ -34,7 +34,7 @@ const QuizCreateForm = ({ course }: { course: CourseDetailsResponse }) => {
                 hasError = true;
                 return { ...q, errorMessage: "Vui lòng không để trống câu hỏi" };
             }
-            if (q.title.split(/\s+/).length > 100) {
+            if (q.title.trim().split(/\s+/).length > 100) {
                 hasError = true;
                 return { ...q, errorMessage: "Nội dung câu hỏi không được quá 100 từ" }
             }
@@ -92,6 +92,7 @@ const QuizCreateForm = ({ course }: { course: CourseDetailsResponse }) => {
                     Authorization: `Bearer ${session?.accessToken}`
                 },
             });
+            console.log("quizResponse>>", quizResponse);
             if (quizResponse.status == 201) {
 
                 notification.success({
