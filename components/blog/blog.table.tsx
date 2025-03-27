@@ -125,10 +125,29 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
         },
         {
             title: 'Trạng thái',
-            dataIndex: 'published',
-            key: 'published',
+            dataIndex: 'blogStatus',
+            key: 'blogStatus',
             width: '10%',
-            render: (published: boolean) => (published ? "Công khai" : "Chỉ mình tôi"),
+            render: (status) => {
+                switch (status) {
+                    case 'DRAFT':
+                        return (
+                            <p className='text-orange-500'>Bản nháp</p>
+                        );
+                    case 'PRIVATE':
+                        return (
+                            <p className='text-purple-500'>Chỉ mình tôi</p>
+                        );
+                    case 'PUBLISH':
+                        return (
+                            <p className='text-green-500'>Công khai</p>
+                        );
+                    default:
+                        return (
+                            <p className='text-gray-500'>Không xác định</p>
+                        );
+                }
+            },
             align: "center"
         },
         {

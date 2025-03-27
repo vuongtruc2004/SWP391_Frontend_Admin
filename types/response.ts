@@ -70,12 +70,12 @@ declare global {
         thumbnail: string;
         createdAt: string;
         updatedAt: string;
-        published: boolean;
         pinned: boolean;
         totalLikes: number;
         totalComments: number;
         user: UserResponse;
         hashtags: HashtagResponse[];
+        blogStatus: 'DRAFT' | 'PRIVATE' | 'PUBLISH'
     }
 
     interface HashtagResponse {

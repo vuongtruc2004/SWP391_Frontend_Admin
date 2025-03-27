@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { GrChapterAdd } from 'react-icons/gr';
 import { IoBan } from 'react-icons/io5';
 import { MdOutlineBookmarkAdded } from "react-icons/md";
-import UpdateCourseForm from './update.course.form';
+import UpdateCourseForm from './update.course.form1';
 
 export const init = {
     courseName: {
@@ -173,9 +173,6 @@ const CourseTable = ({ coursePageResponse }: { coursePageResponse: PageDetailsRe
             dataIndex: 'price',
             key: 'price',
             width: '10%',
-            sorter: {
-                compare: (a, b) => a.price - b.price,
-            },
             render: (price: number) => <>{price.toLocaleString('vi-VN')}₫</>,
         },
         {
@@ -235,18 +232,16 @@ const CourseTable = ({ coursePageResponse }: { coursePageResponse: PageDetailsRe
                         <>
                             <Tooltip title="Thêm bài kiểm tra" placement="bottom" >
                                 <Link href={`/quiz/create/${record.courseId}`}>
-                                    <QuestionCircleOutlined
-                                        style={{ color: "green" }}
-                                    />
+                                    <QuestionCircleOutlined style={{ color: "green" }} />
                                 </Link>
                             </Tooltip>
+
                             <Tooltip title="Thêm chương học" placement="bottom" >
-                                <Link href={`/chapter/create/${record.courseId}`}>
-                                    <GrChapterAdd
-                                        style={{ color: "black" }}
-                                    />
+                                <Link href={`/course/lessons/${record.courseId}`}>
+                                    <GrChapterAdd style={{ color: "black" }} />
                                 </Link>
                             </Tooltip>
+
                             <Tooltip title='Cập nhật khoá học' placement="bottom" >
                                 <EditOutlined style={{ color: "blue" }}
                                     onClick={() => {
