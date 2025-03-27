@@ -87,7 +87,7 @@ const UpdateQuestionForm = (props: {
                 return;
             }
 
-            if (title.value.split(/\s+/).length > 100) {
+            if (title.value.split(/\s+/).length > 101) {
                 notification.error({
                     message: "Thất bại",
                     description: "Tiêu đề câu hỏi không được quá 100 từ!",

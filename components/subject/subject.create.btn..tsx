@@ -52,7 +52,7 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                 return
             }
 
-            if (subjectName.value.split(/\s+/).length > 50) {
+            if (subjectName.value.split(/\s+/).length > 51) {
                 notification.error({
                     message: "Thất bại",
                     description: "Tên lĩnh vực không được quá 50 từ!",
@@ -62,7 +62,7 @@ const SubjectCreateBtn = (props: { handelOnExportExcel: any }) => {
                 return
             }
 
-            if (description.value.split(/\s+/).length > 1000) {
+            if (description.value.split(/\s+/).length > 1001) {
                 notification.error({
                     message: "Thất bại",
                     description: "Mô tả không được quá 1000 từ!",

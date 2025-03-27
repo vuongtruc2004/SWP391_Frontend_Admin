@@ -6,7 +6,7 @@ import { WarningOutlined } from '@ant-design/icons';
 import '@ant-design/v5-patch-for-react-19';
 import { Button, Checkbox, DatePicker, Input, Modal, notification, Select, Space } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -45,6 +45,7 @@ const UpdateCouponForm = (props: {
     const router = useRouter();
     const [emptyDate, setEmptyDate] = useState("");
     const [emptyCourse, setEmptyCourse] = useState("");
+    const [dates, setDates] = useState<[string | null, string | null] | null>(null);
 
     useEffect(() => {
         if (editingCoupon?.discountType) {
@@ -54,12 +55,16 @@ const UpdateCouponForm = (props: {
 
     useEffect(() => {
         if (editingCoupon?.startTime && editingCoupon?.endTime) {
+            // @ts-ignore
             setEndTime(editingCoupon.endTime);
+            // @ts-ignore
             setStartTime(editingCoupon.startTime);
         }
     }, [editingCoupon]);
     useEffect(() => {
+        // @ts-ignore
         if (selectedRange === 'COURSES' && Array.isArray(editingCoupon?.courseName)) {
+            // @ts-ignore
             setSelectedCourses(editingCoupon.courseName);
         }
     }, [selectedRange, editingCoupon]);
@@ -94,15 +99,18 @@ const UpdateCouponForm = (props: {
                 error: false,
                 value: editingCoupon.maxDiscountAmount?.toString()
             })
-            setEndTime({
-                error: false,
-                value: editingCoupon.endTime
-            })
-            setStartTime({
-                error: false,
-                value: editingCoupon.startTime
-            })
+            // setEndTime({
+            //     error: false,
+            //     value: editingCoupon.endTime
+            // })
+            // setStartTime({
+            //     error: false,
+            //     value: editingCoupon.startTime
+            // })
 
+        }
+        if (editingCoupon?.startTime && editingCoupon?.endTime) {
+            setDates([editingCoupon.startTime, editingCoupon.endTime]);
         }
 
     }, [editingCoupon]);
@@ -127,10 +135,22 @@ const UpdateCouponForm = (props: {
         fetchCourses();
     }, []);
 
-    const handleDateChange = (dates: any, dateStrings: any) => {
-        if (dates) {
-            setStartTime({ value: dayjs(dates[0]).format('YYYY-MM-DD HH:mm:ss'), error: false });
-            setEndTime({ value: dayjs(dates[1]).format('YYYY-MM-DD HH:mm:ss'), error: false });
+    // const handleDateChange = (dates: any, dateStrings: any) => {
+    //     if (dates) {
+    //         setStartTime({ value: dayjs(dates[0]).format('YYYY-MM-DD HH:mm:ss'), error: false });
+    //         setEndTime({ value: dayjs(dates[1]).format('YYYY-MM-DD HH:mm:ss'), error: false });
+    //     }
+    // };
+
+
+    const handleChange = (values: [Dayjs | null, Dayjs | null] | null) => {
+        if (values && values[0] && values[1]) {
+            setDates([
+                values[0].format("YYYY-MM-DD HH:mm:ss"),
+                values[1].format("YYYY-MM-DD HH:mm:ss"),
+            ]);
+        } else {
+            setDates(null);
         }
     };
 
@@ -143,20 +163,21 @@ const UpdateCouponForm = (props: {
         const isValidMax = isValidMaxAmount(maxDiscountAmount, setMaxDiscountAmount);
         const isValidDisValue = isValidDiscountValue(minOrderValue, discountType, discountValue, setDiscountValue);
         let checkAll = true;
-        if (!isValidName || !isValidCode || !validMaxUsed || !isValidDescription || !isValidOrderValue || !isValidMax || !isValidDisValue
+        if (!isValidName || !isValidCode || !validMaxUsed || !isValidDescription || !isValidOrderValue || !isValidMax || !isValidDisValue || dates === null
         ) {
-            checkAll = false;
-        }
-        if (!selectedCourses || selectedCourses.length === 0) {
-            if (selectedRange === 'COURSES') {
-                setEmptyCourse("Vui lòng chọn ít nhất 1 khoá học!");
-                checkAll = false;
+            setEmptyDate("Thời gian coupon không được bỏ trống!")
+            if (dates) {
+                setEmptyDate("")
+                setLoading(false);
+                return
             }
-        }
-        if (!startTime.value && !endTime.value) {
-            setEmptyDate("Ngày áp dụng không để rỗng!")
             checkAll = false;
         }
+
+        // if (!startTime.value && !endTime.value) {
+        //     setEmptyDate("Ngày áp dụng không để rỗng!")
+        //     checkAll = false;
+        // }
         if (!checkAll) return;
 
 
@@ -170,8 +191,8 @@ const UpdateCouponForm = (props: {
             maxDiscountAmount: Number(maxDiscountAmount.value || 0),
             minOrderValue: Number(minOrderValue.value || 0),
             maxUses: Number(maxUses.value || 0),
-            startTime: startTime.value,
-            endTime: endTime.value,
+            startTime: dates?.[0]! ?? null,
+            endTime: dates?.[1]! ?? null,
             courses: selectedCourses!,
         };
         const createResponse = await sendRequest<ApiResponse<CouponResponse>>({
@@ -206,6 +227,8 @@ const UpdateCouponForm = (props: {
         setEditingCoupon(null);
         setOpenEditForm(false);
         setEmptySubject("");
+        setDates(null);
+        setEmptyDate("");
     };
 
     const handleRangeChange = (value: any) => {
@@ -307,7 +330,7 @@ const UpdateCouponForm = (props: {
                 <span className="text-lg">Thời gian áp dụng:</span>
                 <div className="mt-2">
                     <Space direction="vertical" size={12}>
-                        <RangePicker
+                        {/* <RangePicker
                             showTime
                             placeholder={['Ngày bắt đầu', 'Ngày kết thúc']}
                             disabledDate={(current) => current && current.isBefore(dayjs(), 'day')}
@@ -328,15 +351,45 @@ const UpdateCouponForm = (props: {
                             }}
                             value={editingCoupon ? [dayjs(editingCoupon.startTime), dayjs(editingCoupon.endTime)] : null}
                             onChange={handleDateChange}
+                        /> */}
+
+                        <RangePicker
+                            showTime
+                            placeholder={['Ngày bắt đầu', 'Ngày kết thúc']}
+                            value={dates ? [dates[0] ? dayjs(dates[0]) : null, dates[1] ? dayjs(dates[1]) : null] : null}
+                            onChange={handleChange}
+                            className={`${emptyDate !== "" ? "!border-red-500 w-full" : " w-full"}`}
+                            disabledDate={(current) => current && current.isBefore(dayjs(), 'day')}
+                            disabledTime={(current) => {
+                                const now = dayjs();
+                                if (!current) return {};
+                                if (current.isSame(now, "day")) {
+                                    return {
+                                        disabledHours: () =>
+                                            Array.from({ length: now.hour() }, (_, i) => i),
+                                        disabledMinutes: (hour) =>
+                                            hour === now.hour()
+                                                ? Array.from({ length: now.minute() }, (_, i) => i)
+                                                : [],
+                                    };
+                                }
+                                return {};
+                            }}
                         />
                     </Space>
                 </div>
-                {emptyDate !== "" && (
+                {emptyDate !== "" && !dates && (
                     <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                         <WarningOutlined />
                         {emptyDate}
                     </p>
                 )}
+                {/* {emptyDate !== "" && (
+                    <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                        <WarningOutlined />
+                        {emptyDate}
+                    </p>
+                )} */}
             </div>
 
 

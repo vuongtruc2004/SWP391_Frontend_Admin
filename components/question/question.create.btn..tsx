@@ -74,7 +74,7 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
             setLoading(true);
 
 
-            if (title.value.split(/\s+/).length > 100) {
+            if (title.value.split(/\s+/).length > 101) {
                 notification.error({
                     message: "Thất bại",
                     description: "Tiêu đề câu hỏi không được quá 100 từ!",
@@ -85,7 +85,7 @@ const QuestionCreateBtn = (props: { questionPageResponse: PageDetailsResponse<Qu
             }
 
             const isTooLong = answers.some((answer) => {
-                if (answer.content.trim().split(/\s+/).length > 50) {
+                if (answer.content.trim().split(/\s+/).length > 51) {
                     notification.error({
                         message: "Thất bại",
                         description: "Tiêu đề câu trả lời không được quá 50 từ!",
