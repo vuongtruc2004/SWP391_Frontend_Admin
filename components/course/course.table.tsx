@@ -250,7 +250,7 @@ const CourseTable = ({ coursePageResponse }: { coursePageResponse: PageDetailsRe
                                     }}
                                 />
                             </Tooltip>
-                            {(record.courseStatus === 'DRAFT') && (
+                            {(record.courseStatus === 'DRAFT') || (record.courseStatus === 'REJECTED') && (
                                 <Tooltip title='Gửi yêu cầu duyệt' placement="bottom" >
                                     <SendOutlined onClick={() => changeDraftToProcessingCourse(record.courseId)} />
                                 </Tooltip>
