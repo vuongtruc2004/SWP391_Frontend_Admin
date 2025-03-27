@@ -34,9 +34,9 @@ const QuizCreateForm = ({ course }: { course: CourseDetailsResponse }) => {
                 hasError = true;
                 return { ...q, errorMessage: "Vui lòng không để trống câu hỏi" };
             }
-            if (q.title.split(/\s+/).length > 30) {
+            if (q.title.split(/\s+/).length > 100) {
                 hasError = true;
-                return { ...q, errorMessage: "Nội dung câu hỏi không được quá 30 chữ" }
+                return { ...q, errorMessage: "Nội dung câu hỏi không được quá 100 từ" }
             }
             if (questionValues.filter(v => v === q.title.trim().toLowerCase()).length > 1) {
                 hasError = true;

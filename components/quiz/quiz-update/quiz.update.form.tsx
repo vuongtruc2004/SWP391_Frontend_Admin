@@ -37,6 +37,10 @@ const QuizUpdateForm = ({ quizId }: {
                 hasError = true;
                 return { ...q, errorMessage: "Vui lòng không để trống câu hỏi" };
             }
+            if (q.title.split(/\s+/).length > 100) {
+                hasError = true;
+                return { ...q, errorMessage: "Nội dung câu hỏi không được quá 100 từ" }
+            }
             if (questionValues.filter(v => v === q.title.trim().toLowerCase()).length > 1) {
                 hasError = true;
                 return { ...q, errorMessage: "Vui lòng không tạo câu hỏi giống nhau" };
@@ -208,7 +212,7 @@ const QuizUpdateForm = ({ quizId }: {
                     name='title'
 
                     rules={[{ required: true, message: 'Vui lòng không để trống tiêu đề!' },
-                    { max: 20, message: "Tiêu đề bài kiểm tra không được vượt quá 20 kí tự!" }
+                    { max: 40, message: "Tiêu đề bài kiểm tra không được vượt quá 40 kí tự!" }
 
                     ]}
                 >
