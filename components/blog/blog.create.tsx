@@ -4,7 +4,7 @@ import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, LoadingOutlined, PlusOutlined, SyncOutlined, UploadOutlined, WarningOutlined } from "@ant-design/icons";
 import MDEditor, { getCommands, ICommand } from "@uiw/react-md-editor";
-import { Avatar, Checkbox, Form, Image, Input, Modal, notification, Select, Spin, Tooltip } from "antd";
+import { Avatar, Button, Checkbox, Form, Image, Input, Modal, notification, Select, Spin, Tooltip } from "antd";
 import { marked } from "marked";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -162,6 +162,83 @@ const BlogCreate = (props: IProps) => {
 
     }
 
+    const handleSaveDraft = async () => {
+        setLoading(true);
+
+        setTimeout(async () => {
+            const isValidTitle = validTitle(title, setTitle);
+            const isValidContent = validContent(content, setContent);
+
+            if (urlThumbnail === "") {
+                setErrThumbnail("Ảnh không được để trống!");
+                setLoading(false);
+                return;
+            }
+
+            if (!isValidTitle || !isValidContent) {
+                setLoading(false);
+                return
+            }
+
+            if (title.value.split(/\s+/).length > 100) {
+                notification.error({
+                    message: 'Thất bại!',
+                    description: 'Tiêu đề không được quá 100 kí tự!',
+                    showProgress: true,
+                })
+                setLoading(false);
+                return;
+            }
+
+            if (checkList && checkList.value.length === 0) {
+                setCheckList(prev => ({ ...prev, error: true }));
+                setLoading(false);
+                return;
+            }
+            const htmlText = marked(inputMarkdown);
+
+            const blogRequestDraft: BlogRequest = {
+                title: title.value,
+                content: htmlText.toString(),
+                plainContent: stripHtml(htmlText.toString()),
+                thumbnail: urlThumbnail,
+                hashtags: checkList.value ? checkList.value : [],
+                pinned: pinned,
+            }
+
+            const saveDraftBlog = await sendRequest<ApiResponse<BlogResponse>>({
+                url: `${apiUrl}/blogs/save-draft`,
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: blogRequestDraft,
+            })
+            if (saveDraftBlog.status === 201) {
+                setTitle(initState);
+                setContent(initState);
+                setPlainContent("");
+                setInputMarkdown("");
+                setUrlThumbnail("");
+                setOpenFormCreate(false);
+                notification.success({
+                    message: "Thành công!",
+                    description: "Bài viết đã được lưu dưới dạng bản nháp!",
+                    showProgress: true,
+                })
+                router.refresh()
+            } else {
+                notification.error({
+                    message: "Thất bại!",
+                    description: "Lưu nháp bài viết thất bại!",
+                    showProgress: true,
+                })
+            }
+            setLoading(false);
+        }, 1500)
+    }
+
 
 
     const handleOnCancel = () => {
@@ -242,8 +319,15 @@ const BlogCreate = (props: IProps) => {
                 okText="Tạo"
                 cancelText="Hủy"
                 width={1000}
+                footer={(_, { OkBtn, CancelBtn }) => (
+                    <>
+                        <CancelBtn />
+                        <Button type="primary" onClick={handleSaveDraft}>Lưu nháp</Button>
+                        <OkBtn />
+                    </>
+                )}
             >
-                <Spin indicator={<LoadingOutlined spin />} size="large" spinning={loading}>
+                <Spin size="large" spinning={loading}>
                     <Form>
                         <div>
                             <h4 className="mb-3"><span className="text-red-600">*</span>Tiêu đề bài viết:</h4>

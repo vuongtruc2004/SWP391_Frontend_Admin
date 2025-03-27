@@ -179,7 +179,7 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
                             </Tooltip>
 
                             {session?.user.userId === record.user.userId && (
-                                !record.published ? (
+                                (record.blogStatus === 'DRAFT' || record.blogStatus === 'PRIVATE') ? (
                                     <Tooltip placement="bottom" title={"Chuyển sang trạng thái công khai"}>
                                         <CheckOutlined
                                             style={{
@@ -195,9 +195,9 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
                                     <Tooltip placement="bottom" title={"Chuyển sang trạng thái chỉ mình tôi"}>
                                         <CloseOutlined
                                             style={{
-                                                color: record.published ? "red" : "gray",
-                                                cursor: record.published === false ? "not-allowed" : "pointer",
-                                                pointerEvents: record.published ? "auto" : "none"
+                                                color: "red",
+                                                cursor: "pointer",
+                                                pointerEvents: record.blogStatus ? "auto" : "none"
                                             }}
                                             onClick={() => { changeStatus(record.blogId) }}
                                         />
@@ -364,15 +364,6 @@ const BlogTable = (props: { blogPageResponse: PageDetailsResponse<BlogDetailsRes
                                     hasParent={-1}
                                 />
                             )}
-
-                            <Pagination
-                                current={currentPage}
-                                pageSize={pageSize}
-                                total={treeData?.length}
-                                onChange={(page) => setCurrentPage(page)}
-                                style={{ marginTop: 16, textAlign: "center" }}
-                                align="end"
-                            />
                         </div>
                     </>
                 ) : <></>}

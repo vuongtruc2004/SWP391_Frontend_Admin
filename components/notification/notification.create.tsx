@@ -23,8 +23,8 @@ const NotificationCreate = (props: {
     const [global, setGlobal] = useState(true);
     const [status, setstatus] = useState("SENT");
     const [dateSet, setDateSet] = useState<ErrorResponse>(initState);
-    const [receiver, setReceiver] = useState<{ error: boolean, tags: number[] }>({ error: false, tags: [] });
-    const [userOption, setUserOption] = useState<{ value: number, label: string }[]>([]);
+    const [receiver, setReceiver] = useState<{ error: boolean, tags: string[] }>({ error: false, tags: [] });
+    const [userOption, setUserOption] = useState<{ value: string, label: string }[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const { data: session } = useSession();
     const router = useRouter();
@@ -68,7 +68,7 @@ const NotificationCreate = (props: {
 
             const users = Array.isArray(dataRes?.data) ? dataRes.data.map((user: UserResponse) => ({
                 key: user.userId,
-                value: user.userId,
+                value: user.userId.toString(),
                 label: user.email,
             })) : [];
 
@@ -128,7 +128,7 @@ const NotificationCreate = (props: {
                 content: content.value,
                 status: status,
                 global: global,
-                userIds: receiver?.tags,
+                userIds: receiver?.tags.map(Number),
                 setDate: dateSet.value,
 
             }
@@ -188,7 +188,7 @@ const NotificationCreate = (props: {
     return (
         <>
             <Modal title="Tạo thông báo" open={openCreate} onOk={handleOnOk} onCancel={handleOnCancel}>
-                <Spin indicator={<LoadingOutlined spin />} size="large" spinning={loading}>
+                <Spin size="large" spinning={loading}>
                     <Form>
                         <div>
                             <p><span className='text-red-600'>*</span>Tiêu đề:</p>

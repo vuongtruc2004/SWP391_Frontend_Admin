@@ -4,7 +4,7 @@ import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
 import { EyeOutlined, LoadingOutlined, PlusOutlined, SyncOutlined, UploadOutlined, WarningOutlined } from "@ant-design/icons";
 import MDEditor, { getCommands, ICommand } from "@uiw/react-md-editor";
-import { Avatar, Checkbox, Form, Image, Input, Modal, notification, Select, Spin, Tooltip } from "antd";
+import { Avatar, Button, Checkbox, Form, Image, Input, Modal, notification, Select, Spin, Tooltip } from "antd";
 import { marked } from "marked";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -249,6 +249,76 @@ const BlogUpdate = (props: IProps) => {
         }
     }
 
+    const handleUpdateDraft = async () => {
+        setLoading(true);
+
+        setTimeout(async () => {
+            const isValidTitle = validTitle(title, setTitle);
+            const isValidContent = validContent(content, setContent);
+
+            if (!isValidTitle || !isValidContent) {
+                setLoading(false);
+                return;
+            }
+
+            if (title.value.split(/\s+/).length > 100) {
+                notification.error({
+                    message: 'Thành công!',
+                    description: 'Tiêu đề không được vượt quá 100 kí tự!',
+                    showProgress: true,
+                })
+                setLoading(false);
+                return;
+            }
+
+            if (checkList && checkList.value.length === 0) {
+                setCheckList(prev => ({ ...prev, error: true }));
+                setLoading(false);
+                return;
+            }
+
+            const htmlTextContent = marked(inputMarkdown);
+            setPlainContent(stripHtml(htmlTextContent.toString()));
+            console.log("check html text: ", htmlTextContent)
+            const blogDraftRequest: BlogRequest = {
+                title: title.value,
+                content: htmlTextContent.toString(),
+                plainContent: stripHtml(htmlTextContent.toString()),
+                thumbnail: urlThumbnail,
+                hashtags: checkList.value,
+                pinned: pinned,
+            }
+
+            const updateDraftBlog = await sendRequest<ApiResponse<BlogResponse>>({
+                url: `${apiUrl}/blogs/update-draft/${selectRecord?.blogId}`,
+                method: 'PATCH',
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: blogDraftRequest,
+            })
+
+            if (updateDraftBlog.status === 200) {
+                handleCancle();
+                router.refresh();
+                notification.success({
+                    message: "Thành Công!",
+                    description: "Cập nhật bài viết thành công!",
+                    showProgress: true,
+                })
+            } else {
+                notification.error({
+                    message: "Thất Bại!",
+                    description: "Cập nhật bài viết thất bại!",
+                    showProgress: true,
+                })
+            }
+
+            setLoading(false);
+        }, 1500)
+    }
+
     return (
         <>
             <Modal title="Sửa bài viết" open={openUpdate} onCancel={() => {
@@ -259,14 +329,22 @@ const BlogUpdate = (props: IProps) => {
                 setInputMarkdown(turndownService.turndown(`${selectRecord?.content}`))
                 setUrlThumbnail(selectRecord?.thumbnail ? selectRecord.thumbnail : "");
                 setOpenUpdate(false)
+
             }}
                 width={1000} className='not-css'
                 okText="Lưu"
                 cancelText="Hủy"
                 onOk={handleOnOk}
                 maskClosable={false}
+                footer={(_, { OkBtn, CancelBtn }) => (
+                    <>
+                        <CancelBtn />
+                        <Button type="primary" onClick={handleUpdateDraft}>Lưu nháp</Button>
+                        <OkBtn />
+                    </>
+                )}
             >
-                <Spin indicator={<LoadingOutlined spin />} size="large" spinning={loading}>
+                <Spin size="large" spinning={loading}>
                     <Form>
                         <div>
                             <h4><span className="text-red-600">*</span>Tiêu đề bài viết:</h4>
