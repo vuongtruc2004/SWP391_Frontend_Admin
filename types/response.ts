@@ -5,7 +5,7 @@ declare global {
         password: string;
         rePassword: string;
         avatar: string;
-        roleName: string;
+        roleName: 'USER' | 'ADMIN' | 'MARKETING' | 'EXPERT';
         fullname: string;
         email: string;
         gender: string;

@@ -100,11 +100,6 @@ export const sidebarItemsMarketing: MenuItem[] = [
         type: 'group',
         children: [
             {
-                key: 'user',
-                label: <Link href="/user">Quản lý tài khoản</Link>,
-                icon: <TeamOutlined />
-            },
-            {
                 key: 'blog',
                 label: <Link href="/blog">Quản lý bài viết</Link>,
                 icon: <FaRegPaperPlane />
@@ -113,13 +108,11 @@ export const sidebarItemsMarketing: MenuItem[] = [
                 key: 'order',
                 label: <Link href="/order">Quản lý hóa đơn</Link>,
                 icon: <BarChartOutlined />
-
             },
             {
                 key: 'notification',
                 label: <Link href="/notification">Quản lý thông báo</Link>,
                 icon: <NotificationOutlined />
-
             },
             {
                 key: 'course',
@@ -130,11 +123,6 @@ export const sidebarItemsMarketing: MenuItem[] = [
                 key: 'coupon',
                 label: <Link href="/coupon">Quản lý coupon</Link>,
                 icon: <IoTicketOutline />,
-            },
-            {
-                key: 'quiz',
-                label: <Link href="/quiz">Quản lý bài kiểm tra</Link>,
-                icon: <LuNewspaper />,
             },
             {
                 key: 'campaign',
@@ -162,12 +150,6 @@ export const sidebarItemsExpert: MenuItem[] = [
 
             },
             {
-                key: 'order',
-                label: <Link href="/order">Quản lý hóa đơn</Link>,
-                icon: <BarChartOutlined />
-
-            },
-            {
                 key: 'notification',
                 label: <Link href="/notification">Quản lý thông báo</Link>,
                 icon: <NotificationOutlined />
@@ -177,11 +159,6 @@ export const sidebarItemsExpert: MenuItem[] = [
                 key: 'course',
                 label: <Link href="/course">Quản lý khóa học</Link>,
                 icon: <BiBookReader />,
-            },
-            {
-                key: 'coupon',
-                label: <Link href="/coupon">Quản lý coupon</Link>,
-                icon: <IoTicketOutline />,
             },
             {
                 key: 'quiz',

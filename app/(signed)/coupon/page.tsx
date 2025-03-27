@@ -6,6 +6,7 @@ import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import { Metadata } from "next";
 import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
     title: "Quản lý coupon",
@@ -30,6 +31,10 @@ const CouponPage = async (props: {
     const minOrderPrice = searchParams.minPrice || '';
     const maxOrderPrice = searchParams.maxPrice || "";
 
+    if (!session || (session.user.roleName !== 'ADMIN' && session.user.roleName !== 'MARKETING')) {
+        redirect("/course");
+    }
+
     let filter = "";
 
     filter = `(couponName ~ '${keyword.trim()}' or couponCode ~ '${keyword.trim()}')`
@@ -49,9 +54,6 @@ const CouponPage = async (props: {
         }
     });
 
-    console.log(couponResponse);
-
-
     return (
         <div className="border w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
             <CouponSearch
@@ -62,9 +64,7 @@ const CouponPage = async (props: {
                 maxPrice={maxOrderPrice}
             />
             <div className="flex justify-end mr-7 mt-[-50px]">
-                <CouponCreateBtn
-                    coursePageResponse={couponResponse.data}
-                />
+                <CouponCreateBtn couponPageResponse={couponResponse.data} />
             </div>
             <CouponTable couponPageResponse={couponResponse.data} />
         </div>
