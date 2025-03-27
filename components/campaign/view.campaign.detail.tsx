@@ -75,7 +75,7 @@ const ViewCampaignDetail = ({ campaign, openViewDraw, setOpenViewDraw }: {
                             children:
                                 <ul className='ml-4'>
                                     {[...campaign.courses].map((course, index) => (
-                                        <ol ><span className='gap-2 mr-2'><DoubleRightOutlined style={{ color: 'green' }} /></span>{course.courseName}</ol>
+                                        <ol key={index}><span className='gap-2 mr-2'><DoubleRightOutlined style={{ color: 'green' }} /></span>{course.courseName}</ol>
                                     ))}
                                 </ul>
                         }]}

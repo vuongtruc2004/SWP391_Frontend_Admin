@@ -369,7 +369,7 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
                             className="w-full"
                             onChange={handleOnChangeGlobal}
                             options={[
-                                { value: "ALL", label: "Toàn bộ khóa học" },
+                                { value: "ALL", label: "Tất cả khóa học chưa được áp dụng chiến dịch" },
                                 { value: "COURSES", label: "Giới hạn khóa học" },
                             ]}
                         />
