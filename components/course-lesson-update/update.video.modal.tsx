@@ -1,5 +1,6 @@
+import { getVideoDurationFromLocalhostLink, getVideoDurationFromYoutubeLink } from "@/helper/update.lesson.helper";
 import { sendRequest } from "@/utils/fetch.api";
-import { apiUrl } from "@/utils/url";
+import { apiUrl, storageUrl } from "@/utils/url";
 import { CloseOutlined, UploadOutlined } from "@ant-design/icons"
 import { Button, Divider, Form, FormProps, Input, message, Modal, Upload, UploadProps } from "antd"
 import TextArea from "antd/es/input/TextArea";
@@ -10,6 +11,7 @@ interface FieldType {
     title: string;
     description: string;
     videoUrl: string;
+    duration: number;
 }
 const UpdateVideoModal = ({ chapters, setChapters, open, setOpen, selectedLessonIndex, selectedChapterIndex, setSelectedChapterIndex, setSelectedLessonIndex }: {
     chapters: ChapterRequest[],
@@ -27,6 +29,7 @@ const UpdateVideoModal = ({ chapters, setChapters, open, setOpen, selectedLesson
     }
     const selectLesson = selectChapter.lessons.find((_, lessonIndex) => lessonIndex === selectedLessonIndex);
     if (!selectLesson || selectLesson.lessonType !== 'VIDEO') return null;
+
     const [form] = Form.useForm();
 
     const props: UploadProps = {
@@ -60,21 +63,35 @@ const UpdateVideoModal = ({ chapters, setChapters, open, setOpen, selectedLesson
         onChange: (info) => {
             if (info.file.status === "done") {
                 form.setFieldsValue({ videoUrl: info.file.response });
+                handleChangeVideoUrl(`${storageUrl}/lesson/${info.file.response}`);
             }
         },
         onRemove: () => {
-            form.setFieldsValue({ videoUrl: selectLesson.videoUrl });
+            form.setFieldsValue({ videoUrl: "" });
+            form.setFieldsValue({ duration: 0 });
         }
     };
 
-    const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
+    const handleChangeVideoUrl = async (link: string) => {
+        let duration = 0;
+        if (link.startsWith("https://youtu")) {
+            duration = await getVideoDurationFromYoutubeLink(link);
+        }
+        if (duration === 0) {
+            duration = await getVideoDurationFromLocalhostLink(link);
+        }
+        form.setFieldsValue({ duration: duration });
+    }
+
+    const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
         setChapters(prev => prev.map((chapter, chapterIndex) => chapterIndex === selectedChapterIndex ? ({
             ...chapter,
             lessons: chapter.lessons.map((lesson, lessonIndex) => lessonIndex === selectedLessonIndex ? ({
                 ...lesson,
                 title: values.title,
                 description: values.description,
-                videoUrl: values.videoUrl
+                videoUrl: values.videoUrl,
+                duration: values.duration
             }) : lesson)
         }) : chapter));
         handleCancel();
@@ -99,6 +116,7 @@ const UpdateVideoModal = ({ chapters, setChapters, open, setOpen, selectedLesson
                     title: selectLesson.title,
                     description: selectLesson.description,
                     videoUrl: selectLesson.videoUrl,
+                    duration: selectLesson.duration
                 }}
                 onFinish={onFinish}
             >
@@ -113,6 +131,10 @@ const UpdateVideoModal = ({ chapters, setChapters, open, setOpen, selectedLesson
                                     const wordCount = value.trim().split(/\s+/).length;
                                     if (wordCount > 20) {
                                         return Promise.reject(new Error('Tiêu đề chỉ được tối đa 20 từ!'));
+                                    }
+                                    const currentChapter = chapters.find((_, index) => index === selectedChapterIndex);
+                                    if (currentChapter && currentChapter.lessons.find((lesson, index) => lesson.title.toLowerCase().trim() === value.toLowerCase().trim() && lesson.lessonType === 'VIDEO' && index !== selectedLessonIndex)) {
+                                        return Promise.reject(new Error('Tiều đề đã tồn tại ở một video trong chương này!'));
                                     }
                                 }
                                 return Promise.resolve();
@@ -134,7 +156,7 @@ const UpdateVideoModal = ({ chapters, setChapters, open, setOpen, selectedLesson
                     label="Đường dẫn video"
                     name="videoUrl"
                     rules={[{ required: true, message: 'Vui lòng không để trống đường dẫn video!' }]}>
-                    <Input placeholder="Nhập đường dẫn video" />
+                    <Input placeholder="Nhập đường dẫn video" onChange={(e) => handleChangeVideoUrl(e.target.value)} />
                 </Form.Item>
 
                 <Divider variant="dashed" style={{ borderColor: '#6c757d' }} dashed>
@@ -145,6 +167,23 @@ const UpdateVideoModal = ({ chapters, setChapters, open, setOpen, selectedLesson
                         </Upload>
                     </div>
                 </Divider>
+
+                <Form.Item<FieldType>
+                    label="Thời lượng video (giây)"
+                    name="duration"
+                    rules={[
+                        { required: true, message: 'Vui lòng không để trống thời lượng video!' },
+                        {
+                            validator(_, value) {
+                                if (value === 0) {
+                                    return Promise.reject(new Error('Không thể lấy được thời lượng từ video!'));
+                                }
+                                return Promise.resolve();
+                            }
+                        }
+                    ]}>
+                    <Input disabled />
+                </Form.Item>
             </Form>
         </Modal>
     )

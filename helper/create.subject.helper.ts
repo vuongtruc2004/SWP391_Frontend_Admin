@@ -1,6 +1,4 @@
-import dayjs from "dayjs";
 import { SetStateAction } from "react";
-
 
 export const validDescription = (description: ErrorResponse, setDescription: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
     if (description.value.trim() === '') {

@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction, useState } from "react"
 import DocumentEditor from "./document.editor";
 import TurndownService from "turndown";
 import { marked } from "marked";
+import { calculateReadingTime } from "@/helper/update.lesson.helper";
 
 interface FieldType {
     title: string;
@@ -28,6 +29,7 @@ const UpdateDocumentModal = ({ chapters, setChapters, open, setOpen, selectedLes
     const [form] = Form.useForm();
     const turndownService = new TurndownService();
 
+    const [errorMessage, setErrorMessage] = useState("");
     const [inputMarkdown, setInputMarkdown] = useState(turndownService.turndown(selectLesson.documentContent || ""));
 
     const stripHtml = (html: string) => {
@@ -37,12 +39,20 @@ const UpdateDocumentModal = ({ chapters, setChapters, open, setOpen, selectedLes
 
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
         const documentContent = await marked(stripHtml(inputMarkdown));
+        if (documentContent.trim() === "") {
+            setErrorMessage("Vui lòng không để trống nội dung tài liệu!");
+            return;
+        }
+
+        console.log(">>> check duraion:", calculateReadingTime(documentContent));
+
         setChapters(prev => prev.map((chapter, chapterIndex) => chapterIndex === selectedChapterIndex ? ({
             ...chapter,
             lessons: chapter.lessons.map((lesson, lessonIndex) => lessonIndex === selectedLessonIndex ? ({
                 ...lesson,
                 title: values.title,
-                documentContent: documentContent
+                documentContent: documentContent,
+                duration: calculateReadingTime(documentContent)
             }) : lesson)
         }) : chapter));
         handleCancel();
@@ -50,6 +60,7 @@ const UpdateDocumentModal = ({ chapters, setChapters, open, setOpen, selectedLes
 
     const handleCancel = () => {
         setOpen(false);
+        setErrorMessage("");
         setSelectedChapterIndex(null);
         setSelectedLessonIndex(null);
     }
@@ -78,6 +89,10 @@ const UpdateDocumentModal = ({ chapters, setChapters, open, setOpen, selectedLes
                                     if (wordCount > 20) {
                                         return Promise.reject(new Error('Tiêu đề chỉ được tối đa 20 từ!'));
                                     }
+                                    const currentChapter = chapters.find((_, index) => index === selectedChapterIndex);
+                                    if (currentChapter && currentChapter.lessons.find((lesson, index) => lesson.title.toLowerCase().trim() === value.toLowerCase().trim() && lesson.lessonType === 'DOCUMENT' && index !== selectedLessonIndex)) {
+                                        return Promise.reject(new Error('Tiều đề đã tồn tại ở một tài liệu trong chương này!'));
+                                    }
                                 }
                                 return Promise.resolve();
                             }
@@ -88,6 +103,9 @@ const UpdateDocumentModal = ({ chapters, setChapters, open, setOpen, selectedLes
                 </Form.Item>
 
                 <DocumentEditor inputMarkdown={inputMarkdown} setInputMarkdown={setInputMarkdown} />
+                {errorMessage !== "" && (
+                    <p className="text-sm text-[#ff4d4f]">{errorMessage}</p>
+                )}
             </Form>
         </Modal>
     )

@@ -124,8 +124,6 @@ declare global {
         chapterId: number;
         bankQuestionIds: number[];
         newQuestions: QuestionRequest[];
-
-
     }
 
     interface QuestionRequest {
@@ -137,10 +135,21 @@ declare global {
         }[];
     }
 
+    interface CourseChapterRequest {
+        courseId: number;
+        chapters: ChapterRequest[];
+    }
     interface ChapterRequest {
         title: string;
         description: string;
         lessons: LessonRequest[];
+        quizInfo: QuizInfoRequest | null;
+    }
+
+    interface QuizInfoRequest {
+        quizId: number;
+        title: string;
+        duration: number;
     }
 
     interface LessonRequest {
@@ -149,6 +158,7 @@ declare global {
         lessonType: "VIDEO" | "DOCUMENT";
         videoUrl: string | null;
         documentContent: string | null;
+        duration: number;
     }
 
     interface CampaignRequest {

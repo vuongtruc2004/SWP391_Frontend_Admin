@@ -9,11 +9,9 @@ export const isNumber = (s: string): boolean => {
 
 export const isValidYouTubeUrl = (url: string): boolean => {
     const regex = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}(\S*)?$/;
-    if (!regex.test(url))
-        return false;
+    if (!regex.test(url)) return false;
     return true;
 };
-
 
 export const validTitle = (title: ErrorResponse, setTitle: React.Dispatch<SetStateAction<ErrorResponse>>): boolean => {
     if (title.value.trim() === '') {

@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { GrChapterAdd } from 'react-icons/gr';
 import { IoBan } from 'react-icons/io5';
 import { MdOutlineBookmarkAdded } from "react-icons/md";
-import UpdateCourseForm from './update.course.form1';
+import UpdateCourseForm from './update.course.form';
 
 export const init = {
     courseName: {
@@ -27,7 +27,7 @@ const CourseTable = ({ coursePageResponse }: { coursePageResponse: PageDetailsRe
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const router = useRouter();
-    const page = Number(searchParams.get('page')) || 1; // Lấy số trang từ URL
+    const page = Number(searchParams.get('page')) || 1;
     const { data: session, status } = useSession();
     const [editingCourse, setEditingCourse] = useState<CourseResponse | null>(null)
     const [openEditForm, setOpenEditForm] = useState(false);

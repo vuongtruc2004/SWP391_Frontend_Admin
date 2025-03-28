@@ -1,6 +1,7 @@
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
 import MDEditor, { getCommands, ICommand } from "@uiw/react-md-editor";
+import { message } from "antd";
 import { Dispatch, SetStateAction } from "react";
 
 const DocumentEditor = ({ inputMarkdown, setInputMarkdown }: { inputMarkdown: string, setInputMarkdown: Dispatch<SetStateAction<string>> }) => {
@@ -27,8 +28,12 @@ const DocumentEditor = ({ inputMarkdown, setInputMarkdown }: { inputMarkdown: st
                         body: formData,
                     });
 
-                    const imageMarkdown = `![image](${storageUrl}/lesson/${imageRes.data})`;
-                    setInputMarkdown((prev) => prev + `\n ${imageMarkdown} \n`);
+                    if (imageRes.status !== 200) {
+                        message.error(imageRes.message.toString());
+                    } else {
+                        const imageMarkdown = `![image](${storageUrl}/lesson/${imageRes.data})`;
+                        setInputMarkdown((prev) => prev + `\n ${imageMarkdown} \n`);
+                    }
                 }
             };
             input.click();
@@ -57,8 +62,12 @@ const DocumentEditor = ({ inputMarkdown, setInputMarkdown }: { inputMarkdown: st
                         body: formData,
                     });
 
-                    const fileMarkdown = `[Tải xuống ${file.files[0].name}](${storageUrl}/lesson/${fileRes.data})`;
-                    setInputMarkdown((prev) => prev + `\n ${fileMarkdown} \n`);
+                    if (fileRes.status === 200) {
+                        const fileMarkdown = `[Tải xuống ${file.files[0].name}](${storageUrl}/lesson/${fileRes.data})`;
+                        setInputMarkdown((prev) => prev + `\n ${fileMarkdown} \n`);
+                    } else {
+                        message.error(fileRes.message.toString());
+                    }
                 }
             };
             input.click();

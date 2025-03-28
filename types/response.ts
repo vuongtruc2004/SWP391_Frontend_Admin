@@ -88,35 +88,36 @@ declare global {
         title: string;
         answers: AnswerResponse[];
     }
+
     interface AnswerResponse {
         answerId: number;
         content: string;
         correct: boolean;
     }
+
     interface CourseResponse {
         courseId: number;
         courseName: string;
         description: string;
         thumbnail: string;
-        introduction: string;
+        objectives: string[];
         price: number;
         expert: ExpertResponse;
         totalPurchased: number;
         totalLessons: number;
+        totalQuizzes: number;
         createdAt: string;
         updatedAt: string;
-        objectives: string[],
         courseStatus: "DRAFT" | "PROCESSING" | "APPROVED" | "REJECTED"
     }
 
     interface CourseDetailsResponse extends CourseResponse {
-        introduction: string,
-        subjects: SubjectResponse[],
-        chapters: ChapterResponse[],
-        totalLikes: number,
-        totalComments: number,
-        averageRating: number,
-        totalRating: number,
+        introduction: string;
+        expert: ExpertDetailsResponse;
+        subjects: SubjectResponse[];
+        chapters: ChapterResponse[];
+        averageRating: number;
+        totalRating: number;
     }
 
     interface ChapterResponse {
@@ -124,7 +125,19 @@ declare global {
         title: string;
         description: string;
         lessons: LessonResponse[];
-        course: CourseResponse;
+        quizInfo: QuizInfoResponse;
+    }
+
+    interface QuizInfoResponse {
+        quizId: number;
+        title: string;
+        published: boolean;
+        allowSeeAnswers: boolean;
+        duration: number;
+        description: string;
+        updatedAt: string;
+        questions: QuestionResponse[];
+        chapterId: number;
     }
 
     interface LessonResponse {
@@ -138,7 +151,6 @@ declare global {
         videoUrl: string | null;
         documentContent: string | null;
     }
-
 
     interface AgeRangeResponse {
         [key: string]: number;

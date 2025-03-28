@@ -1,8 +1,6 @@
 import { convertSecondToTime } from '@/helper/course.details.helper'
 import { FileDoneOutlined, PlayCircleOutlined } from '@ant-design/icons'
 import { Collapse, CollapseProps } from 'antd'
-import Box from 'next-auth/providers/box'
-import React from 'react'
 
 const CourseContent = (props: { courseDetail: CourseDetailsResponse }) => {
     const { courseDetail } = props

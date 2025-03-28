@@ -33,7 +33,8 @@ const UpdateCourseForm = (props: {
     const [price, setPrice] = useState<ErrorResponse>(initState);
     const [des, setDes] = useState<ErrorResponse>(initState);
     const { data: session, status } = useSession();
-    const fileInputRef = useRef<HTMLInputElement>(null)
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    //@ts-ignore
     const [subjectChecked, setSubjectChecked] = useState<string[]>(editingCourse?.subjects?.map(s => s.subjectName) || [])
     const [objects, setObjects] = useState<{ content: string; empty: boolean }[]>([
         { content: "", empty: true }
@@ -43,7 +44,9 @@ const UpdateCourseForm = (props: {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     useEffect(() => {
+        //@ts-ignore
         if (editingCourse?.subjects) {
+            //@ts-ignore
             setSubjectChecked(editingCourse.subjects.map(s => s.subjectName));
         }
         if (editingCourse?.thumbnail) {

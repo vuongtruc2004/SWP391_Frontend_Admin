@@ -58,6 +58,9 @@ const UpdateChapterModal = ({ chapters, setChapters, selectedChapterIndex, setSe
                                     if (wordCount > 20) {
                                         return Promise.reject(new Error('Tiêu đề chỉ được tối đa 20 từ!'));
                                     }
+                                    if (chapters.find((chapter, index) => chapter.title.toLowerCase().trim() === value.toLowerCase().trim() && index !== selectedChapterIndex)) {
+                                        return Promise.reject(new Error('Tiều đề chuơng học đã tồn tại!'));
+                                    }
                                 }
                                 return Promise.resolve();
                             }

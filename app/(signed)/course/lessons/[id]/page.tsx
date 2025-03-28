@@ -1,5 +1,5 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import UpdateLessonsForm from "@/components/course/course-lesson-update/update.lessons.form";
+import UpdateLessonsForm from "@/components/course-lesson-update/update.lessons.form";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
 import { Metadata } from "next";
@@ -19,12 +19,23 @@ const CourseDetailsPage = async ({ params }: { params: Promise<{ id: string }> }
         }
     });
 
+    const quizResponse = await sendRequest<ApiResponse<QuizInfoResponse[]>>({
+        url: `${apiUrl}/quizzes/expert`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+        }
+    });
+
     if (courseResponse.status !== 200) {
         throw new Error(courseResponse.message.toString());
     }
 
+    if (quizResponse.status !== 200) {
+        throw new Error(quizResponse.message.toString());
+    }
+
     return (
-        <UpdateLessonsForm course={courseResponse.data} />
+        <UpdateLessonsForm course={courseResponse.data} quizzes={quizResponse.data} />
     )
 }
 

@@ -1,16 +1,18 @@
 import { CloseOutlined } from "@ant-design/icons"
 import { Button, Form, FormProps, Input, Modal } from "antd"
 import TextArea from "antd/es/input/TextArea";
-import { Dispatch, SetStateAction } from "react"
+import { Dispatch, RefObject, SetStateAction } from "react"
 
 interface FieldType {
     title: string;
     description: string;
 }
-const CreateChapterModal = ({ setChapters, open, setOpen }: {
+const CreateChapterModal = ({ chapters, setChapters, open, setOpen, bottomRef }: {
+    chapters: ChapterRequest[],
     setChapters: Dispatch<SetStateAction<ChapterRequest[]>>,
     open: boolean,
     setOpen: Dispatch<SetStateAction<boolean>>,
+    bottomRef: RefObject<HTMLDivElement | null>
 }) => {
     const [form] = Form.useForm();
 
@@ -18,9 +20,11 @@ const CreateChapterModal = ({ setChapters, open, setOpen }: {
         setChapters(prev => [...prev, {
             title: values.title,
             description: values.description,
-            lessons: []
+            lessons: [],
+            quizInfo: null
         }]);
         handleCancel();
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     const handleCancel = () => {
@@ -29,9 +33,9 @@ const CreateChapterModal = ({ setChapters, open, setOpen }: {
     }
 
     return (
-        <Modal title={`Tạo chương học`} open={open} closable={false} footer={[
+        <Modal title={`Thêm chương học`} open={open} closable={false} footer={[
             <Button icon={<CloseOutlined />} iconPosition="start" onClick={handleCancel} key="cancel">Hủy</Button>,
-            <Button key="submit" type="primary" onClick={() => form.submit()}>Tạo</Button>
+            <Button key="submit" type="primary" onClick={() => form.submit()}>Thêm</Button>
         ]}>
             <Form
                 form={form}
@@ -49,6 +53,9 @@ const CreateChapterModal = ({ setChapters, open, setOpen }: {
                                     const wordCount = value.trim().split(/\s+/).length;
                                     if (wordCount > 20) {
                                         return Promise.reject(new Error('Tiêu đề chỉ được tối đa 20 từ!'));
+                                    }
+                                    if (chapters.find(chapter => chapter.title.toLowerCase().trim() === value.toLowerCase().trim())) {
+                                        return Promise.reject(new Error('Tiều đề chuơng học đã tồn tại!'));
                                     }
                                 }
                                 return Promise.resolve();
