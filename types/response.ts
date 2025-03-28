@@ -102,7 +102,7 @@ declare global {
         thumbnail: string;
         objectives: string[];
         price: number;
-        expert: ExpertResponse;
+        // expert: ExpertResponse;
         totalPurchased: number;
         totalLessons: number;
         totalQuizzes: number;
@@ -256,6 +256,7 @@ declare global {
         content: string,
         status: string,
         setDate: string,
+        createdAt: string,
         global: boolean,
         userNotifications: UserNotificationResponse[],
     }
