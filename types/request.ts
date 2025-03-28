@@ -146,7 +146,6 @@ declare global {
     interface LessonRequest {
         title: string;
         description: string | null;
-        duration: number;
         lessonType: "VIDEO" | "DOCUMENT";
         videoUrl: string | null;
         documentContent: string | null;

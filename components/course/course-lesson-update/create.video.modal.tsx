@@ -11,22 +11,14 @@ interface FieldType {
     description: string;
     videoUrl: string;
 }
-const UpdateVideoModal = ({ chapters, setChapters, open, setOpen, selectedLessonIndex, selectedChapterIndex, setSelectedChapterIndex, setSelectedLessonIndex }: {
-    chapters: ChapterRequest[],
+const CreateVideoModal = ({ setChapters, open, setOpen, selectedChapterIndex, setSelectedChapterIndex }: {
     setChapters: Dispatch<SetStateAction<ChapterRequest[]>>,
     open: boolean,
     setOpen: Dispatch<SetStateAction<boolean>>,
-    selectedLessonIndex: number | null,
     selectedChapterIndex: number | null,
-    setSelectedLessonIndex: Dispatch<SetStateAction<number | null>>,
     setSelectedChapterIndex: Dispatch<SetStateAction<number | null>>,
 }) => {
-    const selectChapter = chapters.find((_, chapterIndex) => chapterIndex === selectedChapterIndex);
-    if (!selectChapter) {
-        return null;
-    }
-    const selectLesson = selectChapter.lessons.find((_, lessonIndex) => lessonIndex === selectedLessonIndex);
-    if (!selectLesson || selectLesson.lessonType !== 'VIDEO') return null;
+    if (selectedChapterIndex === null) return null;
     const [form] = Form.useForm();
 
     const props: UploadProps = {
@@ -63,43 +55,43 @@ const UpdateVideoModal = ({ chapters, setChapters, open, setOpen, selectedLesson
             }
         },
         onRemove: () => {
-            form.setFieldsValue({ videoUrl: selectLesson.videoUrl });
+            form.setFieldsValue({ videoUrl: "" });
         }
     };
 
     const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-        setChapters(prev => prev.map((chapter, chapterIndex) => chapterIndex === selectedChapterIndex ? ({
-            ...chapter,
-            lessons: chapter.lessons.map((lesson, lessonIndex) => lessonIndex === selectedLessonIndex ? ({
-                ...lesson,
-                title: values.title,
-                description: values.description,
-                videoUrl: values.videoUrl
-            }) : lesson)
-        }) : chapter));
+        setChapters(prev => prev.map((chapter, chapterIndex) =>
+            chapterIndex === selectedChapterIndex
+                ? {
+                    ...chapter,
+                    lessons: [...chapter.lessons, {
+                        title: values.title,
+                        description: values.description,
+                        lessonType: "VIDEO",
+                        videoUrl: values.videoUrl,
+                        documentContent: null
+                    }]
+                }
+                : chapter
+        ));
         handleCancel();
     };
+
 
     const handleCancel = () => {
         setOpen(false);
         setSelectedChapterIndex(null);
-        setSelectedLessonIndex(null);
     }
 
     return (
-        <Modal title={`Cập nhật video`} open={open} closable={false} footer={[
+        <Modal title={`Thêm video`} open={open} closable={false} footer={[
             <Button icon={<CloseOutlined />} iconPosition="start" onClick={handleCancel} key="cancel">Hủy</Button>,
 
-            <Button key="submit" type="primary" onClick={() => form.submit()}>Cập nhật</Button>
+            <Button key="submit" type="primary" onClick={() => form.submit()}>Thêm</Button>
         ]}>
             <Form
                 form={form}
                 layout="vertical"
-                initialValues={{
-                    title: selectLesson.title,
-                    description: selectLesson.description,
-                    videoUrl: selectLesson.videoUrl,
-                }}
                 onFinish={onFinish}
             >
                 <Form.Item<FieldType>
@@ -150,4 +142,4 @@ const UpdateVideoModal = ({ chapters, setChapters, open, setOpen, selectedLesson
     )
 }
 
-export default UpdateVideoModal
+export default CreateVideoModal

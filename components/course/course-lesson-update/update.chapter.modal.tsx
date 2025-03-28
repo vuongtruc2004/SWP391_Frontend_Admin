@@ -7,14 +7,13 @@ interface FieldType {
     title: string;
     description: string;
 }
-const UpdateChapterModal = ({ chapters, setChapters, selectedChapterIndex, setSelectedChapterIndex, open, setOpen, setIsSaved }: {
+const UpdateChapterModal = ({ chapters, setChapters, selectedChapterIndex, setSelectedChapterIndex, open, setOpen }: {
     chapters: ChapterRequest[],
     setChapters: Dispatch<SetStateAction<ChapterRequest[]>>,
     selectedChapterIndex: number | null,
     setSelectedChapterIndex: Dispatch<SetStateAction<number | null>>,
     open: boolean,
     setOpen: Dispatch<SetStateAction<boolean>>,
-    setIsSaved: Dispatch<SetStateAction<boolean>>
 }) => {
     if (selectedChapterIndex === null) return null;
     const [form] = Form.useForm();
@@ -25,7 +24,6 @@ const UpdateChapterModal = ({ chapters, setChapters, selectedChapterIndex, setSe
             title: values.title,
             description: values.description
         } : chapter));
-        setIsSaved(false);
         setOpen(false);
         setSelectedChapterIndex(null);
     };

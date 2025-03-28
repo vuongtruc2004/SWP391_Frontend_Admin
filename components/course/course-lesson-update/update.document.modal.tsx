@@ -1,59 +1,69 @@
 import { CloseOutlined } from "@ant-design/icons"
-import { Button, Form, FormProps, Input, message, Modal, Upload, UploadProps } from "antd"
-import TextArea from "antd/es/input/TextArea";
-import { Dispatch, SetStateAction } from "react"
+import { Button, Form, FormProps, Input, Modal } from "antd"
+import { Dispatch, SetStateAction, useState } from "react"
+import DocumentEditor from "./document.editor";
+import TurndownService from "turndown";
+import { marked } from "marked";
 
 interface FieldType {
     title: string;
-    documentContent: string;
 }
-const UpdateDocumentModal = ({ setChapters, selectedLesson, setSelectedLesson, open, setOpen, setIsSaved }: {
+const UpdateDocumentModal = ({ chapters, setChapters, open, setOpen, selectedLessonIndex, selectedChapterIndex, setSelectedChapterIndex, setSelectedLessonIndex }: {
+    chapters: ChapterRequest[],
     setChapters: Dispatch<SetStateAction<ChapterRequest[]>>,
-    selectedLesson: LessonRequest | null,
-    setSelectedLesson: Dispatch<SetStateAction<LessonRequest | null>>,
     open: boolean,
     setOpen: Dispatch<SetStateAction<boolean>>,
-    setIsSaved: Dispatch<SetStateAction<boolean>>
+    selectedLessonIndex: number | null,
+    selectedChapterIndex: number | null,
+    setSelectedLessonIndex: Dispatch<SetStateAction<number | null>>,
+    setSelectedChapterIndex: Dispatch<SetStateAction<number | null>>,
 }) => {
-    if (!selectedLesson || selectedLesson.lessonType !== 'DOCUMENT') return null;
+    const selectChapter = chapters.find((_, chapterIndex) => chapterIndex === selectedChapterIndex);
+    if (!selectChapter) {
+        return null;
+    }
+    const selectLesson = selectChapter.lessons.find((_, lessonIndex) => lessonIndex === selectedLessonIndex);
+    if (!selectLesson || selectLesson.lessonType !== 'DOCUMENT') return null;
+
     const [form] = Form.useForm();
+    const turndownService = new TurndownService();
 
-    const props: UploadProps = {
-        accept: 'video/*',
-        beforeUpload: (file) => {
-            const isVideo = file.type.startsWith('video/');
+    const [inputMarkdown, setInputMarkdown] = useState(turndownService.turndown(selectLesson.documentContent || ""));
 
-            if (!isVideo) {
-                message.error(`${file.name} không phải là 1 video!`);
-            }
+    const stripHtml = (html: string) => {
+        let doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+    }
 
-            return isVideo || Upload.LIST_IGNORE;
-        },
-        onChange: (info) => {
-            console.log(info.fileList);
-        },
+    const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+        const documentContent = await marked(stripHtml(inputMarkdown));
+        setChapters(prev => prev.map((chapter, chapterIndex) => chapterIndex === selectedChapterIndex ? ({
+            ...chapter,
+            lessons: chapter.lessons.map((lesson, lessonIndex) => lessonIndex === selectedLessonIndex ? ({
+                ...lesson,
+                title: values.title,
+                documentContent: documentContent
+            }) : lesson)
+        }) : chapter));
+        handleCancel();
     };
 
-    const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-
-    };
+    const handleCancel = () => {
+        setOpen(false);
+        setSelectedChapterIndex(null);
+        setSelectedLessonIndex(null);
+    }
 
     return (
-        <Modal title={`Cập nhật tài liệu đọc thêm`} open={open} closable={false} footer={[
-            <Button icon={<CloseOutlined />} iconPosition="start" onClick={() => {
-                setSelectedLesson(null);
-                setOpen(false);
-            }} key="cancel">Hủy</Button>,
+        <Modal width={800} title={`Cập nhật tài liệu đọc thêm`} open={open} closable={false} footer={[
+            <Button icon={<CloseOutlined />} iconPosition="start" onClick={handleCancel} key="cancel">Hủy</Button>,
 
             <Button key="submit" type="primary" onClick={() => form.submit()}>Cập nhật</Button>
         ]}>
             <Form
                 form={form}
                 layout="vertical"
-                initialValues={{
-                    title: selectedLesson.title,
-                    documentContent: selectedLesson.documentContent,
-                }}
+                initialValues={{ title: selectLesson.title }}
                 onFinish={onFinish}
             >
                 <Form.Item<FieldType>
@@ -77,13 +87,7 @@ const UpdateDocumentModal = ({ setChapters, selectedLesson, setSelectedLesson, o
                     <Input placeholder="Nhập tiêu đề video" />
                 </Form.Item>
 
-                <Form.Item<FieldType>
-                    label="Nội dung tài liệu"
-                    name="documentContent"
-                    rules={[{ required: true, message: 'Vui lòng không để trống nội dung tài liệu!' }]}
-                >
-                    <TextArea rows={4} placeholder="Nhập nội dung tài liệu" />
-                </Form.Item>
+                <DocumentEditor inputMarkdown={inputMarkdown} setInputMarkdown={setInputMarkdown} />
             </Form>
         </Modal>
     )

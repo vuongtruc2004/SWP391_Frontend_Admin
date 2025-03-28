@@ -1,28 +1,31 @@
 'use client'
-import { calculateReadingTime } from "@/helper/get.youtube.duration.helper";
-import { formatDateTime, formatToHHMMSS } from "@/utils/format";
-import { CaretRightOutlined, CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined, DeleteOutlined, EditOutlined, HistoryOutlined, PlayCircleOutlined, PlusCircleOutlined, PlusOutlined, ProfileOutlined, SaveOutlined } from "@ant-design/icons"
+import { formatDateTime } from "@/utils/format";
+import { CaretRightOutlined, DeleteOutlined, EditOutlined, HistoryOutlined, PlayCircleOutlined, PlusOutlined, ProfileOutlined, SaveOutlined } from "@ant-design/icons"
 import { Button, Collapse, CollapseProps, Divider, Popconfirm, Tooltip } from "antd"
 import { useEffect, useState } from "react"
 import UpdateChapterModal from "./update.chapter.modal";
 import UpdateVideoModal from "./update.video.modal";
 import CreateChapterModal from "./create.chapter.modal";
 import UpdateDocumentModal from "./update.document.modal";
+import CreateVideoModal from "./create.video.modal";
 
 const UpdateLessonsForm = ({ course }: { course: CourseDetailsResponse }) => {
     const [chapters, setChapters] = useState<ChapterRequest[]>([]);
     const [items, setItems] = useState<CollapseProps['items']>([]);
-    const [isSaved, setIsSaved] = useState(true);
+
     const [openCreateChapterModal, setOpenCreateChapterModal] = useState(false);
     const [openUpdateChapterModal, setOpenUpdateChapterModal] = useState(false);
+
+    const [openCreateVideoModal, setOpenCreateVideoModal] = useState(false);
     const [openUpdateVideoModal, setOpenUpdateVideoModal] = useState(false);
+
     const [openUpdateDocumentModal, setOpenUpdateDocumentModal] = useState(false);
+
     const [selectedChapterIndex, setSelectedChapterIndex] = useState<number | null>(null);
-    const [selectedLesson, setSelectedLesson] = useState<LessonRequest | null>(null);
+    const [selectedLessonIndex, setSelectedLessonIndex] = useState<number | null>(null);
 
     const handleDeleteChapter = (chapterIndex: number) => {
         setChapters(prev => prev.filter((_, i) => i !== chapterIndex));
-        setIsSaved(false);
     };
 
     const handleDeleteLesson = (lessonIndex: number, chapterIndex: number) => {
@@ -82,11 +85,11 @@ const UpdateLessonsForm = ({ course }: { course: CourseDetailsResponse }) => {
                 ),
                 children: (
                     <div>
-                        <p><span className="font-semibold mb-3">Mô tả về chương học:</span> {chapter.description}</p>
+                        <p><span className="font-semibold">Mô tả về chương học:</span> {chapter.description}</p>
                         <ul>
                             {chapter.lessons.map((lesson, lessonIndex) => {
                                 return (
-                                    <li key={lesson.lessonType + lessonIndex} className={`flex items-center justify-between gap-x-5 px-4 pt-4 ${lessonIndex < chapter.lessons.length - 1 && "border-b border-gray-300 pb-4"}`}>
+                                    <li key={lesson.lessonType + lessonIndex} className={`flex items-center justify-between gap-x-5 px-4 pt-5 ${lessonIndex < chapter.lessons.length - 1 && "border-b border-gray-300 pb-5"}`}>
                                         <div className="flex items-center gap-x-3">
                                             {lesson.lessonType === 'VIDEO' ? (
                                                 <PlayCircleOutlined className="text-xl" />
@@ -94,20 +97,14 @@ const UpdateLessonsForm = ({ course }: { course: CourseDetailsResponse }) => {
                                                 <ProfileOutlined className="text-xl" />
                                             )}
 
-                                            <div>
-                                                <p><span className="font-semibold">{lessonIndex + 1}. {lesson.lessonType === "VIDEO" ? "Video" : "Tài liệu đọc thêm"}</span> {lesson.title}</p>
-                                                {lesson.lessonType === 'VIDEO' ? (
-                                                    <p className="flex items-center gap-x-2"><ClockCircleOutlined /> {formatToHHMMSS(lesson.duration)}</p>
-                                                ) : (
-                                                    <p>{calculateReadingTime(lesson.documentContent || "")} phút đọc</p>
-                                                )}
-                                            </div>
+                                            <p><span className="font-semibold">{lessonIndex + 1}. {lesson.lessonType === "VIDEO" ? "Video" : "Tài liệu đọc thêm"}</span> {lesson.title}</p>
                                         </div>
 
                                         <div className="flex items-center gap-x-3">
                                             <Tooltip title={`Cập nhật bài giảng ${lessonIndex + 1}`} placement="bottom" >
                                                 <EditOutlined className="text-orange-500 cursor-pointer" onClick={() => {
-                                                    setSelectedLesson(lesson);
+                                                    setSelectedChapterIndex(chapterIndex);
+                                                    setSelectedLessonIndex(lessonIndex);
                                                     if (lesson.lessonType === 'VIDEO') {
                                                         setOpenUpdateVideoModal(true);
                                                     } else {
@@ -134,7 +131,14 @@ const UpdateLessonsForm = ({ course }: { course: CourseDetailsResponse }) => {
                         </ul>
 
                         <Divider variant="dashed" style={{ borderColor: '#6c757d' }} dashed>
-                            <p className="flex items-center gap-x-2 cursor-pointer text-sm"><PlusCircleOutlined /> Thêm bài giảng cho chương {chapterIndex + 1}</p>
+                            <div className="flex items-center gap-x-3">
+                                <p className="flex items-center gap-x-2 cursor-pointer text-sm hover:text-gray-500" onClick={() => {
+                                    setSelectedChapterIndex(chapterIndex);
+                                    setOpenCreateVideoModal(true);
+                                }}>Thêm video</p>
+                                <p>|</p>
+                                <p className="flex items-center gap-x-2 cursor-pointer text-sm hover:text-gray-500">Thêm tài liệu đọc thêm</p>
+                            </div>
                         </Divider>
                     </div>
                 )
@@ -154,15 +158,7 @@ const UpdateLessonsForm = ({ course }: { course: CourseDetailsResponse }) => {
                     <Button icon={<PlusOutlined />} iconPosition="start" onClick={() => setOpenCreateChapterModal(true)}>Thêm chương học</Button>
                 </div>
 
-                <div className="flex items-center gap-x-5">
-                    {isSaved ? (
-                        <p className="flex items-center gap-x-2 text-sm"><CheckCircleOutlined /> Đã lưu</p>
-                    ) : (
-                        <p className="flex items-center gap-x-2 text-sm"><CloseCircleOutlined /> Chưa lưu thay đổi</p>
-                    )}
-
-                    <p className="flex items-center gap-x-2 text-sm"><HistoryOutlined /> Cập nhật lần cuối: <strong className="text-blue-500">{formatDateTime(course.updatedAt)}</strong></p>
-                </div>
+                <p className="flex items-center gap-x-2 text-sm"><HistoryOutlined /> Cập nhật lần cuối: <strong className="text-blue-500">{formatDateTime(course.updatedAt)}</strong></p>
             </div>
 
             <Collapse expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />} items={items} />
@@ -171,7 +167,14 @@ const UpdateLessonsForm = ({ course }: { course: CourseDetailsResponse }) => {
                 open={openCreateChapterModal}
                 setOpen={setOpenCreateChapterModal}
                 setChapters={setChapters}
-                setIsSaved={setIsSaved}
+            />
+
+            <CreateVideoModal
+                open={openCreateVideoModal}
+                setOpen={setOpenCreateChapterModal}
+                setChapters={setChapters}
+                setSelectedChapterIndex={setSelectedChapterIndex}
+                selectedChapterIndex={selectedChapterIndex}
             />
 
             <UpdateChapterModal
@@ -179,27 +182,30 @@ const UpdateLessonsForm = ({ course }: { course: CourseDetailsResponse }) => {
                 setSelectedChapterIndex={setSelectedChapterIndex}
                 open={openUpdateChapterModal}
                 setOpen={setOpenUpdateChapterModal}
-                setIsSaved={setIsSaved}
                 setChapters={setChapters}
                 chapters={chapters}
             />
 
             <UpdateVideoModal
+                setSelectedChapterIndex={setSelectedChapterIndex}
+                setSelectedLessonIndex={setSelectedLessonIndex}
+                chapters={chapters}
                 open={openUpdateVideoModal}
                 setOpen={setOpenUpdateVideoModal}
-                setIsSaved={setIsSaved}
                 setChapters={setChapters}
-                setSelectedLesson={setSelectedLesson}
-                selectedLesson={selectedLesson}
+                selectedLessonIndex={selectedLessonIndex}
+                selectedChapterIndex={selectedChapterIndex}
             />
 
             <UpdateDocumentModal
+                setSelectedChapterIndex={setSelectedChapterIndex}
+                setSelectedLessonIndex={setSelectedLessonIndex}
+                chapters={chapters}
                 open={openUpdateDocumentModal}
                 setOpen={setOpenUpdateDocumentModal}
-                setIsSaved={setIsSaved}
                 setChapters={setChapters}
-                setSelectedLesson={setSelectedLesson}
-                selectedLesson={selectedLesson}
+                selectedLessonIndex={selectedLessonIndex}
+                selectedChapterIndex={selectedChapterIndex}
             />
         </div>
     )

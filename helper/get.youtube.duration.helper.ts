@@ -1,4 +1,3 @@
-
 export const YOUTUBE_API_KEY = "AIzaSyCiy4PmXGIyuabMzmmdQOGit_tfQq_UzdE";
 
 //@ts-ignore
@@ -21,7 +20,7 @@ export const parseYouTubeDuration = (duration: string): number => {
     const hours = match[1] ? parseInt(match[1]) : 0;
     const minutes = match[2] ? parseInt(match[2]) : 0;
     const seconds = match[3] ? parseInt(match[3]) : 0;
-    return (hours * 3600 + minutes * 60 + seconds) - 1;
+    return hours * 3600 + minutes * 60 + seconds;
 };
 
 export const getYouTubeDuration = async (videoId: number) => {

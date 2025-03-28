@@ -40,8 +40,8 @@ const BlogCreate = (props: IProps) => {
     const uploadImageCommand: ICommand = {
         name: "upload-file",
         keyCommand: "upload-file",
-        buttonProps: { "aria-label": "Upload File Image" },
-        icon: <span>Upload File Image</span>, // Icon hiển thị
+        buttonProps: { "aria-label": "Tải hình ảnh lên" },
+        icon: <span>Tải hình ảnh lên</span>, // Icon hiển thị
         execute: () => {
             const input = document.createElement("input");
             input.type = "file";
@@ -216,8 +216,6 @@ const BlogCreate = (props: IProps) => {
                 },
                 body: blogRequestDraft,
             })
-
-            console.log("error", saveDraftBlog);
 
             if (saveDraftBlog.status === 201) {
                 setTitle(initState);

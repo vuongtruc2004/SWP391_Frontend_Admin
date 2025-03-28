@@ -7,11 +7,10 @@ interface FieldType {
     title: string;
     description: string;
 }
-const CreateChapterModal = ({ setChapters, open, setOpen, setIsSaved }: {
+const CreateChapterModal = ({ setChapters, open, setOpen }: {
     setChapters: Dispatch<SetStateAction<ChapterRequest[]>>,
     open: boolean,
     setOpen: Dispatch<SetStateAction<boolean>>,
-    setIsSaved: Dispatch<SetStateAction<boolean>>
 }) => {
     const [form] = Form.useForm();
 
@@ -21,17 +20,17 @@ const CreateChapterModal = ({ setChapters, open, setOpen, setIsSaved }: {
             description: values.description,
             lessons: []
         }]);
-        setIsSaved(false);
-        setOpen(false);
+        handleCancel();
     };
+
+    const handleCancel = () => {
+        form.resetFields();
+        setOpen(false);
+    }
 
     return (
         <Modal title={`Tạo chương học`} open={open} closable={false} footer={[
-            <Button icon={<CloseOutlined />} iconPosition="start" onClick={() => {
-                form.resetFields();
-                setOpen(false);
-            }} key="cancel">Hủy</Button>,
-
+            <Button icon={<CloseOutlined />} iconPosition="start" onClick={handleCancel} key="cancel">Hủy</Button>,
             <Button key="submit" type="primary" onClick={() => form.submit()}>Tạo</Button>
         ]}>
             <Form
@@ -56,7 +55,6 @@ const CreateChapterModal = ({ setChapters, open, setOpen, setIsSaved }: {
                             }
                         }
                     ]}
-
                 >
                     <Input placeholder="Nhập tiêu đề chương học" />
                 </Form.Item>
