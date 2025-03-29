@@ -76,7 +76,6 @@ const CampaignTable = ({ campaignResponse }: { campaignResponse: PageDetailsResp
             key: 'campaignName',
             width: '30%',
             align: 'center',
-            sorter: (a, b) => a.campaignName.localeCompare(b.campaignName),
         },
         {
             title: 'Phần trăm giảm giá',
@@ -84,7 +83,6 @@ const CampaignTable = ({ campaignResponse }: { campaignResponse: PageDetailsResp
             key: 'discountPercentage',
             width: '15%',
             align: 'center',
-            sorter: (a, b) => a.discountPercentage - b.discountPercentage,
             render: (text, record) => {
                 return `${record.discountPercentage}%`;
             }
@@ -95,7 +93,6 @@ const CampaignTable = ({ campaignResponse }: { campaignResponse: PageDetailsResp
             key: 'discountRange',
             width: '15%',
             align: 'center',
-            sorter: (a, b) => a.discountRange.localeCompare(b.discountRange),
             render: (discountRange) => discountRange === 'ALL' ? 'Tất cả' : 'Giới hạn'
         },
         {
@@ -104,7 +101,6 @@ const CampaignTable = ({ campaignResponse }: { campaignResponse: PageDetailsResp
             key: 'startTime',
             width: '15%',
             align: 'center',
-            sorter: (a, b) => a.startTime.localeCompare(b.startTime),
             render: (startTime) => dayjs(startTime).format('DD/MM/YYYY HH:mm:ss')
         },
         {
@@ -113,7 +109,6 @@ const CampaignTable = ({ campaignResponse }: { campaignResponse: PageDetailsResp
             key: 'endTime',
             width: '15%',
             align: 'center',
-            sorter: (a, b) => a.endTime.localeCompare(b.endTime),
             render: (endTime) => dayjs(endTime).format('DD/MM/YYYY HH:mm:ss')
         },
         {

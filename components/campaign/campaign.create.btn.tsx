@@ -13,6 +13,7 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import { isNumber } from "@/helper/create.course.helper";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -33,14 +34,14 @@ const CampaignCreateBtn = () => {
     const [description, setDescription] = useState<ErrorResponse>(initState);
     const [reduceValue, setReduceValue] = useState<string>("");
     const { RangePicker } = DatePicker;
-    const [errReduceValueErr, setErrReduceValueErr] = useState("");
-    const [errReduceValueNotNum, setErrReduceValueNotNum] = useState("");
+
     const [global, setGlobal] = useState<"ALL" | "COURSES">("ALL");
     const [dates, setDates] = useState<[string | null, string | null] | null>(null);
     const router = useRouter()
     const [allCourse, setAllCourse] = useState<{ value: number, label: string }[]>([])
     const [applymentType, setApplymentType] = useState<{ error: boolean, tags: number[] }>({ error: false, tags: [] });
     const { data: session, status } = useSession();
+    const [errorPercent, setErrorPercent] = useState("");
 
     const showModal = () => {
         setIsRotated(!isRotated);
@@ -69,23 +70,27 @@ const CampaignCreateBtn = () => {
 
             const isCampaignNameValid = validCampaignName(campaigntName, setCampaigntName);
             const isDescriptionValid = validDescription(description, setDescription);
+            let isReduceValueValid = true;
 
-            if (!isCampaignNameValid || !isDescriptionValid || dates === null || urlThumbnail === "" || reduceValue === "") {
+            if (!isNumber(reduceValue || "") || reduceValue === "") {
+                setErrorPercent("Phần trăm giảm giá phải là 1 số!")
+                setLoading(false);
+                isReduceValueValid = false;
+            }
+
+            if ((Number(reduceValue) > 99 || Number(reduceValue) <= 0)) {
+                setErrorPercent("Phần trăm giảm giá phải trong khoảng từ 1% đến 99%!")
+                setLoading(false)
+                isReduceValueValid = false;
+            }
+
+            if (!isCampaignNameValid || !isDescriptionValid || dates === null || urlThumbnail === "" || !isReduceValueValid) {
                 setErrThumbnail("Ảnh không được để rỗng!")
                 if (urlThumbnail !== "") {
                     setErrThumbnail("")
                     setLoading(false);
                     return
                 }
-
-                setErrReduceValueErr("Vui lòng không để trống phần trăm giảm giá")
-                if (reduceValue !== "") {
-                    setErrReduceValueErr("")
-                    setLoading(false);
-                    return
-                }
-
-
                 setEmptyDate("Thời gian chiến dịch không được bỏ trống!")
                 if (dates) {
                     setEmptyDate("")
@@ -95,16 +100,6 @@ const CampaignCreateBtn = () => {
                 setLoading(false);
                 return
             }
-
-            if (errReduceValueNotNum === "") {
-                setErrReduceValueNotNum("Phần trăm giảm giá phải là số!")
-                if (errReduceValueNotNum !== "") {
-                    setErrReduceValueNotNum("")
-                    setLoading(false);
-                    return
-                }
-            }
-
 
 
             if (campaigntName.value.split(/\s+/).length > 100) {
@@ -127,21 +122,10 @@ const CampaignCreateBtn = () => {
                 return
             }
 
-
             if (global !== 'ALL' && applymentType.tags.length === 0) {
                 setApplymentType(prev => ({ ...prev, error: true }))
                 setLoading(false)
                 return;
-            }
-
-            if (reduceValue !== "" && (Number(reduceValue) <= 0 || Number(reduceValue) > 99)) {
-                setLoading(false);
-                return;
-            }
-
-            if (isNaN(Number(reduceValue))) {
-                setLoading(false);
-                return
             }
 
             const campaignRequest: CampaignRequest = {
@@ -204,8 +188,7 @@ const CampaignCreateBtn = () => {
         setDates(null);
         setApplymentType({ error: false, tags: [] })
         setGlobal("ALL")
-        setErrReduceValueErr("")
-        setErrReduceValueNotNum("")
+        setErrorPercent("")
     };
 
     const handleUploadFile = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -335,37 +318,20 @@ const CampaignCreateBtn = () => {
                     <Row gutter={24} className="mb-2">
                         <span className="text-red-500 mr-2">*</span>Phần trăm giảm giá:
                         <Input
-                            className={`${errReduceValueErr !== "" ? "!border-red-500 w-full mt-1" : "mt-1 w-full"}`}
+                            status={errorPercent !== "" ? 'error' : ''}
+                            className="mt-1"
                             placeholder="Nhập phần trăm giảm giá"
                             value={reduceValue}
                             suffix={'%'}
-                            onChange={(e) => {
-                                setReduceValue(e.target.value);
-                            }}
+                            onChange={(e) => { setReduceValue(e.target.value) }}
                         />
 
-                        {(reduceValue !== undefined && reduceValue !== "" && (Number(reduceValue) <= 0 || Number(reduceValue) > 99)) && (
+                        {errorPercent !== "" && (
                             <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                 <WarningOutlined />
-                                Phần trăm giảm giá phải trong khoảng từ 1% đến 99%
+                                {errorPercent}
                             </p>
                         )}
-
-
-                        {(errReduceValueErr !== "" && reduceValue === "") && (
-                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                <WarningOutlined />
-                                {errReduceValueErr}
-                            </p>
-                        )}
-
-                        {(errReduceValueNotNum !== "" && reduceValue === "") && (
-                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
-                                <WarningOutlined />
-                                {errReduceValueNotNum}
-                            </p>
-                        )}
-
 
                     </Row>
 
