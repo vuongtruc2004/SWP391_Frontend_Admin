@@ -323,10 +323,10 @@ const UpdateCampaignForm = ({ editingCamnpaign, setEditingCamnpaign, openEditFor
                             })
                         }}
                     />
-                    {(Number(reduceValue?.value) > 99 || Number(reduceValue?.value) < 0) && (
+                    {(Number(reduceValue?.value) > 99 || Number(reduceValue?.value) <= 0) && (
                         <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                             <WarningOutlined />
-                            Phần trăm giảm giá phải trong khoảng từ 0% đến 99%
+                            Phần trăm giảm giá phải trong khoảng từ 1% đến 99%
                         </p>
                     )}
 

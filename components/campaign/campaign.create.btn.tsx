@@ -3,13 +3,13 @@
 import { validCampaignName, validDescription, validReduceValue } from "@/helper/create.campaign.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl, storageUrl } from "@/utils/url";
-import { EyeOutlined, PlusOutlined, UploadOutlined, WarningOutlined } from "@ant-design/icons";
+import { EyeOutlined, PlusOutlined, SyncOutlined, UploadOutlined, WarningOutlined } from "@ant-design/icons";
 import { Avatar, Button, Col, DatePicker, Image, Input, Modal, notification, Row, Select, Spin, Tooltip } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -29,16 +29,17 @@ const CampaignCreateBtn = () => {
     const [errThumbnail, setErrThumbnail] = useState("");
     const [urlThumbnail, setUrlThumbnail] = useState("");
     const [loading, setLoading] = useState(false);
-    const [campaignName, setCampaignName] = useState<ErrorResponse>(initState);
+    const [campaigntName, setCampaigntName] = useState<ErrorResponse>(initState);
     const [description, setDescription] = useState<ErrorResponse>(initState);
-    const [reduceValue, setReduceValue] = useState<ErrorResponse>(initState);
+    const [reduceValue, setReduceValue] = useState<string>("");
     const { RangePicker } = DatePicker;
-
+    const [errReduceValueErr, setErrReduceValueErr] = useState("");
+    const [errReduceValueNotNum, setErrReduceValueNotNum] = useState("");
     const [global, setGlobal] = useState<"ALL" | "COURSES">("ALL");
     const [dates, setDates] = useState<[string | null, string | null] | null>(null);
     const router = useRouter()
     const [allCourse, setAllCourse] = useState<{ value: number, label: string }[]>([])
-    const [applyType, setApplyType] = useState<{ error: boolean, tags: number[] }>({ error: false, tags: [] });
+    const [applymentType, setApplymentType] = useState<{ error: boolean, tags: number[] }>({ error: false, tags: [] });
     const { data: session, status } = useSession();
 
     const showModal = () => {
@@ -66,17 +67,25 @@ const CampaignCreateBtn = () => {
 
         setTimeout(async () => {
 
-            const isCampaignNameValid = validCampaignName(campaignName, setCampaignName);
-            const isReduceValueValid = validReduceValue(reduceValue, setReduceValue);
+            const isCampaignNameValid = validCampaignName(campaigntName, setCampaigntName);
             const isDescriptionValid = validDescription(description, setDescription);
 
-            if (!isCampaignNameValid || !isDescriptionValid || !isReduceValueValid || dates === null || urlThumbnail === "") {
+            if (!isCampaignNameValid || !isDescriptionValid || dates === null || urlThumbnail === "" || reduceValue === "") {
                 setErrThumbnail("Ảnh không được để rỗng!")
                 if (urlThumbnail !== "") {
                     setErrThumbnail("")
                     setLoading(false);
                     return
                 }
+
+                setErrReduceValueErr("Vui lòng không để trống phần trăm giảm giá")
+                if (reduceValue !== "") {
+                    setErrReduceValueErr("")
+                    setLoading(false);
+                    return
+                }
+
+
                 setEmptyDate("Thời gian chiến dịch không được bỏ trống!")
                 if (dates) {
                     setEmptyDate("")
@@ -87,8 +96,18 @@ const CampaignCreateBtn = () => {
                 return
             }
 
+            if (errReduceValueNotNum === "") {
+                setErrReduceValueNotNum("Phần trăm giảm giá phải là số!")
+                if (errReduceValueNotNum !== "") {
+                    setErrReduceValueNotNum("")
+                    setLoading(false);
+                    return
+                }
+            }
 
-            if (campaignName.value.split(/\s+/).length > 100) {
+
+
+            if (campaigntName.value.split(/\s+/).length > 100) {
                 notification.error({
                     message: "Thất bại",
                     description: "Tên chiến dịch không được quá 100 từ!",
@@ -108,29 +127,35 @@ const CampaignCreateBtn = () => {
                 return
             }
 
-            if (global !== 'ALL' && applyType.tags.length === 0) {
-                setApplyType(prev => ({ ...prev, error: true }))
+
+            if (global !== 'ALL' && applymentType.tags.length === 0) {
+                setApplymentType(prev => ({ ...prev, error: true }))
                 setLoading(false)
                 return;
             }
 
-            if ((Number(reduceValue?.value) > 99 || Number(reduceValue?.value) < 0)) {
-                setLoading(false)
+            if (reduceValue !== "" && (Number(reduceValue) <= 0 || Number(reduceValue) > 99)) {
+                setLoading(false);
                 return;
+            }
+
+            if (isNaN(Number(reduceValue))) {
+                setLoading(false);
+                return
             }
 
             const campaignRequest: CampaignRequest = {
-                campaignName: campaignName.value.trim(),
+                campaignName: campaigntName.value.trim(),
                 campaignDescription: description.value.trim(),
                 thumbnailUrl: urlThumbnail,
                 discountRange: global,
                 startTime: dates[0]!,
                 endTime: dates[1]!,
-                discountPercentage: Number(reduceValue.value)
+                discountPercentage: Number(reduceValue)
             }
 
             if (global !== "ALL") {
-                campaignRequest.courseIds = applyType.tags
+                campaignRequest.courseIds = applymentType.tags
             }
 
             if (dates && dates[1] && dayjs(dates[1]).isSameOrBefore(dayjs())) {
@@ -169,16 +194,18 @@ const CampaignCreateBtn = () => {
     };
 
     const handleCancel = () => {
-        setCampaignName(initState);
+        setCampaigntName(initState);
         setDescription(initState);
-        setReduceValue(initState);
+        setReduceValue("");
         setIsModalOpen(false);
         setErrThumbnail("");
         setUrlThumbnail("");
         setEmptyDate("");
         setDates(null);
-        setApplyType({ error: false, tags: [] })
+        setApplymentType({ error: false, tags: [] })
         setGlobal("ALL")
+        setErrReduceValueErr("")
+        setErrReduceValueNotNum("")
     };
 
     const handleUploadFile = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -207,6 +234,7 @@ const CampaignCreateBtn = () => {
     }
 
     useEffect(() => {
+
         const getDataUser = async () => {
             const dataRes = await sendRequest<ApiResponse<CourseResponse[]>>({
                 url: `${apiUrl}/courses/all-notin-campaign`,
@@ -256,14 +284,14 @@ const CampaignCreateBtn = () => {
                     <Row gutter={24} className="mb-2">
                         <span className="text-red-500 mr-2">*</span>Tên chiến dịch:
                         <Input
-                            status={campaignName.error ? 'error' : ''}
+                            status={campaigntName.error ? 'error' : ''}
                             className="mt-1"
                             placeholder="Nhập tên chiến dịch"
                             allowClear
-                            value={campaignName.value}
+                            value={campaigntName.value}
                             onChange={(e) => {
-                                setCampaignName({
-                                    ...campaignName,
+                                setCampaigntName({
+                                    ...campaigntName,
                                     value: e.target.value,
                                     error: false
                                 })
@@ -271,10 +299,10 @@ const CampaignCreateBtn = () => {
                             }}
 
                         />
-                        {campaignName.error && (
+                        {campaigntName.error && (
                             <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                 <WarningOutlined />
-                                {campaignName.message}
+                                {campaigntName.message}
                             </p>
                         )}
                     </Row>
@@ -307,26 +335,38 @@ const CampaignCreateBtn = () => {
                     <Row gutter={24} className="mb-2">
                         <span className="text-red-500 mr-2">*</span>Phần trăm giảm giá:
                         <Input
-                            status={reduceValue.error ? 'error' : ''}
-                            className="mt-1"
+                            className={`${errReduceValueErr !== "" ? "!border-red-500 w-full mt-1" : "mt-1 w-full"}`}
                             placeholder="Nhập phần trăm giảm giá"
-                            value={reduceValue.value}
+                            value={reduceValue}
                             suffix={'%'}
                             onChange={(e) => {
-                                setReduceValue({
-                                    ...reduceValue,
-                                    value: e.target.value,
-                                    error: false
-                                })
+                                setReduceValue(e.target.value);
                             }}
                         />
 
-                        {(Number(reduceValue?.value) > 99 || Number(reduceValue?.value) < 0) && (
+                        {(reduceValue !== undefined && reduceValue !== "" && (Number(reduceValue) <= 0 || Number(reduceValue) > 99)) && (
                             <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                 <WarningOutlined />
-                                Phần trăm giảm giá phải trong khoảng từ 0% đến 99%
+                                Phần trăm giảm giá phải trong khoảng từ 1% đến 99%
                             </p>
                         )}
+
+
+                        {(errReduceValueErr !== "" && reduceValue === "") && (
+                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                <WarningOutlined />
+                                {errReduceValueErr}
+                            </p>
+                        )}
+
+                        {(errReduceValueNotNum !== "" && reduceValue === "") && (
+                            <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
+                                <WarningOutlined />
+                                {errReduceValueNotNum}
+                            </p>
+                        )}
+
+
                     </Row>
 
                     <Row gutter={24} className="mb-2">
@@ -341,6 +381,7 @@ const CampaignCreateBtn = () => {
                             />
                         </Col>
 
+
                         {emptyDate !== "" && !dates && (
                             <p className='text-red-500 text-sm ml-2 flex items-center gap-x-1'>
                                 <WarningOutlined />
@@ -354,7 +395,9 @@ const CampaignCreateBtn = () => {
                                 Không được để thời gian kết thúc bé hơn thời gian hiện tại
                             </p>
                         )}
+
                     </Row>
+
 
                     <Row gutter={24} className="mb-2">
                         <Col span={24} className="!p-0">
@@ -376,13 +419,13 @@ const CampaignCreateBtn = () => {
                             <Col span={24}>
                                 <p><span className='text-red-600 mr-2'>*</span>Khóa học:</p>
                                 <Select
-                                    className={`${applyType.error && applyType.tags.length === 0 ? "!border-red-600 !border !rounded-md" : ""}`}
-                                    value={applyType.tags.map(String)}
+                                    className={`${applymentType.error && applymentType.tags.length === 0 ? "!border-red-600 !border !rounded-md" : ""}`}
+                                    value={applymentType.tags.map(String)}
                                     mode="tags"
                                     style={{ width: "100%" }}
                                     placeholder="Nhập tên khóa học"
-                                    onChange={(value) => setApplyType({
-                                        ...applyType,
+                                    onChange={(value) => setApplymentType({
+                                        ...applymentType,
                                         tags: value.map(Number),
                                     })}
                                     filterOption={(input, option) =>
@@ -393,7 +436,7 @@ const CampaignCreateBtn = () => {
                                         value: String(course.value),
                                         label: course.label,
                                     }))} />
-                                {applyType.error === true && applyType.tags.length === 0 && (
+                                {applymentType.error === true && applymentType.tags.length === 0 && (
                                     <p className="text-red-600 text-sm ml-2 flex items-center gap-x-1">
                                         <WarningOutlined />
                                         Vui lòng thêm khóa học áp dụng chiến dịch
