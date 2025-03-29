@@ -1,9 +1,11 @@
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import PurchaserSearch from "@/components/purchaser/purchaser.search";
 import PurchaserTable from "@/components/purchaser/purchaser.table";
 import { getAccountType, getGender, getLocked } from "@/helper/create.user.helper";
 import { isFullNumber } from "@/helper/subject.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
+import { getServerSession } from "next-auth";
 
 const PurchaserPage = async ({ params, searchParams }: {
     params: { courseId: number };
@@ -15,7 +17,8 @@ const PurchaserPage = async ({ params, searchParams }: {
         accountType?: string
     };
 }) => {
-    const courseId = params.courseId; // Lấy courseId từ URL
+    const session = await getServerSession(authOptions);
+    const courseId = params.courseId;
     const keyword = searchParams.keyword || '';
     const page = searchParams.page || '1';
     const locked = getLocked(searchParams.locked);
@@ -44,6 +47,9 @@ const PurchaserPage = async ({ params, searchParams }: {
     }
     const userResponse = await sendRequest<ApiResponse<PageDetailsResponse<UserResponse[]>>>({
         url: `${apiUrl}/users/course/${courseId}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
         queryParams: {
             page: page,
             size: 10,

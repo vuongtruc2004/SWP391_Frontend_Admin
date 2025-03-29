@@ -32,6 +32,11 @@ const QuizUpdateForm = ({ quizId }: {
 
         hasError = !hasCorrectAnswer
 
+        if (values.title.trim().split(/\s+/).length > 100) {
+            form.setFields([{ name: 'title', errors: ["Tiêu đề không được vượt quá 100 từ!"] }]);
+            return;
+        }
+
         const updatedQuestions = createQuestions.map(q => {
             if (q.title.trim() === "") {
                 hasError = true;
@@ -211,10 +216,7 @@ const QuizUpdateForm = ({ quizId }: {
                     label="Tiêu đề"
                     name='title'
 
-                    rules={[{ required: true, message: 'Vui lòng không để trống tiêu đề!' },
-                    { max: 40, message: "Tiêu đề bài kiểm tra không được vượt quá 40 kí tự!" }
-
-                    ]}
+                    rules={[{ required: true, message: 'Vui lòng không để trống tiêu đề!' }]}
                 >
                     <Input placeholder='Nhập tiêu đề bài kiểm tra' />
                 </Form.Item>

@@ -52,12 +52,11 @@ const QuestionTable = (props: { questionPageResponse: PageDetailsResponse<Questi
         } else {
             notification.error({
                 message: "Thất Bại",
-                description: "Không tìm thấy câu hỏi!",
+                description: deleteResponse.message.toString(),
                 showProgress: true
             })
         }
     }
-
 
     const columns: TableProps<QuestionResponse>['columns'] = [
         {

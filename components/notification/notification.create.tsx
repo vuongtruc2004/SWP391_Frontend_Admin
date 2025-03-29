@@ -1,7 +1,7 @@
 import { validContent, validDateSet, validTitle } from "@/helper/create.blog.helper";
 import { sendRequest } from "@/utils/fetch.api";
 import { apiUrl } from "@/utils/url";
-import { LoadingOutlined, WarningOutlined } from "@ant-design/icons";
+import { WarningOutlined } from "@ant-design/icons";
 import { DatePicker, DatePickerProps, Form, Input, Modal, notification, Select, Spin } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useRouter } from "next/navigation";
@@ -21,16 +21,16 @@ const NotificationCreate = (props: {
     const [title, setTitle] = useState<ErrorResponse>(initState);
     const [content, setContent] = useState<ErrorResponse>(initState);
     const [global, setGlobal] = useState(true);
-    const [status, setstatus] = useState("SENT");
+    const [status, setStatus] = useState("SENT");
     const [dateSet, setDateSet] = useState<ErrorResponse>(initState);
     const [receiver, setReceiver] = useState<{ error: boolean, tags: string[] }>({ error: false, tags: [] });
-    const [userOption, setUserOption] = useState<{ value: string, label: string }[]>([]);
+    const [userOption, setUserOption] = useState<{ key: number, value: string, label: string }[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const { data: session } = useSession();
     const router = useRouter();
 
     const handleOnChangeStatus = (value: string) => {
-        setstatus(value);
+        setStatus(value);
     }
 
     const handleOnChangeSelect = (value: boolean) => {
@@ -64,13 +64,13 @@ const NotificationCreate = (props: {
                 },
             });
 
-            const users = Array.isArray(dataRes?.data) ? dataRes.data.map((user: UserResponse) => ({
-                key: user.userId,
-                value: user.userId.toString(),
-                label: user.email,
-            })) : [];
-
-            setUserOption(users);
+            if (dataRes.status === 200) {
+                setUserOption(dataRes.data.map(user => ({
+                    key: user.userId,
+                    label: user.email,
+                    value: user.userId.toString()
+                })));
+            }
         };
 
         getDataUser();
@@ -167,7 +167,7 @@ const NotificationCreate = (props: {
         setTitle(initState);
         setGlobal(true);
         setReceiver({ error: false, tags: [] });
-        setstatus("SENT");
+        setStatus("SENT");
         setOpenCreate(false);
     }
 
@@ -177,15 +177,13 @@ const NotificationCreate = (props: {
             setContent(initState);
             setGlobal(true);
             setReceiver({ error: false, tags: [] });
-            setstatus("SENT");
+            setStatus("SENT");
         }
     }, [openCreate]);
 
-
-
     return (
         <>
-            <Modal title="Tạo thông báo" open={openCreate} onOk={handleOnOk} onCancel={handleOnCancel}>
+            <Modal title="Tạo thông báo" open={openCreate} onOk={handleOnOk} onCancel={handleOnCancel} okText="Tạo" cancelText="Hủy">
                 <Spin size="large" spinning={loading}>
                     <Form>
                         <div>

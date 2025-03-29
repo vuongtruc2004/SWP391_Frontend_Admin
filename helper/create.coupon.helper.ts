@@ -84,11 +84,11 @@ export const isValidCouponDescription = (couponDescription: ErrorResponse, setCo
         })
         return false;
     }
-    if (couponDescription.value.trim().split(/\s+/).length > 20) {
+    if (couponDescription.value.trim().split(/\s+/).length > 40) {
         setCouponDescription({
             ...couponDescription,
             error: true,
-            message: 'Mô tả coupon không được dài hơn 20 từ!'
+            message: 'Mô tả coupon không được dài hơn 40 từ!'
         })
         return false;
     }
