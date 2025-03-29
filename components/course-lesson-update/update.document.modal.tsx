@@ -1,36 +1,34 @@
 import { CloseOutlined } from "@ant-design/icons"
-import { Button, Form, FormProps, Input, Modal } from "antd"
-import { Dispatch, SetStateAction, useState } from "react"
+import { Button, Form, FormProps, Input, message, Modal } from "antd"
+import { Dispatch, SetStateAction, useEffect, useState } from "react"
 import DocumentEditor from "./document.editor";
 import TurndownService from "turndown";
 import { marked } from "marked";
 import { calculateReadingTime } from "@/helper/update.lesson.helper";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { sendRequest } from "@/utils/fetch.api";
+import { apiUrl } from "@/utils/url";
 
 interface FieldType {
     title: string;
 }
-const UpdateDocumentModal = ({ chapters, setChapters, open, setOpen, selectedLessonIndex, selectedChapterIndex, setSelectedChapterIndex, setSelectedLessonIndex }: {
-    chapters: ChapterRequest[],
-    setChapters: Dispatch<SetStateAction<ChapterRequest[]>>,
+const UpdateDocumentModal = ({ open, setOpen, selectedChapter, setSelectedChapter, selectLesson, setSelectLesson }: {
     open: boolean,
     setOpen: Dispatch<SetStateAction<boolean>>,
-    selectedLessonIndex: number | null,
-    selectedChapterIndex: number | null,
-    setSelectedLessonIndex: Dispatch<SetStateAction<number | null>>,
-    setSelectedChapterIndex: Dispatch<SetStateAction<number | null>>,
+    selectedChapter: ChapterResponse | null,
+    setSelectedChapter: Dispatch<SetStateAction<ChapterResponse | null>>,
+    selectLesson: LessonResponse | null,
+    setSelectLesson: Dispatch<SetStateAction<LessonResponse | null>>,
 }) => {
-    const selectChapter = chapters.find((_, chapterIndex) => chapterIndex === selectedChapterIndex);
-    if (!selectChapter) {
-        return null;
-    }
-    const selectLesson = selectChapter.lessons.find((_, lessonIndex) => lessonIndex === selectedLessonIndex);
-    if (!selectLesson || selectLesson.lessonType !== 'DOCUMENT') return null;
-
+    const { data: session, status } = useSession();
+    const { refresh } = useRouter();
     const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
     const turndownService = new TurndownService();
 
     const [errorMessage, setErrorMessage] = useState("");
-    const [inputMarkdown, setInputMarkdown] = useState(turndownService.turndown(selectLesson.documentContent || ""));
+    const [inputMarkdown, setInputMarkdown] = useState(turndownService.turndown(selectLesson?.documentContent || ""));
 
     const stripHtml = (html: string) => {
         let doc = new DOMParser().parseFromString(html, 'text/html');
@@ -38,43 +36,69 @@ const UpdateDocumentModal = ({ chapters, setChapters, open, setOpen, selectedLes
     }
 
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+        setLoading(true);
         const documentContent = await marked(stripHtml(inputMarkdown));
         if (documentContent.trim() === "") {
             setErrorMessage("Vui lòng không để trống nội dung tài liệu!");
-            return;
+        } else {
+            if (status === 'authenticated') {
+                const request: LessonRequest = {
+                    lessonId: selectLesson?.lessonId || 0,
+                    title: values.title,
+                    description: null,
+                    videoUrl: null,
+                    lessonType: 'DOCUMENT',
+                    duration: calculateReadingTime(documentContent),
+                    documentContent: documentContent,
+                    chapterId: selectedChapter?.chapterId || 0
+                }
+                const response = await sendRequest<ApiResponse<void>>({
+                    url: `${apiUrl}/lessons`,
+                    method: 'PUT',
+                    headers: {
+                        Authorization: `Bearer ${session.accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: request
+                });
+
+                if (response.status === 201) {
+                    message.success(response.message.toString());
+                    refresh();
+                    handleCancel();
+                } else {
+                    message.error(response.message.toString());
+                }
+            }
         }
-
-        console.log(">>> check duraion:", calculateReadingTime(documentContent));
-
-        setChapters(prev => prev.map((chapter, chapterIndex) => chapterIndex === selectedChapterIndex ? ({
-            ...chapter,
-            lessons: chapter.lessons.map((lesson, lessonIndex) => lessonIndex === selectedLessonIndex ? ({
-                ...lesson,
-                title: values.title,
-                documentContent: documentContent,
-                duration: calculateReadingTime(documentContent)
-            }) : lesson)
-        }) : chapter));
-        handleCancel();
+        setLoading(false);
     };
 
     const handleCancel = () => {
         setOpen(false);
         setErrorMessage("");
-        setSelectedChapterIndex(null);
-        setSelectedLessonIndex(null);
+        setSelectLesson(null);
+        setSelectedChapter(null);
     }
+
+    useEffect(() => {
+        if (selectLesson) {
+            form.setFieldsValue({
+                title: selectLesson.title,
+            })
+        }
+    }, [selectLesson]);
+
+    if (!selectedChapter || !selectLesson) return null;
 
     return (
         <Modal width={800} title={`Cập nhật tài liệu đọc thêm`} open={open} closable={false} footer={[
-            <Button icon={<CloseOutlined />} iconPosition="start" onClick={handleCancel} key="cancel">Hủy</Button>,
-
-            <Button key="submit" type="primary" onClick={() => form.submit()}>Cập nhật</Button>
+            <Button icon={<CloseOutlined />} iconPosition="start" onClick={handleCancel} key="cancel" disabled={loading}>Hủy</Button>,
+            <Button key="submit" type="primary" onClick={() => form.submit()} loading={loading}>Cập nhật</Button>
         ]}>
             <Form
                 form={form}
                 layout="vertical"
-                initialValues={{ title: selectLesson.title }}
                 onFinish={onFinish}
             >
                 <Form.Item<FieldType>
@@ -89,8 +113,7 @@ const UpdateDocumentModal = ({ chapters, setChapters, open, setOpen, selectedLes
                                     if (wordCount > 20) {
                                         return Promise.reject(new Error('Tiêu đề chỉ được tối đa 20 từ!'));
                                     }
-                                    const currentChapter = chapters.find((_, index) => index === selectedChapterIndex);
-                                    if (currentChapter && currentChapter.lessons.find((lesson, index) => lesson.title.toLowerCase().trim() === value.toLowerCase().trim() && lesson.lessonType === 'DOCUMENT' && index !== selectedLessonIndex)) {
+                                    if (selectedChapter && selectedChapter.lessons.find(lesson => lesson.title.toLowerCase().trim() === value.toLowerCase().trim() && lesson.lessonType === 'DOCUMENT' && lesson.lessonId !== selectLesson.lessonId)) {
                                         return Promise.reject(new Error('Tiều đề đã tồn tại ở một tài liệu trong chương này!'));
                                     }
                                 }

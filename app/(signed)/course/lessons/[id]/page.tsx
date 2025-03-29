@@ -19,23 +19,12 @@ const CourseDetailsPage = async ({ params }: { params: Promise<{ id: string }> }
         }
     });
 
-    const quizResponse = await sendRequest<ApiResponse<QuizInfoResponse[]>>({
-        url: `${apiUrl}/quizzes/expert`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
-    });
-
     if (courseResponse.status !== 200) {
         throw new Error(courseResponse.message.toString());
     }
 
-    if (quizResponse.status !== 200) {
-        throw new Error(quizResponse.message.toString());
-    }
-
     return (
-        <UpdateLessonsForm course={courseResponse.data} quizzes={quizResponse.data} />
+        <UpdateLessonsForm course={courseResponse.data} />
     )
 }
 

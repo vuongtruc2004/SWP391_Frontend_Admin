@@ -1,30 +1,59 @@
+import { sendRequest } from "@/utils/fetch.api";
+import { apiUrl } from "@/utils/url";
 import { CloseOutlined } from "@ant-design/icons"
-import { Button, Form, FormProps, Input, Modal } from "antd"
+import { Button, Form, FormProps, Input, message, Modal } from "antd"
 import TextArea from "antd/es/input/TextArea";
-import { Dispatch, RefObject, SetStateAction } from "react"
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Dispatch, RefObject, SetStateAction, useState } from "react"
 
 interface FieldType {
     title: string;
     description: string;
 }
-const CreateChapterModal = ({ chapters, setChapters, open, setOpen, bottomRef }: {
-    chapters: ChapterRequest[],
-    setChapters: Dispatch<SetStateAction<ChapterRequest[]>>,
+const CreateChapterModal = ({ chapters, open, setOpen, bottomRef, course }: {
+    chapters: ChapterResponse[],
     open: boolean,
     setOpen: Dispatch<SetStateAction<boolean>>,
-    bottomRef: RefObject<HTMLDivElement | null>
+    bottomRef: RefObject<HTMLDivElement | null>,
+    course: CourseDetailsResponse
 }) => {
+    const { data: session, status } = useSession();
+    const [loading, setLoading] = useState(false);
+    const { refresh } = useRouter();
     const [form] = Form.useForm();
 
-    const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-        setChapters(prev => [...prev, {
-            title: values.title,
-            description: values.description,
-            lessons: [],
-            quizInfo: null
-        }]);
-        handleCancel();
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+        if (status === 'authenticated') {
+            setLoading(true);
+            const request: ChapterRequest = {
+                chapterId: null,
+                title: values.title,
+                description: values.description,
+                courseId: course.courseId,
+                lessons: [],
+                quizInfo: null
+            }
+            const response = await sendRequest<ApiResponse<void>>({
+                url: `${apiUrl}/chapters`,
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${session.accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: request
+            });
+
+            setLoading(false);
+            if (response.status === 201) {
+                message.success(response.message.toString());
+                refresh();
+                handleCancel();
+                bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                message.error(response.message.toString());
+            }
+        }
     };
 
     const handleCancel = () => {
@@ -34,8 +63,8 @@ const CreateChapterModal = ({ chapters, setChapters, open, setOpen, bottomRef }:
 
     return (
         <Modal title={`Thêm chương học`} open={open} closable={false} footer={[
-            <Button icon={<CloseOutlined />} iconPosition="start" onClick={handleCancel} key="cancel">Hủy</Button>,
-            <Button key="submit" type="primary" onClick={() => form.submit()}>Thêm</Button>
+            <Button icon={<CloseOutlined />} iconPosition="start" onClick={handleCancel} key="cancel" disabled={loading}>Hủy</Button>,
+            <Button key="submit" type="primary" onClick={() => form.submit()} loading={loading}>Thêm</Button>
         ]}>
             <Form
                 form={form}

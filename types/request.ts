@@ -140,10 +140,12 @@ declare global {
         chapters: ChapterRequest[];
     }
     interface ChapterRequest {
+        chapterId: number | null;
         title: string;
         description: string;
         lessons: LessonRequest[];
         quizInfo: QuizInfoRequest | null;
+        courseId: number;
     }
 
     interface QuizInfoRequest {
@@ -153,12 +155,14 @@ declare global {
     }
 
     interface LessonRequest {
+        lessonId: number | null;
         title: string;
         description: string | null;
         lessonType: "VIDEO" | "DOCUMENT";
         videoUrl: string | null;
         documentContent: string | null;
         duration: number;
+        chapterId: number;
     }
 
     interface CampaignRequest {

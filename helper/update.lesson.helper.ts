@@ -1,3 +1,4 @@
+import { storageUrl } from "@/utils/url";
 import { isValidYouTubeUrl } from "./create.course.helper";
 import { sendRequest } from "@/utils/fetch.api";
 
@@ -5,7 +6,7 @@ export const getVideoDurationFromLocalhostLink = (link: string): Promise<number>
     return new Promise((resolve) => {
         const video = document.createElement("video");
         video.preload = "metadata";
-        video.src = link;
+        video.src = `${storageUrl}/lesson/${link}`;
 
         video.onloadedmetadata = () => {
             resolve(Math.round(video.duration));
@@ -56,3 +57,14 @@ export const getVideoDurationFromYoutubeLink = async (link: string): Promise<num
     }
     return 0;
 };
+
+export const getVideoDuration = async (link: string): Promise<number> => {
+    let duration = 0;
+    if (link.startsWith("https://youtu")) {
+        duration = await getVideoDurationFromYoutubeLink(link);
+    }
+    if (duration === 0) {
+        duration = await getVideoDurationFromLocalhostLink(link);
+    }
+    return duration;
+}

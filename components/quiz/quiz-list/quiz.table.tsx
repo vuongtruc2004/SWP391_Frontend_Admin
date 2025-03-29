@@ -153,7 +153,7 @@ const QuizTable = (props: {
     const publishedQuiz = async (quizId: number) => {
         const deleteResponse = await sendRequest<ApiResponse<Boolean>>({
             url: `${apiUrl}/quizzes/${quizId}`,
-            method: 'DELETE',
+            method: 'PATCH',
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }

@@ -1,28 +1,29 @@
-import { getVideoDurationFromLocalhostLink, getVideoDurationFromYoutubeLink } from "@/helper/update.lesson.helper";
+import { getVideoDuration } from "@/helper/update.lesson.helper";
 import { sendRequest } from "@/utils/fetch.api";
-import { apiUrl, storageUrl } from "@/utils/url";
+import { apiUrl } from "@/utils/url";
 import { CloseOutlined, UploadOutlined } from "@ant-design/icons"
 import { Button, Divider, Form, FormProps, Input, message, Modal, Upload, UploadProps } from "antd"
 import TextArea from "antd/es/input/TextArea";
 import { RcFile } from "antd/es/upload";
-import { Dispatch, SetStateAction } from "react"
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Dispatch, SetStateAction, useState } from "react"
 
 interface FieldType {
     title: string;
     description: string;
     videoUrl: string;
-    duration: number;
 }
-const CreateVideoModal = ({ chapters, setChapters, open, setOpen, selectedChapterIndex, setSelectedChapterIndex }: {
-    chapters: ChapterRequest[],
-    setChapters: Dispatch<SetStateAction<ChapterRequest[]>>,
+const CreateVideoModal = ({ open, setOpen, selectedChapter, setSelectedChapter }: {
     open: boolean,
     setOpen: Dispatch<SetStateAction<boolean>>,
-    selectedChapterIndex: number | null,
-    setSelectedChapterIndex: Dispatch<SetStateAction<number | null>>,
+    selectedChapter: ChapterResponse | null,
+    setSelectedChapter: Dispatch<SetStateAction<ChapterResponse | null>>,
 }) => {
-    if (selectedChapterIndex === null) return null;
+    const { data: session, status } = useSession();
+    const { refresh } = useRouter();
     const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
 
     const props: UploadProps = {
         accept: "video/*",
@@ -55,56 +56,64 @@ const CreateVideoModal = ({ chapters, setChapters, open, setOpen, selectedChapte
         onChange: (info) => {
             if (info.file.status === "done") {
                 form.setFieldsValue({ videoUrl: info.file.response });
-                handleChangeVideoUrl(`${storageUrl}/lesson/${info.file.response}`);
             }
         },
         onRemove: () => {
             form.setFieldsValue({ videoUrl: "" });
-            form.setFieldsValue({ duration: 0 });
         }
     };
 
-    const handleChangeVideoUrl = async (link: string) => {
-        let duration = 0;
-        if (link.startsWith("https://youtu")) {
-            duration = await getVideoDurationFromYoutubeLink(link);
-        }
-        if (duration === 0) {
-            duration = await getVideoDurationFromLocalhostLink(link);
-        }
-        form.setFieldsValue({ duration: duration });
-    }
-
-    const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-        setChapters(prev => prev.map((chapter, chapterIndex) =>
-            chapterIndex === selectedChapterIndex
-                ? {
-                    ...chapter,
-                    lessons: [...chapter.lessons, {
-                        title: values.title,
-                        description: values.description,
-                        lessonType: "VIDEO",
-                        videoUrl: values.videoUrl,
-                        documentContent: null,
-                        duration: values.duration
-                    }]
+    const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+        if (status === 'authenticated') {
+            setLoading(true);
+            const duration = await getVideoDuration(values.videoUrl);
+            if (!duration) {
+                message.error("Không thể lấy được thời lượng video, vui lòng kiểm tra lại!");
+            } else {
+                const request: LessonRequest = {
+                    lessonId: null,
+                    title: values.title,
+                    description: values.description,
+                    videoUrl: values.videoUrl,
+                    lessonType: 'VIDEO',
+                    duration: duration,
+                    documentContent: null,
+                    chapterId: selectedChapter?.chapterId || 0
                 }
-                : chapter
-        ));
-        handleCancel();
+                const response = await sendRequest<ApiResponse<void>>({
+                    url: `${apiUrl}/lessons`,
+                    method: 'PUT',
+                    headers: {
+                        Authorization: `Bearer ${session.accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: request
+                });
+
+                if (response.status === 201) {
+                    message.success(response.message.toString());
+                    refresh();
+                    handleCancel();
+                } else {
+                    message.error(response.message.toString());
+                }
+            }
+            setLoading(false);
+        }
     };
 
 
     const handleCancel = () => {
+        setSelectedChapter(null);
         setOpen(false);
-        setSelectedChapterIndex(null);
     }
+
+    if (!selectedChapter) return null;
 
     return (
         <Modal title={`Thêm video`} open={open} closable={false} footer={[
-            <Button icon={<CloseOutlined />} iconPosition="start" onClick={handleCancel} key="cancel">Hủy</Button>,
-
-            <Button key="submit" type="primary" onClick={() => form.submit()}>Thêm</Button>
+            <Button icon={<CloseOutlined />} iconPosition="start" onClick={handleCancel} key="cancel" disabled={loading}>Hủy</Button>,
+            <Button key="submit" type="primary" onClick={() => form.submit()} loading={loading}>Thêm</Button>
         ]}>
             <Form
                 form={form}
@@ -123,8 +132,7 @@ const CreateVideoModal = ({ chapters, setChapters, open, setOpen, selectedChapte
                                     if (wordCount > 20) {
                                         return Promise.reject(new Error('Tiêu đề chỉ được tối đa 20 từ!'));
                                     }
-                                    const currentChapter = chapters.find((_, index) => index === selectedChapterIndex);
-                                    if (currentChapter && currentChapter.lessons.find(lesson => lesson.title.toLowerCase().trim() === value.toLowerCase().trim() && lesson.lessonType === 'VIDEO')) {
+                                    if (selectedChapter && selectedChapter.lessons.find(lesson => lesson.title.toLowerCase().trim() === value.toLowerCase().trim() && lesson.lessonType === 'VIDEO')) {
                                         return Promise.reject(new Error('Tiều đề đã tồn tại ở một video trong chương này!'));
                                     }
                                 }
@@ -147,34 +155,17 @@ const CreateVideoModal = ({ chapters, setChapters, open, setOpen, selectedChapte
                     label="Đường dẫn video"
                     name="videoUrl"
                     rules={[{ required: true, message: 'Vui lòng không để trống đường dẫn video!' }]}>
-                    <Input placeholder="Nhập đường dẫn video" onChange={(e) => handleChangeVideoUrl(e.target.value)} />
+                    <Input placeholder="Nhập đường dẫn video" />
                 </Form.Item>
 
                 <Divider variant="dashed" style={{ borderColor: '#6c757d' }} dashed>
                     <div className="flex items-center gap-x-3 text-sm">
                         <p>Hoặc</p>
-                        <Upload {...props}>
+                        <Upload {...props} maxCount={1}>
                             <Button icon={<UploadOutlined />}>Tải video từ thiết bị</Button>
                         </Upload>
                     </div>
                 </Divider>
-
-                <Form.Item<FieldType>
-                    label="Thời lượng video (giây)"
-                    name="duration"
-                    rules={[
-                        { required: true, message: 'Vui lòng không để trống thời lượng video!' },
-                        {
-                            validator(_, value) {
-                                if (value === 0) {
-                                    return Promise.reject(new Error('Không thể lấy được thời lượng từ video!'));
-                                }
-                                return Promise.resolve();
-                            }
-                        }
-                    ]}>
-                    <Input disabled />
-                </Form.Item>
             </Form>
         </Modal>
     )

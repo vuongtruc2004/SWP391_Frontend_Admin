@@ -51,14 +51,12 @@ const NotificationCreate = (props: {
         })
     };
 
-    console.log("set date: ", dateSet);
-
     useEffect(() => {
         if (!openCreate) return;
 
         const getDataUser = async () => {
             const dataRes = await sendRequest<ApiResponse<UserResponse[]>>({
-                url: `${apiUrl}/users/get-all`,
+                url: `${apiUrl}/users/get-all-users`,
                 method: 'GET',
                 headers: {
                     'content-type': 'application/json',

@@ -18,7 +18,6 @@ const NotificationPage = async (props: {
 }) => {
     const searchParam = await props.searchParams;
     const page = searchParam.page || 1;
-    const keyword = searchParam.keyword || '';
     const session = await getServerSession(authOptions);
 
     let filter = "";
@@ -34,7 +33,6 @@ const NotificationPage = async (props: {
             sort: 'updatedAt,desc'
         }
     });
-
 
     return (
         <div className="border w-full h-[85vh] bg-white rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.3)] flex flex-col gap-5">
